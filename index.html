@@ -326,6 +326,72 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   .social-proof{flex-direction:column;gap:12px;align-items:flex-start}
   .sp-divider{width:32px;height:1px}
 }
+
+/* ── Selector rediseñado ─────────────────────── */
+.slot-selector-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr 0.8fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sl-field { display: flex; flex-direction: column; gap: 4px; }
+.sl-field label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.sl-field label .fl-badge {
+  font-size: 0.55rem; background: var(--lime-soft); color: var(--forest);
+  border: 1px solid rgba(200,240,80,0.3); padding: 1px 5px;
+  border-radius: 3px; font-weight: 600; letter-spacing: 0.05em;
+}
+/* Estado del select: vacío, activo, filtrado */
+.sl-select-wrap { position: relative; }
+.sl-select-wrap::after {
+  content: '↓'; position: absolute; right: 9px; top: 50%;
+  transform: translateY(-50%); color: var(--ink-muted);
+  pointer-events: none; font-size: 0.65rem; transition: var(--transition);
+}
+.sl-select-wrap select {
+  width: 100%; padding: 9px 26px 9px 10px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-xs);
+  background: var(--white); color: var(--ink); font-size: 0.85rem;
+  appearance: none; transition: var(--transition); cursor: pointer;
+}
+.sl-select-wrap select:focus { outline: none; border-color: var(--forest); }
+.sl-select-wrap select:disabled { opacity: 0.45; cursor: not-allowed; background: var(--surface); }
+.sl-select-wrap select.filled { border-color: var(--forest); background: rgba(28,43,30,0.03); font-weight: 500; }
+.sl-select-wrap select.filtered { border-color: var(--lime-hover); }
+/* Contador de opciones */
+.sl-count {
+  font-size: 0.65rem; color: var(--ink-muted);
+  margin-top: 3px; min-height: 14px; transition: var(--transition);
+}
+.sl-count.ok { color: var(--gain); }
+.sl-count.warn { color: var(--cost); }
+/* Indicador de flujo libre */
+.selector-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; color: var(--ink-muted);
+  padding: 6px 10px; background: var(--surface);
+  border-radius: var(--radius-xs); margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.selector-hint .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
+/* Reset badge por campo */
+.sl-field-header { display: flex; justify-content: space-between; align-items: center; }
+.sl-reset-btn {
+  background: none; border: none; font-size: 0.65rem; color: var(--border-mid);
+  cursor: pointer; padding: 0; line-height: 1; transition: var(--transition);
+  display: none;
+}
+.sl-reset-btn.visible { display: block; }
+.sl-reset-btn:hover { color: var(--cost); }
+/* Precio + km row */
+.slot-price-row { display: flex; gap: 8px; }
+.slot-price-row .sl-field { flex: 2; }
+.slot-price-row .sl-field.narrow { flex: 1; }
+@media(max-width:680px){ .slot-selector-grid { grid-template-columns: 1fr 1fr; } .slot-selector-grid .sl-field:last-child { grid-column: span 2; } }
   </style>
 </head>
 <body>
@@ -425,28 +491,33 @@ select:disabled{opacity:0.5;cursor:not-allowed}
               <button class="type-btn" onclick="setTipo(0,'nuevo')">Nuevo 0km</button>
             </div>
           </div>
-          <div class="slot-inputs">
-            <div class="si-row">
-              <div class="si-group wide"><label>Marca</label>
-                <div class="select-wrapper"><select class="sl-marca" onchange="updateLineas(0)" disabled><option value="">Cargando…</option></select></div>
-              </div>
-              <div class="si-group wide"><label>Modelo</label>
-                <div class="select-wrapper"><select class="sl-modelo" onchange="updateAnios(0)" disabled><option value="">Primero elige marca</option></select></div>
-              </div>
-              <div class="si-group narrow"><label>Año</label>
-                <div class="select-wrapper"><select class="sl-anio" onchange="mostrarAvaluo(0)" disabled><option value="">Año</option></select></div>
-              </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
+          <div class="slot-selector-grid">
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-0" onclick="resetCampo(0,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-0" onchange="onMarcaChange(0)" disabled><option value="">Cargando…</option></select></div>
+              <div class="sl-count" id="cnt-marca-0"></div>
             </div>
-            <div class="si-row">
-              <div class="si-group wide">
-                <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No necesariamente el de lista.">i</span></label>
-                <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
-                <div class="avaluo-hint" id="avaluo-0"></div>
-              </div>
-              <div class="si-group narrow slot-km" id="km-row-0">
-                <label>Km actuales <span class="tip" data-tip="Kilometraje en el odómetro. Afecta la devaluación estimada.">i</span></label>
-                <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
-              </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-0" onclick="resetCampo(0,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-0" onchange="onModeloChange(0)" disabled><option value="">Primero elige marca</option></select></div>
+              <div class="sl-count" id="cnt-modelo-0"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-0" onclick="resetCampo(0,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-0" onchange="onAnioChange(0)" disabled><option value="">Año</option></select></div>
+              <div class="sl-count" id="cnt-anio-0"></div>
+            </div>
+          </div>
+          <div class="slot-price-row">
+            <div class="sl-field">
+              <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No el de lista.">i</span></label>
+              <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+              <div class="avaluo-hint" id="avaluo-0"></div>
+            </div>
+            <div class="sl-field narrow slot-km" id="km-row-0">
+              <label>Km actuales <span class="tip" data-tip="Odómetro. Afecta la devaluación estimada.">i</span></label>
+              <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
             </div>
           </div>
         </div>
@@ -461,28 +532,33 @@ select:disabled{opacity:0.5;cursor:not-allowed}
               <button class="type-btn" onclick="setTipo(1,'nuevo')">Nuevo 0km</button>
             </div>
           </div>
-          <div class="slot-inputs">
-            <div class="si-row">
-              <div class="si-group wide"><label>Marca</label>
-                <div class="select-wrapper"><select class="sl-marca" onchange="updateLineas(1)" disabled><option value="">Cargando…</option></select></div>
-              </div>
-              <div class="si-group wide"><label>Modelo</label>
-                <div class="select-wrapper"><select class="sl-modelo" onchange="updateAnios(1)" disabled><option value="">Primero elige marca</option></select></div>
-              </div>
-              <div class="si-group narrow"><label>Año</label>
-                <div class="select-wrapper"><select class="sl-anio" onchange="mostrarAvaluo(1)" disabled><option value="">Año</option></select></div>
-              </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
+          <div class="slot-selector-grid">
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-1" onclick="resetCampo(1,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-1" onchange="onMarcaChange(1)" disabled><option value="">Cargando…</option></select></div>
+              <div class="sl-count" id="cnt-marca-1"></div>
             </div>
-            <div class="si-row">
-              <div class="si-group wide">
-                <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No necesariamente el de lista.">i</span></label>
-                <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
-                <div class="avaluo-hint" id="avaluo-1"></div>
-              </div>
-              <div class="si-group narrow slot-km" id="km-row-1">
-                <label>Km actuales <span class="tip" data-tip="Kilometraje en el odómetro. Afecta la devaluación estimada.">i</span></label>
-                <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
-              </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-1" onclick="resetCampo(1,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-1" onchange="onModeloChange(1)" disabled><option value="">Primero elige marca</option></select></div>
+              <div class="sl-count" id="cnt-modelo-1"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-1" onclick="resetCampo(1,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-1" onchange="onAnioChange(1)" disabled><option value="">Año</option></select></div>
+              <div class="sl-count" id="cnt-anio-1"></div>
+            </div>
+          </div>
+          <div class="slot-price-row">
+            <div class="sl-field">
+              <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No el de lista.">i</span></label>
+              <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+              <div class="avaluo-hint" id="avaluo-1"></div>
+            </div>
+            <div class="sl-field narrow slot-km" id="km-row-1">
+              <label>Km actuales <span class="tip" data-tip="Odómetro. Afecta la devaluación estimada.">i</span></label>
+              <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
             </div>
           </div>
         </div>
@@ -668,29 +744,35 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 
 const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 
-let indice  = null;
-let cascada = null;
+let indice   = null;  // marca -> [modelos]
+let aniosIdx = null;  // marca -> modelo -> [min, max]
+let cascada  = null;  // para cálculos (carga bajo demanda)
+let soatData = null;
+let impData  = null;
 let numSlots = 2;
 let tipoSlot = ['usado','usado','usado'];
 let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota' };
 const GASOLINA = 16000;
 
+// Estado del selector por slot: { marca, modelo, anio }
+let slotState = [{}, {}];
+
 // ── Carga de datos ──────────────────────────────────────────
 async function cargarDatos() {
   setStatus('loading','Cargando catálogo Fasecolda…');
   try {
-    const [ri, rc] = await Promise.all([
+    const [ri, ra, rs, rim] = await Promise.all([
       fetch(`${BASE}/vehiculos_indice.json`),
-      fetch(`${BASE}/vehiculos_cascada.json`)
+      fetch(`${BASE}/vehiculos_anios.json`),
+      fetch(`${BASE}/soat_2026.json`),
+      fetch(`${BASE}/impuesto_vehicular_2026.json`)
     ]);
-    if (!ri.ok || !rc.ok) throw new Error('No se pudieron cargar los archivos');
-    [indice, cascada] = await Promise.all([ri.json(), rc.json()]);
-
-    const totalMarcas = Object.keys(indice).length;
+    [indice, aniosIdx, soatData, impData] = await Promise.all([ri.json(), ra.json(), rs.json(), rim.json()]);
+    const totalMarcas  = Object.keys(indice).length;
     const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
     document.getElementById('sp-marcas').textContent = totalMarcas;
-    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · Datos Fasecolda 2025`);
-    poblarMarcas();
+    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT y Impuesto 2026`);
+    inicializarSelectores();
   } catch(e) {
     setStatus('error','Error cargando datos. Recarga la página.');
     console.error(e);
@@ -702,63 +784,203 @@ function setStatus(tipo, msg) {
   document.getElementById('status-text').textContent = msg;
 }
 
-function poblarMarcas() {
-  const marcas = Object.keys(indice).sort();
-  document.querySelectorAll('.sl-marca').forEach(sel => {
-    sel.innerHTML = '<option value="">— Selecciona marca —</option>';
-    marcas.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
-    sel.disabled = false;
+// ── Nuevo selector: flujo libre ─────────────────────────────
+// Los tres selects (marca, modelo, año) se pueden usar en cualquier orden.
+// Al elegir uno, los otros se filtran reactivamente.
+
+const ANIOS_TODOS = Array.from({length: 2025-2002+1}, (_,i) => 2025-i); // 2025..2002
+
+function inicializarSelectores() {
+  [0, 1].forEach(idx => {
+    slotState[idx] = { marca: '', modelo: '', anio: '' };
+    poblarMarca(idx);
+    poblarModelo(idx);
+    poblarAnio(idx);
   });
 }
 
-// ── Selects encadenados ─────────────────────────────────────
-function updateLineas(idx) {
-  const slot = document.getElementById(`slot-${idx}`);
-  const marca = slot.querySelector('.sl-marca').value;
-  const selMod = slot.querySelector('.sl-modelo');
-  const selAni = slot.querySelector('.sl-anio');
-  selMod.innerHTML = '<option value="">— Selecciona modelo —</option>';
-  selAni.innerHTML = '<option value="">Año</option>';
-  selMod.disabled = !marca;
-  selAni.disabled = true;
-  document.getElementById(`avaluo-${idx}`).textContent = '';
-  if (marca && indice[marca]) {
-    indice[marca].sort().forEach(l => selMod.innerHTML += `<option value="${l}">${l}</option>`);
-    selMod.disabled = false;
+function poblarMarca(idx) {
+  const sel = document.getElementById(`sel-marca-${idx}`);
+  const marcaActual = slotState[idx].marca;
+  const anioActual  = slotState[idx].anio ? parseInt(slotState[idx].anio) : null;
+  
+  // Si hay año elegido, filtrar marcas que tengan al menos un modelo en ese año
+  let marcas = Object.keys(indice).sort();
+  if (anioActual && aniosIdx) {
+    marcas = marcas.filter(m => {
+      const modelos = aniosIdx[m] || {};
+      return Object.values(modelos).some(([mn, mx]) => anioActual >= mn && anioActual <= mx);
+    });
   }
+  
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Marca —</option>';
+  marcas.forEach(m => sel.innerHTML += `<option value="${m}"${m===marcaActual?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = marcaActual ? 'filled' : (anioActual ? 'filtered' : '');
+  
+  const cnt = document.getElementById(`cnt-marca-${idx}`);
+  if (anioActual && marcas.length < Object.keys(indice).length) {
+    cnt.textContent = `${marcas.length} marcas con año ${anioActual}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = '';
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-marca-${idx}`).className = marcaActual ? 'sl-reset-btn visible' : 'sl-reset-btn';
 }
 
-function updateAnios(idx) {
-  const slot  = document.getElementById(`slot-${idx}`);
-  const marca = slot.querySelector('.sl-marca').value;
-  const linea = slot.querySelector('.sl-modelo').value;
-  const selAni = slot.querySelector('.sl-anio');
-  selAni.innerHTML = '<option value="">— Año —</option>';
-  selAni.disabled = true;
-  document.getElementById(`avaluo-${idx}`).textContent = '';
-  if (!marca || !linea || !cascada?.[marca]?.[linea]) return;
-  const anios = new Set();
-  cascada[marca][linea].forEach(v => Object.keys(v.valores_por_año||{}).forEach(a => { if(a!=='2001_ant') anios.add(a); }));
-  Array.from(anios).sort((a,b)=>b-a).forEach(a => selAni.innerHTML += `<option value="${a}">${a}</option>`);
-  selAni.disabled = false;
+function poblarModelo(idx) {
+  const sel = document.getElementById(`sel-modelo-${idx}`);
+  const { marca, modelo, anio } = slotState[idx];
+  const anioN = anio ? parseInt(anio) : null;
+
+  if (!marca) {
+    sel.innerHTML = '<option value="">Primero elige marca</option>';
+    sel.disabled = true;
+    sel.className = '';
+    document.getElementById(`cnt-modelo-${idx}`).textContent = '';
+    document.getElementById(`reset-modelo-${idx}`).className = 'sl-reset-btn';
+    return;
+  }
+
+  let modelos = (indice[marca] || []).slice().sort();
+  
+  // Filtrar por año si está elegido
+  if (anioN && aniosIdx?.[marca]) {
+    modelos = modelos.filter(m => {
+      const rango = aniosIdx[marca][m];
+      return rango && anioN >= rango[0] && anioN <= rango[1];
+    });
+  }
+
+  sel.innerHTML = '<option value="">— Modelo —</option>';
+  modelos.forEach(m => sel.innerHTML += `<option value="${m}"${m===modelo?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = modelo ? 'filled' : (anioN ? 'filtered' : '');
+
+  const cnt = document.getElementById(`cnt-modelo-${idx}`);
+  const total = (indice[marca]||[]).length;
+  if (anioN && modelos.length < total) {
+    cnt.textContent = `${modelos.length} de ${total} modelos para ${anioN}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = `${total} modelos`;
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-modelo-${idx}`).className = modelo ? 'sl-reset-btn visible' : 'sl-reset-btn';
+}
+
+function poblarAnio(idx) {
+  const sel = document.getElementById(`sel-anio-${idx}`);
+  const { marca, modelo, anio } = slotState[idx];
+
+  let aniosFiltrados = [...ANIOS_TODOS];
+
+  // Si hay modelo elegido, usar su rango
+  if (marca && modelo && aniosIdx?.[marca]?.[modelo]) {
+    const [mn, mx] = aniosIdx[marca][modelo];
+    aniosFiltrados = ANIOS_TODOS.filter(a => a >= mn && a <= mx);
+  } else if (marca && aniosIdx?.[marca]) {
+    // Si solo hay marca, la unión de años de todos sus modelos
+    const rangos = Object.values(aniosIdx[marca]);
+    if (rangos.length) {
+      const mn = Math.min(...rangos.map(r=>r[0]));
+      const mx = Math.max(...rangos.map(r=>r[1]));
+      aniosFiltrados = ANIOS_TODOS.filter(a => a >= mn && a <= mx);
+    }
+  }
+
+  sel.innerHTML = '<option value="">— Año —</option>';
+  aniosFiltrados.forEach(a => sel.innerHTML += `<option value="${a}"${String(a)===anio?' selected':''}>${a}</option>`);
+  sel.disabled = false;
+  sel.className = anio ? 'filled' : ((marca||modelo) ? 'filtered' : '');
+
+  const cnt = document.getElementById(`cnt-anio-${idx}`);
+  if ((marca||modelo) && aniosFiltrados.length < ANIOS_TODOS.length) {
+    cnt.textContent = `${aniosFiltrados[aniosFiltrados.length-1]}–${aniosFiltrados[0]}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = '';
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-anio-${idx}`).className = anio ? 'sl-reset-btn visible' : 'sl-reset-btn';
+}
+
+// ── Handlers de cambio ──────────────────────────────────────
+function onMarcaChange(idx) {
+  const v = document.getElementById(`sel-marca-${idx}`).value;
+  // Si la marca cambió, resetear modelo y anio
+  if (v !== slotState[idx].marca) {
+    slotState[idx] = { marca: v, modelo: '', anio: '' };
+  }
+  actualizarSlot(idx);
+}
+
+function onModeloChange(idx) {
+  const v = document.getElementById(`sel-modelo-${idx}`).value;
+  slotState[idx].modelo = v;
+  // Verificar si el año actual sigue siendo válido
+  if (slotState[idx].anio && slotState[idx].marca && v && aniosIdx?.[slotState[idx].marca]?.[v]) {
+    const [mn, mx] = aniosIdx[slotState[idx].marca][v];
+    const anioN = parseInt(slotState[idx].anio);
+    if (anioN < mn || anioN > mx) {
+      slotState[idx].anio = ''; // reset año si ya no es válido
+    }
+  }
+  actualizarSlot(idx);
+}
+
+function onAnioChange(idx) {
+  const v = document.getElementById(`sel-anio-${idx}`).value;
+  slotState[idx].anio = v;
+  // Verificar si el modelo actual sigue siendo válido para este año
+  const { marca, modelo, anio } = slotState[idx];
+  if (modelo && marca && anio && aniosIdx?.[marca]?.[modelo]) {
+    const [mn, mx] = aniosIdx[marca][modelo];
+    const anioN = parseInt(anio);
+    if (anioN < mn || anioN > mx) {
+      slotState[idx].modelo = ''; // reset modelo si ya no es válido
+    }
+  }
+  actualizarSlot(idx);
+}
+
+function actualizarSlot(idx) {
+  poblarMarca(idx);
+  poblarModelo(idx);
+  poblarAnio(idx);
+  mostrarAvaluo(idx);
+}
+
+function resetCampo(idx, campo) {
+  slotState[idx][campo] = '';
+  actualizarSlot(idx);
 }
 
 function mostrarAvaluo(idx) {
-  const slot  = document.getElementById(`slot-${idx}`);
-  const marca = slot.querySelector('.sl-marca').value;
-  const linea = slot.querySelector('.sl-modelo').value;
-  const anio  = slot.querySelector('.sl-anio').value;
-  const el    = document.getElementById(`avaluo-${idx}`);
-  el.textContent = '';
-  el.className = 'avaluo-hint';
-  if (!marca || !linea || !anio) return;
-  const dat = getAvaluo(marca, linea, anio);
+  const { marca, modelo, anio } = slotState[idx];
+  const el = document.getElementById(`avaluo-${idx}`);
+  el.textContent = ''; el.className = 'avaluo-hint';
+  if (!marca || !modelo || !anio) return;
+  const dat = getAvaluo(marca, modelo, anio);
   if (dat) {
-    el.textContent = `Avalúo Fasecolda ${anio}: ${fmtCOP(dat.precio)}`;
+    const soatVal = calcularSOAT(dat.cc, tipoSlot[idx]==='suv'?'campero_suv':'auto_familiar', new Date().getFullYear() - parseInt(anio));
+    el.textContent = `Avalúo Fasecolda: ${fmtCOP(dat.precio)}${soatVal?' · SOAT est. '+fmtCOP(soatVal):''}`;
   } else {
-    el.textContent = 'Sin avalúo Fasecolda para este año';
-    el.className = 'avaluo-hint warn';
+    el.textContent = 'Sin avalúo para este año'; el.className = 'avaluo-hint warn';
   }
+}
+
+// ── Compatibilidad con addCarSlot (usa slotState) ───────────
+function getSlotValues(idx) {
+  // Leer valores del estado O directamente del DOM como fallback
+  const st = slotState[idx] || {};
+  return {
+    marca:  st.marca  || document.getElementById(`sel-marca-${idx}`)?.value  || '',
+    modelo: st.modelo || document.getElementById(`sel-modelo-${idx}`)?.value || '',
+    anio:   st.anio   || document.getElementById(`sel-anio-${idx}`)?.value   || '',
+  };
 }
 
 function getAvaluo(marca, linea, anio) {
@@ -798,12 +1020,52 @@ function estimarParams(marca, linea, cc) {
   return { kmGalon:kmG, devaluacion:Math.max(dev,0.08), mantPct:mant, soat, tipo };
 }
 
+// ── SOAT desde JSON oficial 2026 ───────────────────────────
+function calcularSOAT(cc, tipoVehiculo, edadAnios) {
+  if (!soatData) return calcularSOATFallback(cc, tipoVehiculo, edadAnios);
+  const cc_n = parseInt(cc) || 1600;
+  const cat = soatData.categorias[tipoVehiculo] || soatData.categorias.auto_familiar;
+  for (const r of cat.rangos) {
+    const ccOk = (r.cc_max === undefined || cc_n <= r.cc_max) &&
+                 (r.cc_min === undefined || cc_n >= r.cc_min);
+    const edadOk = (r.edad_max === undefined || edadAnios <= r.edad_max) &&
+                   (r.edad_min === undefined || edadAnios >= r.edad_min);
+    if (ccOk && edadOk) return r.valor;
+  }
+  return 942800; // fallback
+}
+
+function calcularSOATFallback(cc, tipo, edad) {
+  const cc_n = parseInt(cc)||1600;
+  const esSUV = /suv|campero/.test(tipo);
+  if (esSUV) return cc_n < 1500 ? (edad>=10?949200:789600) : (edad>=10?1116800:942800);
+  return cc_n < 1500 ? (edad>=10?590400:445300) : (edad>=10?674700:542400);
+}
+
+// ── Impuesto vehicular desde JSON oficial 2026 ──────────────
+function calcularImpuesto(avaluo, ciudad) {
+  if (!impData) return calcularImpuestoFallback(avaluo);
+  const tramos = impData.vehiculos_particulares.tramos;
+  let pct = tramos[tramos.length-1].tarifa_pct;
+  for (const t of tramos) {
+    if (avaluo <= (t.avaluo_hasta || Infinity)) { pct = t.tarifa_pct; break; }
+  }
+  let impuesto = Math.round(avaluo * pct / 100);
+  // Semaforización Bogotá
+  const sem = (ciudad === 'bogota') ? (impData.semaforización?.valor_fijo || 34000) : 0;
+  return impuesto + sem;
+}
+
+function calcularImpuestoFallback(avaluo) {
+  if (avaluo < 57000000)  return Math.round(avaluo * 0.015);
+  if (avaluo < 129000000) return Math.round(avaluo * 0.025);
+  return Math.round(avaluo * 0.035);
+}
+
 function getImpuestoPct(avaluo) {
-  if (avaluo < 38788000)  return 0.010;
-  if (avaluo < 77577000)  return 0.015;
-  if (avaluo < 116365000) return 0.020;
-  if (avaluo < 155154000) return 0.025;
-  if (avaluo < 193943000) return 0.030;
+  // Mantenido por compatibilidad — ahora usa calcularImpuesto()
+  if (avaluo < 57000000)  return 0.015;
+  if (avaluo < 129000000) return 0.025;
   return 0.035;
 }
 
@@ -818,14 +1080,17 @@ function calcular(c) {
   const traspaso  = tipo==='usado' ? Math.round(precio*0.015) : 0;
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
-  const impuesto  = Math.round(avaluoRef * getImpuestoPct(avaluoRef));
+  const edadAnios = new Date().getFullYear() - parseInt(anio);
+  const soatCat   = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
+  const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
   const seguro    = Math.round(precio * (/AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER/.test(marca.toUpperCase()) ? 0.035 : 0.025));
   const gasolina  = Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
   const mant      = Math.round(precio * p.mantPct);
   const costosAnu = [];
   for (let y=1;y<=5;y++) {
     const tecno = ((tipo==='usado'&&(y===2||y===4))||(tipo==='nuevo'&&(y===3||y===5))) ? 349630 : 0;
-    costosAnu.push(p.soat + seguro + impuesto + tecno + gasolina + mant);
+    costosAnu.push(soatVal + seguro + impuesto + tecno + gasolina + mant);
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
@@ -835,7 +1100,7 @@ function calcular(c) {
   return {
     nombre:`${marca} · ${linea}`, anio, tipo, precio,
     kmGalon:p.kmGalon, devaluacion, traspaso, matricula,
-    soat:p.soat, seguro, impuesto, gasolina, mant,
+    soat:soatVal, seguro, impuesto, gasolina, mant,
     costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
     avaluoFasecolda: av?.precio||null, avaluoAnioRef: av?.anioRef||null
   };
@@ -911,9 +1176,7 @@ function analizarTodo() {
   const carros=[];
   for(let i=0;i<numSlots;i++){
     const sl=document.getElementById(`slot-${i}`); if(!sl) continue;
-    const marca =sl.querySelector('.sl-marca').value;
-    const linea =sl.querySelector('.sl-modelo').value;
-    const anio  =sl.querySelector('.sl-anio').value;
+    const {marca, modelo:linea, anio} = slotState[i]||{};
     const precio=parseInt((sl.querySelector('.sl-precio').value||'').replace(/\D/g,''));
     const km    =parseInt((sl.querySelector('.sl-km')?.value||'').replace(/\D/g,''))||0;
     if(!marca||!linea||!anio||!precio){shake(sl);mostrarError(sl,'Completa todos los campos.');return;}
