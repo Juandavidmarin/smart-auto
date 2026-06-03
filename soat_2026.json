@@ -1,0 +1,53 @@
+{
+  "_fuente": "Superfinanciera Colombia - Circular 022/2025 - Vigente 01/01/2026",
+  "_nota": "Tarifas máximas. Cada aseguradora puede cobrar igual o menos.",
+  "categorias": {
+    "auto_familiar": {
+      "descripcion": "Automóvil particular (sedán, hatchback, coupé, station wagon)",
+      "rangos": [
+        { "cc_max": 1499, "edad_max": 9,  "codigo": "511", "valor": 445300  },
+        { "cc_max": 1499, "edad_min": 10, "codigo": "512", "valor": 590400  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_max": 9,  "codigo": "521", "valor": 542400  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_min": 10, "codigo": "522", "valor": 674700  },
+        { "cc_min": 2500, "edad_max": 9,  "codigo": "531", "valor": 633500  },
+        { "cc_min": 2500, "edad_min": 10, "codigo": "532", "valor": 751300  }
+      ]
+    },
+    "campero_suv": {
+      "descripcion": "SUV, campero, camioneta (4x4/4x2), crossover de uso particular",
+      "rangos": [
+        { "cc_max": 1499, "edad_max": 9,  "codigo": "211", "valor": 789600  },
+        { "cc_max": 1499, "edad_min": 10, "codigo": "212", "valor": 949200  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_max": 9,  "codigo": "221", "valor": 942800  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_min": 10, "codigo": "222", "valor": 1116800 },
+        { "cc_min": 2500, "edad_max": 9,  "codigo": "231", "valor": 1105900 },
+        { "cc_min": 2500, "edad_min": 10, "codigo": "232", "valor": 1269000 }
+      ]
+    },
+    "pickup": {
+      "descripcion": "Camioneta de carga liviana (pickup, doble cabina)",
+      "rangos": [
+        { "cc_max": 1499, "edad_max": 9,  "codigo": "211", "valor": 789600  },
+        { "cc_max": 1499, "edad_min": 10, "codigo": "212", "valor": 949200  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_max": 9,  "codigo": "221", "valor": 942800  },
+        { "cc_min": 1500, "cc_max": 2499, "edad_min": 10, "codigo": "222", "valor": 1116800 },
+        { "cc_min": 2500, "edad_max": 9,  "codigo": "231", "valor": 1105900 },
+        { "cc_min": 2500, "edad_min": 10, "codigo": "232", "valor": 1269000 }
+      ]
+    },
+    "van_minivan": {
+      "descripcion": "Vehículo para 6+ pasajeros (van, minivan)",
+      "rangos": [
+        { "cc_max": 2499, "edad_max": 9,  "codigo": "611", "valor": 794100  },
+        { "cc_max": 2499, "edad_min": 10, "codigo": "612", "valor": 1013600 },
+        { "cc_min": 2500, "edad_max": 9,  "codigo": "621", "valor": 1063000 },
+        { "cc_min": 2500, "edad_min": 10, "codigo": "622", "valor": 1276400 }
+      ]
+    }
+  },
+  "tipo_por_keywords": {
+    "campero_suv":  ["SUV","SPORT","TRACKER","DUSTER","KICKS","CRETA","TUCSON","SANTA","SORENTO","EQUINOX","COMPASS","CAPTUR","TIGUAN","T-CROSS","TAOS","CX-3","CX-5","CX-30","VITARA","XL7","SONET","SELTOS","HR-V","WR-V","STEPWAY","2008","3008","RENEGADE","WRANGLER","OUTLANDER","FORESTER","OUTBACK","Q3","Q5","Q7","Q8","GLC","GLE","X3","X5","MACAN","CAYENNE","DEFENDER","DISCOVERY","RANGE","ECOSPORT","ESCAPE","EXPLORER"],
+    "pickup":       ["HILUX","RANGER","AMAROK","FRONTIER","L200","COLORADO","SILVERADO","WINGLE","STRADA","D-MAX","GLADIATOR"],
+    "van_minivan":  ["VAN","MINIVAN","CARNIVAL","ODYSSEY","SIENNA","CARAVELLE","MULTIVAN","VITO","SPRINTER"]
+  }
+}

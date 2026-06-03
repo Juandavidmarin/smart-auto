@@ -1,0 +1,71 @@
+{
+  "_fuente": "Decreto 1457 del 29 de diciembre de 2025 - Ministerio de Hacienda y Ministerio de Transporte",
+  "_vigencia": "Año gravable 2026 (se paga en 2026 sobre el avalúo Fasecolda)",
+  "_nota": "El impuesto se calcula sobre el avalúo comercial Fasecolda del año gravable, NO sobre el precio de compra.",
+  "vehiculos_particulares": {
+    "descripcion": "Automóviles, camperos, camionetas, SUV de uso particular",
+    "tramos": [
+      { "avaluo_desde": 0,          "avaluo_hasta": 57000000,  "tarifa_pct": 1.5,  "nota": "Vehículos populares y ecónomicos" },
+      { "avaluo_desde": 57000001,   "avaluo_hasta": 129000000, "tarifa_pct": 2.5,  "nota": "Vehículos de gama media" },
+      { "avaluo_desde": 129000001,  "avaluo_hasta": null,      "tarifa_pct": 3.5,  "nota": "Vehículos de alta gama" }
+    ]
+  },
+  "motocicletas": {
+    "descripcion": "Motocicletas con cilindraje superior a 125cc",
+    "tramos": [
+      { "avaluo_desde": 0, "avaluo_hasta": null, "tarifa_pct": 1.5 }
+    ]
+  },
+  "servicio_publico": {
+    "descripcion": "Vehículos de transporte público (taxis, buses, camiones de carga)",
+    "tramos": [
+      { "avaluo_desde": 0, "avaluo_hasta": null, "tarifa_pct": 0.5 }
+    ]
+  },
+  "electricos_hibridos": {
+    "descripcion": "Vehículos eléctricos e híbridos en Bogotá - beneficio tributario",
+    "descuento_pct": 30,
+    "nota": "Los vehículos eléctricos e híbridos reciben un descuento del 30% sobre el impuesto calculado en Bogotá. Verificar en otros municipios."
+  },
+  "semaforización": {
+    "descripcion": "Derechos de semaforización - aplica en Bogotá para todos los vehículos",
+    "valor_fijo": 34000,
+    "nota": "Valor 2025-2026 en Bogotá. Otros municipios varían."
+  },
+  "ciudades_referencia": {
+    "bogota": {
+      "nombre": "Bogotá D.C.",
+      "aplica_tramos_nacionales": true,
+      "descuento_pronto_pago": 10,
+      "incluye_semaforización": true
+    },
+    "medellin": {
+      "nombre": "Medellín",
+      "aplica_tramos_nacionales": true,
+      "descuento_pronto_pago": 10,
+      "incluye_semaforización": false,
+      "nota": "Medellín sigue los tramos nacionales con leve variación en límites"
+    },
+    "cali": {
+      "nombre": "Cali",
+      "aplica_tramos_nacionales": true,
+      "descuento_pronto_pago": 10,
+      "incluye_semaforización": false
+    },
+    "barranquilla": {
+      "nombre": "Barranquilla",
+      "aplica_tramos_nacionales": true,
+      "descuento_pronto_pago": 10,
+      "incluye_semaforización": false
+    }
+  },
+  "ejemplo_calculo": {
+    "vehiculo": "Audi Q3 1.4 TFSI - año 2022",
+    "avaluo_fasecolda": 180000000,
+    "tramo_aplica": "129M en adelante → 3.5%",
+    "impuesto_base": 6300000,
+    "semaforización_bogota": 34000,
+    "total_bogota": 6334000,
+    "total_con_descuento_pronto_pago": 5700600
+  }
+}
