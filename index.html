@@ -761,6 +761,7 @@ let slotState = [{}, {}];
 async function cargarDatos() {
   setStatus('loading','Cargando catálogo Fasecolda…');
   try {
+    // Fase 1: cargar lo mínimo para que el selector funcione
     const [ri, ra, rs, rim] = await Promise.all([
       fetch(`${BASE}/vehiculos_indice.json`),
       fetch(`${BASE}/vehiculos_anios.json`),
@@ -768,11 +769,26 @@ async function cargarDatos() {
       fetch(`${BASE}/impuesto_vehicular_2026.json`)
     ]);
     [indice, aniosIdx, soatData, impData] = await Promise.all([ri.json(), ra.json(), rs.json(), rim.json()]);
+
     const totalMarcas  = Object.keys(indice).length;
     const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
     document.getElementById('sp-marcas').textContent = totalMarcas;
     setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT y Impuesto 2026`);
     inicializarSelectores();
+
+    // Fase 2: cargar cascada en background (para mostrar avalúo y calcular)
+    fetch(`${BASE}/vehiculos_cascada.json`)
+      .then(r => r.json())
+      .then(d => {
+        cascada = d;
+        // Si el usuario ya seleccionó algo, actualizar el avalúo
+        [0,1,2].forEach(i => {
+          const st = slotState[i];
+          if (st && st.marca && st.modelo && st.anio) mostrarAvaluo(i);
+        });
+      })
+      .catch(e => console.warn('Cascada no disponible:', e));
+
   } catch(e) {
     setStatus('error','Error cargando datos. Recarga la página.');
     console.error(e);
@@ -809,7 +825,7 @@ function poblarMarca(idx) {
   if (anioActual && aniosIdx) {
     marcas = marcas.filter(m => {
       const modelos = aniosIdx[m] || {};
-      return Object.values(modelos).some(([mn, mx]) => anioActual >= mn && anioActual <= mx);
+      return Object.values(modelos).some(lista => lista.includes(anioActual));
     });
   }
   
@@ -849,8 +865,8 @@ function poblarModelo(idx) {
   // Filtrar por año si está elegido
   if (anioN && aniosIdx?.[marca]) {
     modelos = modelos.filter(m => {
-      const rango = aniosIdx[marca][m];
-      return rango && anioN >= rango[0] && anioN <= rango[1];
+      const lista = aniosIdx[marca][m];
+      return lista && lista.includes(anioN);
     });
   }
 
@@ -877,18 +893,14 @@ function poblarAnio(idx) {
 
   let aniosFiltrados = [...ANIOS_TODOS];
 
-  // Si hay modelo elegido, usar su rango
   if (marca && modelo && aniosIdx?.[marca]?.[modelo]) {
-    const [mn, mx] = aniosIdx[marca][modelo];
-    aniosFiltrados = ANIOS_TODOS.filter(a => a >= mn && a <= mx);
+    // Años EXACTOS del cascada para este modelo
+    aniosFiltrados = aniosIdx[marca][modelo]; // ya es lista ordenada desc
   } else if (marca && aniosIdx?.[marca]) {
-    // Si solo hay marca, la unión de años de todos sus modelos
-    const rangos = Object.values(aniosIdx[marca]);
-    if (rangos.length) {
-      const mn = Math.min(...rangos.map(r=>r[0]));
-      const mx = Math.max(...rangos.map(r=>r[1]));
-      aniosFiltrados = ANIOS_TODOS.filter(a => a >= mn && a <= mx);
-    }
+    // Unión de años de todos los modelos de esta marca
+    const setAnios = new Set();
+    Object.values(aniosIdx[marca]).forEach(lista => lista.forEach(a => setAnios.add(a)));
+    aniosFiltrados = [...setAnios].sort((a,b)=>b-a);
   }
 
   sel.innerHTML = '<option value="">— Año —</option>';
@@ -898,7 +910,9 @@ function poblarAnio(idx) {
 
   const cnt = document.getElementById(`cnt-anio-${idx}`);
   if ((marca||modelo) && aniosFiltrados.length < ANIOS_TODOS.length) {
-    cnt.textContent = `${aniosFiltrados[aniosFiltrados.length-1]}–${aniosFiltrados[0]}`;
+    const mn = Math.min(...aniosFiltrados);
+    const mx = Math.max(...aniosFiltrados);
+    cnt.textContent = mn === mx ? `${mx}` : `${mn}–${mx}`;
     cnt.className = 'sl-count ok';
   } else {
     cnt.textContent = '';
@@ -922,10 +936,10 @@ function onModeloChange(idx) {
   slotState[idx].modelo = v;
   // Verificar si el año actual sigue siendo válido
   if (slotState[idx].anio && slotState[idx].marca && v && aniosIdx?.[slotState[idx].marca]?.[v]) {
-    const [mn, mx] = aniosIdx[slotState[idx].marca][v];
+    const lista = aniosIdx[slotState[idx].marca][v];
     const anioN = parseInt(slotState[idx].anio);
-    if (anioN < mn || anioN > mx) {
-      slotState[idx].anio = ''; // reset año si ya no es válido
+    if (!lista.includes(anioN)) {
+      slotState[idx].anio = ''; // reset año si ese modelo no tiene ese año
     }
   }
   actualizarSlot(idx);
@@ -937,10 +951,10 @@ function onAnioChange(idx) {
   // Verificar si el modelo actual sigue siendo válido para este año
   const { marca, modelo, anio } = slotState[idx];
   if (modelo && marca && anio && aniosIdx?.[marca]?.[modelo]) {
-    const [mn, mx] = aniosIdx[marca][modelo];
+    const lista = aniosIdx[marca][modelo];
     const anioN = parseInt(anio);
-    if (anioN < mn || anioN > mx) {
-      slotState[idx].modelo = ''; // reset modelo si ya no es válido
+    if (!lista.includes(anioN)) {
+      slotState[idx].modelo = ''; // reset modelo si ya no tiene ese año
     }
   }
   actualizarSlot(idx);
@@ -959,16 +973,24 @@ function resetCampo(idx, campo) {
 }
 
 function mostrarAvaluo(idx) {
-  const { marca, modelo, anio } = slotState[idx];
+  const { marca, modelo, anio } = slotState[idx] || {};
   const el = document.getElementById(`avaluo-${idx}`);
   el.textContent = ''; el.className = 'avaluo-hint';
   if (!marca || !modelo || !anio) return;
+  if (!cascada) {
+    el.textContent = 'Cargando avalúo…'; el.className = 'avaluo-hint warn';
+    return;
+  }
   const dat = getAvaluo(marca, modelo, anio);
   if (dat) {
-    const soatVal = calcularSOAT(dat.cc, tipoSlot[idx]==='suv'?'campero_suv':'auto_familiar', new Date().getFullYear() - parseInt(anio));
-    el.textContent = `Avalúo Fasecolda: ${fmtCOP(dat.precio)}${soatVal?' · SOAT est. '+fmtCOP(soatVal):''}`;
+    const edadA = new Date().getFullYear() - parseInt(anio);
+    const soatCat = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo) ? 'campero_suv' : 'auto_familiar';
+    const soatV = calcularSOAT(dat.cc, soatCat, edadA);
+    el.textContent = `Avalúo Fasecolda: ${fmtCOP(dat.precio)} · SOAT ${anio}: ${fmtCOP(soatV)}`;
+    el.className = 'avaluo-hint';
   } else {
-    el.textContent = 'Sin avalúo para este año'; el.className = 'avaluo-hint warn';
+    el.textContent = 'Sin avalúo Fasecolda para este año exacto';
+    el.className = 'avaluo-hint warn';
   }
 }
 
