@@ -744,47 +744,70 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 
 const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 
-let indice   = null;  // marca -> [modelos]
-let aniosIdx = null;  // marca -> modelo -> [min, max]
-let cascada  = null;  // para cálculos (carga bajo demanda)
+let indice   = null;  // marca -> [modelos] — unificado todas las categorías
+let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
+let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
 let soatData = null;
 let impData  = null;
+let aniosIdxListo = false;  // flag para saber si el filtrado fino está disponible
 let numSlots = 2;
 let tipoSlot = ['usado','usado','usado'];
 let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota' };
 const GASOLINA = 16000;
 
 // Estado del selector por slot: { marca, modelo, anio }
-let slotState = [{}, {}];
+let slotState = [{}, {}, {}];
 
 // ── Carga de datos ──────────────────────────────────────────
 async function cargarDatos() {
   setStatus('loading','Cargando catálogo Fasecolda…');
   try {
-    // Fase 1: cargar lo mínimo para que el selector funcione
-    const [ri, ra, rs, rim] = await Promise.all([
-      fetch(`${BASE}/vehiculos_indice.json`),
-      fetch(`${BASE}/vehiculos_anios.json`),
+    // Fase 1: índice unificado + SOAT + impuesto (~250KB) → selector activo inmediato
+    const [ri, rs, rim] = await Promise.all([
+      fetch(`${BASE}/vehiculos_indice_completo.json`),
       fetch(`${BASE}/soat_2026.json`),
       fetch(`${BASE}/impuesto_vehicular_2026.json`)
     ]);
-    [indice, aniosIdx, soatData, impData] = await Promise.all([ri.json(), ra.json(), rs.json(), rim.json()]);
+    const [indiceCompleto, soatRaw, impRaw] = await Promise.all([ri.json(), rs.json(), rim.json()]);
+    soatData = soatRaw;
+    impData  = impRaw;
+
+    // Aplanar el índice: todas las categorías → marca -> [modelos únicos]
+    indice = {};
+    for (const cat of Object.values(indiceCompleto)) {
+      for (const [marca, modelos] of Object.entries(cat)) {
+        if (!indice[marca]) indice[marca] = new Set();
+        modelos.forEach(m => indice[marca].add(m));
+      }
+    }
+    // Convertir Sets a arrays ordenados
+    for (const m in indice) indice[m] = [...indice[m]].sort();
 
     const totalMarcas  = Object.keys(indice).length;
     const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
     document.getElementById('sp-marcas').textContent = totalMarcas;
-    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT y Impuesto 2026`);
+    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT e Impuesto 2026`);
     inicializarSelectores();
 
-    // Fase 2: cargar cascada en background (para mostrar avalúo y calcular)
-    fetch(`${BASE}/vehiculos_cascada.json`)
+    // Fase 2: años exactos en background (~1.5MB) → filtra años al llegar
+    fetch(`${BASE}/vehiculos_anios.json`)
+      .then(r => r.json())
+      .then(d => {
+        aniosIdx = d;
+        aniosIdxListo = true;
+        // Refrescar selects de año si el usuario ya eligió algo
+        [0,1,2].forEach(i => { if (slotState[i]?.marca) poblarAnio(i); });
+      })
+      .catch(e => console.warn('Años no disponibles:', e));
+
+    // Fase 3: cascada completo en background (~13MB) → avalúo y cálculos
+    fetch(`${BASE}/vehiculos_cascada_completa.json`)
       .then(r => r.json())
       .then(d => {
         cascada = d;
-        // Si el usuario ya seleccionó algo, actualizar el avalúo
         [0,1,2].forEach(i => {
           const st = slotState[i];
-          if (st && st.marca && st.modelo && st.anio) mostrarAvaluo(i);
+          if (st?.marca && st?.modelo && st?.anio) mostrarAvaluo(i);
         });
       })
       .catch(e => console.warn('Cascada no disponible:', e));
@@ -822,7 +845,7 @@ function poblarMarca(idx) {
   
   // Si hay año elegido, filtrar marcas que tengan al menos un modelo en ese año
   let marcas = Object.keys(indice).sort();
-  if (anioActual && aniosIdx) {
+  if (anioActual && aniosIdxListo && aniosIdx) {
     marcas = marcas.filter(m => {
       const modelos = aniosIdx[m] || {};
       return Object.values(modelos).some(lista => lista.includes(anioActual));
@@ -863,7 +886,7 @@ function poblarModelo(idx) {
   let modelos = (indice[marca] || []).slice().sort();
   
   // Filtrar por año si está elegido
-  if (anioN && aniosIdx?.[marca]) {
+  if (anioN && aniosIdxListo && aniosIdx?.[marca]) {
     modelos = modelos.filter(m => {
       const lista = aniosIdx[marca][m];
       return lista && lista.includes(anioN);
@@ -893,9 +916,12 @@ function poblarAnio(idx) {
 
   let aniosFiltrados = [...ANIOS_TODOS];
 
-  if (marca && modelo && aniosIdx?.[marca]?.[modelo]) {
+  if (!aniosIdxListo) {
+    // Aún cargando años exactos — mostrar todos los años disponibles sin filtro
+    // El select se refrescará automáticamente cuando lleguen los datos
+  } else if (marca && modelo && aniosIdx?.[marca]?.[modelo]) {
     // Años EXACTOS del cascada para este modelo
-    aniosFiltrados = aniosIdx[marca][modelo]; // ya es lista ordenada desc
+    aniosFiltrados = aniosIdx[marca][modelo];
   } else if (marca && aniosIdx?.[marca]) {
     // Unión de años de todos los modelos de esta marca
     const setAnios = new Set();
@@ -1006,20 +1032,27 @@ function getSlotValues(idx) {
 }
 
 function getAvaluo(marca, linea, anio) {
-  if (!cascada?.[marca]?.[linea]) return null;
-  for (const v of cascada[marca][linea]) {
-    if (v.valores_por_año?.[anio]) return { precio: v.valores_por_año[anio], cc: v.cilindraje };
+  if (!cascada) return null;
+  // Buscar en todas las categorías del cascada completo
+  for (const cat of Object.values(cascada)) {
+    const variantes = cat?.[marca]?.[linea];
+    if (!variantes) continue;
+    // Buscar año exacto primero
+    for (const v of variantes) {
+      if (v.valores_por_año?.[anio]) return { precio: v.valores_por_año[anio], cc: v.cilindraje };
+    }
+    // Si no hay año exacto, buscar el más cercano
+    let mejorAnio = null, mejorDif = Infinity;
+    for (const v of variantes) {
+      Object.keys(v.valores_por_año||{}).forEach(a => {
+        if (a === '2001_ant') return;
+        const dif = Math.abs(parseInt(a) - parseInt(anio));
+        if (dif < mejorDif) { mejorDif = dif; mejorAnio = { precio: v.valores_por_año[a], cc: v.cilindraje, anioRef: a }; }
+      });
+    }
+    if (mejorAnio) return mejorAnio;
   }
-  // Buscar año más cercano disponible
-  let mejorAnio = null, mejorDif = Infinity;
-  for (const v of cascada[marca][linea]) {
-    Object.keys(v.valores_por_año||{}).forEach(a => {
-      if (a === '2001_ant') return;
-      const dif = Math.abs(parseInt(a) - parseInt(anio));
-      if (dif < mejorDif) { mejorDif = dif; mejorAnio = { precio: v.valores_por_año[a], cc: v.cilindraje, anioRef: a }; }
-    });
-  }
-  return mejorAnio;
+  return null;
 }
 
 // ── Parámetros estimados por tipo de vehículo ───────────────
