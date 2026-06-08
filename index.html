@@ -608,7 +608,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       </div>
 
       <div class="defaults-bar">
-        <span class="defaults-summary">Supuestos: <strong>10,000 km/año</strong> · <strong>CDT 12% E.A.</strong> · <strong>Gasolina corriente $16,000/gal</strong></span>
+        <span class="defaults-summary">Supuestos: <strong>10,000 km/año</strong> · <strong>5 años</strong> · <strong>CDT 12% E.A.</strong> · <strong>Gasolina $16,000/gal</strong></span>
         <button class="defaults-toggle" onclick="toggleDefaults()">Ajustar <span id="toggle-arrow">▾</span></button>
       </div>
       <div class="defaults-panel hidden" id="defaults-panel">
@@ -630,6 +630,18 @@ select:disabled{opacity:0.5;cursor:not-allowed}
                 <option value="cali">Cali</option>
                 <option value="barranquilla">Barranquilla</option>
                 <option value="otra">Otra ciudad</option>
+              </select>
+            </div>
+          </div>
+          <div class="dg-group">
+            <label>Años a analizar</label>
+            <div class="select-wrapper">
+              <select id="def-anos">
+                <option value="1">1 año</option>
+                <option value="3">3 años</option>
+                <option value="5" selected>5 años</option>
+                <option value="8">8 años</option>
+                <option value="10">10 años</option>
               </select>
             </div>
           </div>
@@ -795,7 +807,7 @@ let impData  = null;
 let aniosIdxListo = false;  // flag para saber si el filtrado fino está disponible
 let numSlots = 2;
 let tipoSlot = ['usado','usado','usado'];
-let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota' };
+let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota', anos:5 };
 const GASOLINA = 16000;
 
 // Estado del selector por slot: { marca, modelo, anio }
@@ -1268,16 +1280,17 @@ function calcular(c) {
   const gasolina  = Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
   const mant      = Math.round(precio * p.mantPct);
   const costosAnu = [];
-  for (let y=1;y<=5;y++) {
+  const anosCalc = defaults.anos || 5;
+  for (let y=1;y<=anosCalc;y++) {
     const tecno = ((tipo==='usado'&&(y===2||y===4))||(tipo==='nuevo'&&(y===3||y===5))) ? 349630 : 0;
     costosAnu.push(soatVal + seguro + impuesto + tecno + gasolina + mant);
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
-  const reventa     = calcularReventa(precio, marca, 5);
+  const reventa     = calcularReventa(precio, marca, anosCalc);
   const costoNeto   = totalGast - reventa;
-  const devalProm   = devalAnualPromedio(precio, reventa, 5);
-  const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,5)-1));
+  const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
+  const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
   return {
     nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
@@ -1350,6 +1363,7 @@ function leerDefaults() {
   defaults.kmAnio =(parseInt((document.getElementById('def-km').value||'').replace(/\D/g,''))||10000);
   defaults.cdtRate=(parseFloat(document.getElementById('def-cdt').value)||12)/100;
   defaults.ciudad = document.getElementById('def-ciudad').value;
+  defaults.anos   = parseInt(document.getElementById('def-anos')?.value||'5')||5;
 }
 
 // ── Análisis ─────────────────────────────────────────────────
@@ -1478,7 +1492,7 @@ function generarInsights(resultados, anos) {
 function renderResultados(res) {
   document.getElementById('results-section').classList.remove('hidden');
   document.getElementById('compare-card').style.marginBottom='0';
-  const anos = parseInt(document.getElementById('anos').value) || 5;
+  const anos = defaults.anos || 5;
   const minC = Math.min(...res.map(r=>r.costoNeto));
   const maxC = Math.max(...res.map(r=>r.costoNeto));
   const ganI = res.findIndex(r=>r.costoNeto===minC);
@@ -1584,7 +1598,7 @@ function renderResultados(res) {
     insightsBlock = document.createElement('div');
     insightsBlock.id = 'insights-block';
     insightsBlock.className = 'insights-block';
-    insightsEl.insertBefore(insightsBlock, document.getElementById('detail-wrapper')||insightsEl.children[2]);
+    const detailEl = document.querySelector('.detail-wrapper') || insightsEl.children[2]; insightsEl.insertBefore(insightsBlock, detailEl);
   }
   insightsBlock.innerHTML = insightsData.map(ins=>`
     <div class="insight-card ${ins.tipo}">
