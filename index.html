@@ -170,7 +170,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .comp-card.cdt-card{background:var(--forest);border-color:transparent;color:var(--white);flex:0.65;min-width:170px;opacity:0.85}
 .winner-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--lime);color:var(--forest);font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:4px 14px;border-radius:100px;white-space:nowrap;box-shadow:0 2px 8px rgba(200,240,80,0.4);z-index:10}
 .comp-cards{overflow:visible!important}
-.comp-card.winner{margin-top:14px}
+.comp-card.winner{padding-top:22px}
 .comp-type-tag{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);margin-bottom:4px}
 .cdt-card .comp-type-tag{color:rgba(255,255,255,0.4)}
 .comp-car-name{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;color:var(--ink);letter-spacing:-0.01em;line-height:1.25}
@@ -395,15 +395,26 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .slot-price-row .sl-field.narrow { flex: 1; }
 @media(max-width:680px){ .slot-selector-grid { grid-template-columns: 1fr 1fr; } .slot-selector-grid .sl-field:last-child { grid-column: span 2; } }
 
-/* ── Tooltips variables ──────────────────────────────────── */
-.var-tip{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1px solid currentColor;font-size:0.55rem;font-weight:700;cursor:help;vertical-align:middle;margin-left:4px;opacity:0.5;position:relative;font-style:normal;transition:opacity 0.15s;flex-shrink:0}
-.var-tip:hover{opacity:1}
-.var-tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--forest);color:rgba(255,255,255,0.88);padding:12px 16px;border-radius:10px;font-size:0.72rem;font-weight:400;line-height:1.6;width:240px;text-align:left;opacity:0;pointer-events:none;transition:opacity 0.16s;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.25);white-space:normal;font-family:'DM Sans',sans-serif}
-.var-tip::before{content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--forest);opacity:0;transition:opacity 0.16s;z-index:301}
+/* ── Tooltips variables — diseño refinado ────────────────── */
+.var-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border-mid);background:var(--white);color:var(--ink-muted);font-size:0.58rem;font-weight:700;cursor:help;vertical-align:middle;margin-left:5px;position:relative;font-style:normal;transition:all 0.15s;flex-shrink:0;line-height:1}
+.var-tip:hover{border-color:var(--forest);color:var(--forest);background:var(--lime-soft)}
+/* Tooltip box */
+.var-tip::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  background:var(--forest);color:rgba(255,255,255,0.92);
+  padding:14px 16px;border-radius:12px;
+  font-size:0.75rem;font-weight:400;line-height:1.65;
+  width:260px;text-align:left;
+  opacity:0;pointer-events:none;transition:opacity 0.18s;
+  z-index:400;box-shadow:0 12px 40px rgba(0,0,0,0.3);
+  white-space:normal;font-family:'DM Sans',sans-serif;
+  letter-spacing:0.01em;
+}
+.var-tip::before{content:'';position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--forest);opacity:0;transition:opacity 0.18s;z-index:401}
 .var-tip:hover::after,.var-tip:hover::before{opacity:1}
-/* tooltip que se abre hacia la izquierda en columnas del lado derecho */
-.var-tip.left::after{left:auto;right:0;transform:none}
-.var-tip.left::before{left:auto;right:10px;transform:none}
+.var-tip.left::after{left:auto;right:-8px;transform:none}
+.var-tip.left::before{left:auto;right:14px;transform:none}
 
 /* ── Insights block ──────────────────────────────────────── */
 .insights-block{margin-bottom:24px;display:flex;flex-direction:column;gap:10px}
@@ -684,7 +695,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
         <div class="detail-table-wrapper">
           <table class="detail-table" id="detail-table"></table>
         </div>
-        <p class="detail-note">* Tecnomecánica cada 2 años para vehículos con más de 2 años. Gasolina con corriente a $16,000/gal. Impuesto sobre avalúo oficial, Decreto 1457/2025. Reventa con curva no lineal ajustada por marca. Valores estimados con fines informativos.</p>
+        <p class="detail-note">* Revisión técnico-mecánica anual obligatoria para vehículos con más de 5 años desde matrícula. Gasolina con corriente a $16,000/gal. Impuesto sobre avalúo oficial, Decreto 1457/2025. Reventa con curva no lineal ajustada por marca. Valores estimados con fines informativos.</p>
       </div>
     </div>
     <div class="ad-inline">
@@ -1281,8 +1292,15 @@ function calcular(c) {
   const mant      = Math.round(precio * p.mantPct);
   const costosAnu = [];
   const anosCalc = defaults.anos || 5;
+  const TECNO_PRECIO = 340000; // Tarifa promedio 2026 carros livianos (Supertransporte)
+  const edadActual = new Date().getFullYear() - parseInt(anio);
   for (let y=1;y<=anosCalc;y++) {
-    const tecno = ((tipo==='usado'&&(y===2||y===4))||(tipo==='nuevo'&&(y===3||y===5))) ? 349630 : 0;
+    // Tecnomecánica: anual para carros con más de 5 años desde matrícula
+    // Si el carro ya tiene >5 años HOY, aplica desde el año 1 del análisis
+    // Si es nuevo 0km, aplica desde el año en que cumpla 5 años
+    const edadEnAnoY = tipo === 'nuevo' ? y : edadActual + y;
+    const aplicaTecno = edadEnAnoY > 5;
+    const tecno = aplicaTecno ? TECNO_PRECIO : 0;
     costosAnu.push(soatVal + seguro + impuesto + tecno + gasolina + mant);
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
@@ -1455,7 +1473,22 @@ function generarInsights(resultados, anos) {
     });
   }
 
-  // 5. Insight de km del carro
+  // 5. Insight emocional/aspiracional para carros premium vs económicos
+  if (resultados.length >= 2) {
+    const premium = resultados.find(r => /AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|LEXUS|JAGUAR|MASERATI|FERRARI|LAMBORGHINI/i.test(r.nombre));
+    const economico = resultados.find(r => r !== premium);
+    if (premium && economico) {
+      const difNeta = Math.abs(premium.costoNeto - economico.costoNeto);
+      insights.push({
+        tipo: 'opportunity',
+        icon: '✨',
+        titulo: `${premium.nombre.split('·')[0].trim()} es más que un carro`,
+        texto: `Más allá de los números, un ${premium.nombre.split('·')[0].trim()} ofrece una experiencia de manejo, materiales y tecnología distintos. El estatus, el diseño y cómo te hace sentir al volante son factores reales en una decisión de este tamaño — no todo se reduce al costo. La diferencia económica de ${fmtCOP(difNeta)} es el precio de esa experiencia. Solo tú sabes si vale la pena.`
+      });
+    }
+  }
+
+  // 5b. Insight de km del carro
   resultados.forEach(r => {
     if (!r.km || r.km <= 0) return;
     const anioActual = new Date().getFullYear();
@@ -1499,15 +1532,16 @@ function renderResultados(res) {
   const cont  = document.getElementById('comp-cards'); cont.innerHTML='';
 
   // Tooltips por variable
+  const kmAnioFmt = (defaults.kmAnio||10000).toLocaleString('es-CO');
   const tips = {
-    soat: `SOAT ${new Date().getFullYear()} · Tarifa oficial Superfinanciera Colombia.<br>Se calcula según el <b>tipo de vehículo</b> (auto/campero/pickup), el <b>cilindraje</b> y la <b>antigüedad</b> del carro (0-9 años vs 10+ años). No incluye recargos por cobertura adicional.`,
-    seguro: `Estimación de seguro todo riesgo sin ser el más premium ni el de solo terceros. Basado en <b>${Math.round(2.5)}% del valor</b> del vehículo para particulares y hasta 3.5% para marcas premium europeas. El valor real depende del asegurador, historial de siniestros y ciudad.`,
-    impuesto: `Impuesto vehicular calculado según <b>Decreto 1457 de 2025</b> (vigente 2026), sobre el avalúo oficial:<br>• Hasta $57M → 1.5%<br>• $57M–$129M → 2.5%<br>• Más de $129M → 3.5%<br>Incluye semaforización Bogotá ($34.000). Se paga una vez al año, en los primeros meses. <b>Pronto pago: 10% de descuento.</b>`,
-    gasolina: `Calculado con <b>${defaults.kmAnio.toLocaleString('es-CO')} km/año</b> y gasolina corriente a <b>$16.000/galón</b>. El rendimiento km/galón es estimado por tipo de motor y uso mixto ciudad/carretera. Puedes ajustar los km/año en "Supuestos".`,
-    mantenimiento: `Estimación basada en el valor del vehículo y la marca. Incluye aceite, filtros, frenos, correas, lavadas y revisiones programadas. Las marcas europeas (Audi, BMW, Mercedes) tienen repuestos más costosos y talleres especializados que elevan este rubro significativamente.`,
-    reventa: `Calculada con una curva de depreciación no lineal: los primeros años el carro pierde más valor, los siguientes años pierde menos. Ajustada por marca — las marcas japonesas y coreanas retienen más valor que las europeas premium. Esta es una estimación; el valor real depende del estado, kilometraje y demanda del mercado.`,
-    avaluo: `Avalúo oficial <b>avalúos oficiales</b> para ese modelo y año. Es el valor de referencia que usan las aseguradoras para calcular el SOAT y los bancos para créditos vehiculares. Si el precio pedido es <b>menor al avalúo</b>, puede ser una buena oportunidad. Si es mayor, vale negociar.`,
-  };
+    soat: `El SOAT es el seguro obligatorio que todo carro debe tener en Colombia. El precio depende del tipo de vehículo (campero o sedan), el tamaño del motor y la edad del carro. Este valor está actualizado para 2026.`,
+    seguro: `El seguro voluntario que cubre accidentes, robo y daños. Este estimado es para un seguro intermedio — no el más básico ni el más caro. El precio real varía según la aseguradora, el historial del conductor y la ciudad.`,
+    impuesto: `El impuesto anual que se paga a la alcaldía por tener el carro. Se calcula sobre el valor oficial del vehículo: hasta $57M paga el 1.5%, entre $57M y $129M paga 2.5%, y más de $129M paga 3.5%. En Bogotá se añaden $34.000 de semaforización. Pagando a tiempo (pronto pago) tienes 10% de descuento.`,
+    gasolina: `Calculado con ${kmAnioFmt} km al año y gasolina corriente a $16.000 por galón. El rendimiento estimado varía según el motor del vehículo. Puedes cambiar los km/año en Supuestos.`,
+    mantenimiento: `Incluye aceite, filtros, frenos, llantas, lavadas y revisiones del año. Las marcas europeas como Audi, BMW o Mercedes suelen ser más costosas de mantener porque sus repuestos son importados. Marcas como Toyota, Mazda o Kia generalmente salen más económicas.`,
+    reventa: `Estimación de lo que podrías recibir si vendes el carro al final del período. Los carros pierden más valor los primeros años y luego se estabilizan. El valor exacto depende del estado, los kilómetros y la demanda cuando vendas.`,
+    avaluo: `Precio de referencia oficial que el gobierno asigna a ese modelo y año. Lo usan aseguradoras y bancos como base. Si el precio pedido es menor a este valor, puede ser una buena oportunidad. Si es mayor, tiene sentido negociar.`,
+  };;
 
   res.forEach((r,i)=>{
     const win = i===ganI;
@@ -1521,7 +1555,8 @@ function renderResultados(res) {
       <div>
         <div class="comp-type-tag">${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}${r.avaluoFasecolda?' · Avalúo oficial':''}</div>
         <div class="comp-car-name">${r.nombre}</div>
-        <div class="comp-car-sub">${r.anio} · ${r.kmGalon} km/gal · ${fmtCOP(r.precio)}</div>
+        <div class="comp-car-sub">${r.anio} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin-top:4px">${fmtCOP(r.precio)}</div>
       </div>
       <div class="comp-metrics">
         <div class="comp-metric">
@@ -1558,11 +1593,7 @@ function renderResultados(res) {
       <div class="comp-total">
         <span class="comp-total-label">Costo neto ${anos} años</span>
         <span class="comp-total-val">-${fmtCOP(r.costoNeto)}</span>
-        <div class="price-indicator">
-          <span class="pi-label">Precio</span>
-          <div class="pi-bar"><div class="pi-fill" style="width:${pctBar}%"></div></div>
-          <span class="pi-val">${win?'Más bajo':'+'+ fmtCOP(r.costoNeto-minC)}</span>
-        </div>
+
       </div>`;
     cont.appendChild(card);
   });
@@ -1646,15 +1677,14 @@ function buildDetailTable(res, anos=5){
     <tr class="assumptions"><td>Precio gasolina corriente</td>${tdN(res.map(_=>'$16.000/galón'),'neutral-val')}${tdS('—')}</tr>
     <tr class="assumptions"><td>Rendimiento estimado</td>${tdN(res.map(r=>`${r.kmGalon} km/gal`),'neutral-val')}${tdS('—')}</tr>
     <tr class="assumptions"><td>Tasa CDT referencia</td>${tdN(res.map(_=>`${Math.round(defaults.cdtRate*100)}% E.A.`),'neutral-val')}${tdS(`${Math.round(defaults.cdtRate*100)}% E.A.`)}</tr>
-    <tr class="assumptions"><td>Devaluación promedio anual</td>${tdN(res.map(r=>`${Math.round(r.devaluacion*100)}% (no lineal)`),'neutral-val')}${tdS('—')}</tr>
+    <tr class="assumptions"><td>Pérdida de valor estimada a ${anos} años</td>${tdN(res.map(r=>`Reventa: ${fmtCOP(r.reventa)} aprox.`),'neutral-val')}${tdS('—')}</tr>
     <tr class="assumptions"><td>Avalúo oficial</td>${tdN(res.map(r=>r.avaluoFasecolda?fmtCOP(r.avaluoFasecolda):'No disponible'),'neutral-val')}${tdS('—')}</tr>
   `;
 
   // ── Sección costos de entrada ──
   const entrada = `
-    <tr class="section-header"><td colspan="${res.length+2}">Costos de entrada (año 0)</td></tr>
-    <tr><td>Precio del vehículo</td>${tdN(res.map(r=>'-'+fmtCOP(r.precio)),'')}${tdS('-'+fmtCOP(ref.precio),'')}</tr>
-    <tr><td>Traspaso / Matrícula</td>${tdN(res.map(r=>r.traspaso||r.matricula ? '-'+fmtCOP(r.traspaso||r.matricula) : '—'),'')}${tdS('—')}</tr>
+    <tr class="section-header"><td colspan="${res.length+2}">Costos de entrada — vehículo nuevo 0km</td></tr>
+    ${res.some(r=>r.tipo==='nuevo') ? `<tr><td>Matrícula (nuevo 0km)</td>${res.map(r=>`<td>${r.matricula?'-'+fmtCOP(r.matricula):'—'}</td>`).join('')}<td class="cdt-col">—</td></tr>` : ''}
   `;
 
   // ── Sección costos anuales ──
@@ -1663,7 +1693,7 @@ function buildDetailTable(res, anos=5){
     <tr><td>SOAT / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.soat)),'')}${tdS('—')}</tr>
     <tr><td>Seguro todo riesgo / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.seguro)),'')}${tdS('—')}</tr>
     <tr><td>Impuesto vehicular / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.impuesto)),'')}${tdS('—')}</tr>
-    <tr><td>Tecnomecánica (c/2 años)</td>${tdN(res.map(_=>'-'+fmtCOP(349630)+'/vez'),'')}${tdS('—')}</tr>
+    <tr><td>Revisión técnico-mecánica / año</td>${tdN(res.map(_=>'-'+fmtCOP(340000)+'/vez'),'')}${tdS('—')}</tr>
     <tr><td>Gasolina / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.gasolina)),'')}${tdS('—')}</tr>
     <tr><td>Mantenimiento / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.mant)),'')}${tdS('—')}</tr>
     <tr class="total-row"><td>Total costos ${anos} años</td>${tdN(res.map(r=>'-'+fmtCOP(r.totalGast)),'')}${tdS('-'+fmtCOP(ref.precio),'')}</tr>
