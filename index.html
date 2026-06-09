@@ -416,7 +416,19 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .var-tip.left::after{left:auto;right:-8px;transform:none}
 .var-tip.left::before{left:auto;right:14px;transform:none}
 
-/* ── Insights block ──────────────────────────────────────── */
+
+/* ── Pros y contras ──────────────────────────────────────── */
+.pros-contras-grid{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.pc-card{flex:1;min-width:200px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.pc-header{font-family:'Fraunces',serif;font-size:0.9rem;font-weight:600;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.pc-body{display:flex;flex-direction:column;gap:7px}
+.pc-row{display:flex;gap:10px;align-items:flex-start;font-size:0.8rem;line-height:1.5}
+.pc-icon{font-size:0.9rem;font-weight:700;flex-shrink:0;margin-top:1px;width:14px;text-align:center}
+.pc-row.pro .pc-icon{color:var(--gain)}
+.pc-row.con .pc-icon{color:var(--cost)}
+.pc-row.pro span:last-child{color:var(--ink-mid)}
+.pc-row.con span:last-child{color:var(--ink-muted)}
+/* ── Insights block (legado) ─── */
 .insights-block{margin-bottom:24px;display:flex;flex-direction:column;gap:10px}
 .insight-card{display:flex;gap:14px;padding:14px 18px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white)}
 .insight-card.economic{border-left:3px solid var(--gain)}
@@ -436,16 +448,38 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .comp-card.winner .pi-fill{background:var(--lime)}
 .pi-val{font-size:0.72rem;font-weight:600;color:var(--ink-muted);white-space:nowrap}
 
-/* ── Desglose completo rediseñado ─────────────────────────── */
-.detail-table td.negative{color:var(--cost);font-weight:500}
-.detail-table td.positive{color:var(--gain);font-weight:600}
-.detail-table td.neutral-val{color:var(--ink-muted)}
-.detail-table tr.section-header td{background:var(--forest);color:rgba(255,255,255,0.6);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:8px 18px;border:none}
-.detail-table tr.section-header td:first-child{text-align:left}
-.detail-table tr.assumptions td{font-size:0.78rem;color:var(--ink-muted);background:var(--surface)}
-.detail-table tr.result-row td{font-size:1rem;font-weight:700;background:var(--ink);color:var(--white);border:none;padding:14px 18px}
-.detail-table tr.result-row td.positive-result{color:var(--lime)}
-.detail-table tr.result-row td.negative-result{color:#FF8A7A}
+/* ── Desglose completo — diseño editorial limpio ─────────── */
+.detail-table-wrapper{overflow-x:auto;background:var(--white);border-radius:var(--radius);border:1px solid var(--border)}
+.detail-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.detail-table th{background:var(--surface);color:var(--ink-muted);font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;padding:10px 16px;text-align:right;white-space:nowrap;border-bottom:2px solid var(--border)}
+.detail-table th:first-child{text-align:left}
+.detail-table th.cdt-col{color:var(--gain);background:var(--gain-soft)}
+.detail-table td{padding:9px 16px;font-size:0.83rem;border-bottom:1px solid var(--border);color:var(--ink);text-align:right;white-space:nowrap}
+.detail-table td:first-child{text-align:left;color:var(--ink-mid)}
+.detail-table td.cdt-col{color:var(--gain);background:var(--gain-soft)}
+.detail-table td.neutral-val{color:var(--ink-muted);font-size:0.78rem}
+/* Sección headers: borde izquierdo verde + fondo muy sutil */
+.detail-table tr.section-header td{
+  background:var(--surface);color:var(--ink-muted);
+  font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  padding:10px 16px 6px;border:none;border-top:2px solid var(--border)
+}
+.detail-table tr.section-header:first-child td{border-top:none}
+/* Supuestos: tono más suave */
+.detail-table tr.assumptions td{color:var(--ink-muted);font-size:0.78rem;background:transparent}
+/* Total intermedio */
+.detail-table tr.total-row td{font-weight:600;border-top:1.5px solid var(--border-mid);background:var(--surface)}
+.detail-table tr.total-row td.cdt-col{background:var(--gain-soft)}
+/* Resultado final: la gran cifra */
+.detail-table tr.result-row td{
+  padding:14px 16px;font-size:0.95rem;font-weight:700;
+  border-top:2px solid var(--border);border-bottom:none;background:var(--white)
+}
+.detail-table tr.result-row td:first-child{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted)}
+.detail-table tr.result-row td.positive-result{color:var(--gain);font-size:1.1rem}
+.detail-table tr.result-row td.negative-result{color:var(--cost);font-size:1.1rem}
+.detail-table tr.result-row td.cdt-col{color:var(--gain);font-size:1.1rem;background:var(--gain-soft)}
+.detail-table tr:not(.section-header):not(.assumptions):hover td{background:rgba(0,0,0,0.015)}
   </style>
 </head>
 <body>
@@ -468,15 +502,15 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="hero-grid">
       <div class="hero-content">
-        <p class="hero-eyebrow">Colombia · Costo total de propiedad</p>
-        <h1 class="hero-title">El carro que quieres,<br/><em>¿cuánto te cuesta realmente?</em></h1>
-        <p class="hero-subtitle">Agrega hasta 3 carros y compara el costo real a 5 años — SOAT, impuesto, seguro, gasolina, devaluación y más. Siempre contra invertir en un CDT.</p>
+        <p class="hero-eyebrow">Colombia · Compra tu próximo carro con los ojos abiertos</p>
+        <h1 class="hero-title">El precio del carro<br/>es solo<br/><em>el comienzo.</em></h1>
+        <p class="hero-subtitle">Compara lo que realmente gastas con cada carro: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender. Gratis, siempre.</p>
         <div class="social-proof">
           <div class="sp-item"><span class="sp-num" id="sp-marcas">123</span><span class="sp-label">marcas disponibles</span></div>
           <div class="sp-divider"></div>
-          <div class="sp-item"><span class="sp-num">Avalúos</span><span class="sp-label">oficiales Colombia</span></div>
+          <div class="sp-item"><span class="sp-num">Precios</span><span class="sp-label">de referencia oficiales</span></div>
           <div class="sp-divider"></div>
-          <div class="sp-item"><span class="sp-num">$0</span><span class="sp-label">costo, siempre gratis</span></div>
+          <div class="sp-item"><span class="sp-num">Gratis</span><span class="sp-label">sin registro, sin trampas</span></div>
         </div>
       </div>
       <div class="hero-visual">
@@ -660,7 +694,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       </div>
 
       <div class="cc-footer">
-        <p class="cc-note">CDT incluido siempre — comparamos comprar vs. invertir ese dinero.</p>
+        <p class="cc-note">Siempre comparamos contra invertir ese dinero — CDT al 12% E.A. como referencia.</p>
         <button class="btn-primary btn-analyze" onclick="analizarTodo()">Ver comparación completa →</button>
       </div>
 
@@ -1342,27 +1376,43 @@ function addCarSlot() {
       <div class="slot-type-toggle">
         <button class="type-btn active" onclick="setTipo(${idx},'usado')">Usado</button>
         <button class="type-btn" onclick="setTipo(${idx},'nuevo')">Nuevo 0km</button>
-      </div></div>
-    <div class="slot-inputs">
-      <div class="si-row">
-        <div class="si-group wide"><label>Marca</label><div class="select-wrapper"><select class="sl-marca" onchange="onMarcaChange(${idx})"><option value="">— Selecciona marca —</option>${opts}</select></div></div>
-        <div class="si-group wide"><label>Modelo</label><div class="select-wrapper"><select class="sl-modelo" onchange="onModeloChange(${idx})" disabled><option value="">Primero elige marca</option></select></div></div>
-        <div class="si-group narrow"><label>Año</label><div class="select-wrapper"><select class="sl-anio" onchange="mostrarAvaluo(${idx})" disabled><option value="">Año</option></select></div></div>
       </div>
-      <div class="si-row">
-        <div class="si-group wide">
-          <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo.">i</span></label>
-          <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
-          <div class="avaluo-hint" id="avaluo-${idx}"></div>
-        </div>
-        <div class="si-group narrow slot-km" id="km-row-${idx}">
-          <label>Km actuales</label>
-          <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
-        </div>
+    </div>
+    <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden</span></div>
+    <div class="slot-selector-grid">
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-${idx}" onclick="resetCampo(${idx},'marca')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-marca-${idx}" onchange="onMarcaChange(${idx})"><option value="">— Marca —</option>${opts}</select></div>
+        <div class="sl-count" id="cnt-marca-${idx}"></div>
+      </div>
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-modelo-${idx}" onchange="onModeloChange(${idx})" disabled><option value="">Primero elige marca</option></select></div>
+        <div class="sl-count" id="cnt-modelo-${idx}"></div>
+      </div>
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-anio-${idx}" onchange="onAnioChange(${idx})" disabled><option value="">Año</option></select></div>
+        <div class="sl-count" id="cnt-anio-${idx}"></div>
+      </div>
+    </div>
+    <div class="slot-price-row">
+      <div class="sl-field">
+        <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo.">i</span></label>
+        <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+        <div class="avaluo-hint" id="avaluo-${idx}"></div>
+      </div>
+      <div class="sl-field narrow slot-km" id="km-row-${idx}">
+        <label>Km actuales</label>
+        <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
       </div>
     </div>`;
-  cont.appendChild(sl); tipoSlot[idx]='usado'; numSlots++;
-  document.getElementById('btn-add-car').classList.toggle('disabled',numSlots>=3);
+  cont.appendChild(sl);
+  tipoSlot[idx] = 'usado';
+  slotState[idx] = { marca:'', modelo:'', anio:'' };
+  numSlots++;
+  document.getElementById('btn-add-car').classList.toggle('disabled', numSlots>=3);
+  if (indice) poblarMarca(idx);
 }
 
 function removeCarSlot(idx) {
@@ -1407,121 +1457,88 @@ function analizarTodo() {
 
 // ── Render resultados ─────────────────────────────────────────
 
-// ── Insights inteligentes ─────────────────────────────────────
-function generarInsights(resultados, anos) {
-  const insights = [];
-  if (resultados.length < 2) return insights;
+// ── Pros y contras por opción ────────────────────────────────
+function generarProsContras(resultados, anos) {
+  // Retorna { marca: [{ tipo:'pro'|'con', texto:'' }] }
+  const result = {};
 
-  const [a, b] = resultados;
-  const diff = Math.abs(a.costoNeto - b.costoNeto);
-  const mas_barato = a.costoNeto <= b.costoNeto ? a : b;
-  const mas_caro   = a.costoNeto <= b.costoNeto ? b : a;
+  const masBarato = resultados.reduce((a,b) => a.costoNeto < b.costoNeto ? a : b);
+  const masCaro   = resultados.reduce((a,b) => a.costoNeto > b.costoNeto ? a : b);
 
-  // 1. Insight económico principal
-  const difMensual = Math.round(diff / (anos * 12));
-  insights.push({
-    tipo: 'economic',
-    icon: '💰',
-    titulo: `Diferencia económica: ${fmtCOP(diff)} en ${anos} años`,
-    texto: `El ${mas_barato.nombre.split('·')[0].trim()} resulta más económico, lo que equivale a ${fmtCOP(difMensual)} menos por mes. En ${anos} años esa diferencia compra ${Math.round(diff/16000/50)} tanques de gasolina.`
+  resultados.forEach((r, i) => {
+    const pros = [];
+    const cons = [];
+    const nombre = r.nombre.split('·')[0].trim();
+    const marca  = r.marca?.toUpperCase() || nombre.toUpperCase();
+
+    // ── Económico ──
+    if (r.costoNeto === Math.min(...resultados.map(x=>x.costoNeto))) {
+      const diff = Math.abs(r.costoNeto - masCaro.costoNeto);
+      pros.push(`Más económico: ahorra ${fmtCOP(diff)} en ${anos} años frente a la otra opción`);
+    } else {
+      const diff = Math.abs(r.costoNeto - masBarato.costoNeto);
+      cons.push(`Cuesta ${fmtCOP(diff)} más en ${anos} años que la opción más económica`);
+    }
+
+    // ── Gasolina ──
+    const minGas = Math.min(...resultados.map(x=>x.gasolina));
+    const maxGas = Math.max(...resultados.map(x=>x.gasolina));
+    if (r.gasolina === minGas && resultados.length > 1) {
+      pros.push(`Menor consumo de gasolina: ${r.kmGalon} km/gal`);
+    } else if (r.gasolina === maxGas && resultados.length > 1) {
+      cons.push(`Mayor gasto en gasolina: ${fmtCOP(r.gasolina)}/año`);
+    }
+
+    // ── Mantenimiento ──
+    const minMant = Math.min(...resultados.map(x=>x.mant));
+    if (r.mant === minMant && resultados.length > 1) {
+      pros.push('Mantenimiento más económico');
+    } else if (r.mant > minMant * 1.5) {
+      cons.push(`Mantenimiento costoso: ${fmtCOP(r.mant)}/año — repuestos importados o talleres especializados`);
+    }
+
+    // ── Reventa ──
+    const maxRev = Math.max(...resultados.map(x=>x.reventa));
+    if (r.reventa === maxRev && resultados.length > 1) {
+      pros.push(`Mejor reventa estimada: ${fmtCOP(r.reventa)}`);
+    }
+
+    // ── Avalúo vs precio ──
+    if (r.avaluoFasecolda && r.precio < r.avaluoFasecolda * 0.93) {
+      const pct = Math.round((1 - r.precio/r.avaluoFasecolda) * 100);
+      pros.push(`Precio ${pct}% por debajo del avalúo oficial — posiblemente buen negocio`);
+    } else if (r.avaluoFasecolda && r.precio > r.avaluoFasecolda * 1.07) {
+      cons.push(`Precio por encima del avalúo oficial — vale negociar`);
+    }
+
+    // ── Kilometraje ──
+    if (r.km > 0) {
+      const edad = new Date().getFullYear() - parseInt(r.anio);
+      if (edad > 0) {
+        const kmPorAnio = Math.round(r.km / edad);
+        if (kmPorAnio < 8000) {
+          pros.push(`Kilometraje muy bajo: ${r.km.toLocaleString('es-CO')} km en ${edad} año${edad>1?'s':''} (${kmPorAnio.toLocaleString('es-CO')} km/año)`);
+        } else if (kmPorAnio > 20000) {
+          cons.push(`Kilometraje alto: ${r.km.toLocaleString('es-CO')} km en ${edad} año${edad>1?'s':''} — revisar desgaste`);
+        }
+      }
+    }
+
+    // ── Premium/aspiracional ──
+    const isPremium = /AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|LEXUS|JAGUAR|MASERATI|FERRARI/i.test(nombre);
+    if (isPremium) {
+      pros.push('Marca premium: diseño, tecnología y experiencia de manejo diferenciados');
+      cons.push('El costo de mantenimiento y repuestos es significativamente más alto');
+    } else if (/TOYOTA|MAZDA|HONDA/i.test(nombre)) {
+      pros.push('Marca con alta reputación de confiabilidad — menos sorpresas en el taller');
+    }
+
+    result[i] = { nombre, pros, cons };
   });
 
-  // 2. ¿Está por debajo del avalúo oficial? (oportunidad)
-  resultados.forEach(r => {
-    if (r.avaluoFasecolda && r.precio < r.avaluoFasecolda * 0.92) {
-      const ahorro = r.avaluoFasecolda - r.precio;
-      insights.push({
-        tipo: 'opportunity',
-        icon: '📊',
-        titulo: `${r.nombre.split('·')[0].trim()} está por debajo del avalúo oficial`,
-        texto: `El precio pedido (${fmtCOP(r.precio)}) está ${fmtCOP(ahorro)} por debajo del avalúo oficial Fasecolda (${fmtCOP(r.avaluoFasecolda)}). Esto puede indicar una buena oportunidad de compra o que el carro tiene alguna condición especial que vale la pena revisar.`
-      });
-    }
-    if (r.avaluoFasecolda && r.precio > r.avaluoFasecolda * 1.08) {
-      const exceso = r.precio - r.avaluoFasecolda;
-      insights.push({
-        tipo: 'warning',
-        icon: '⚠️',
-        titulo: `${r.nombre.split('·')[0].trim()} está por encima del avalúo oficial`,
-        texto: `El precio pedido (${fmtCOP(r.precio)}) supera el avalúo oficial en ${fmtCOP(exceso)}. Antes de comprar, vale la pena negociar o verificar que el estado y los extras justifiquen ese sobreprecio.`
-      });
-    }
-  });
-
-  // 3. Insight de gasolina
-  const difGas = Math.abs(a.gasolina - b.gasolina);
-  if (difGas > 500000) {
-    const masGas = a.gasolina > b.gasolina ? a : b;
-    const menosGas = a.gasolina > b.gasolina ? b : a;
-    insights.push({
-      tipo: 'neutral',
-      icon: '⛽',
-      titulo: `Diferencia notable en gasolina: ${fmtCOP(difGas * anos)} en ${anos} años`,
-      texto: `El ${masGas.nombre.split('·')[0].trim()} (${masGas.kmGalon} km/gal) consume ${fmtCOP(difGas)} más al año en gasolina que el ${menosGas.nombre.split('·')[0].trim()} (${menosGas.kmGalon} km/gal). Con ${defaults.kmAnio.toLocaleString('es-CO')} km/año, eso es ${fmtCOP(difGas*anos)} a ${anos} años.`
-    });
-  }
-
-  // 4. Insight de mantenimiento (si hay diferencia grande)
-  const difMant = Math.abs(a.mant - b.mant);
-  if (difMant > 800000) {
-    const masMant = a.mant > b.mant ? a : b;
-    insights.push({
-      tipo: 'neutral',
-      icon: '🔧',
-      titulo: `Mantenimiento más alto en ${masMant.nombre.split('·')[0].trim()}`,
-      texto: `Las marcas premium y europeas tienden a tener repuestos más costosos y talleres especializados. Esto se refleja en la estimación de mantenimiento anual. Considera esto especialmente si planeas hacer el servicio fuera de concesionario.`
-    });
-  }
-
-  // 5. Insight emocional/aspiracional para carros premium vs económicos
-  if (resultados.length >= 2) {
-    const premium = resultados.find(r => /AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|LEXUS|JAGUAR|MASERATI|FERRARI|LAMBORGHINI/i.test(r.nombre));
-    const economico = resultados.find(r => r !== premium);
-    if (premium && economico) {
-      const difNeta = Math.abs(premium.costoNeto - economico.costoNeto);
-      insights.push({
-        tipo: 'opportunity',
-        icon: '✨',
-        titulo: `${premium.nombre.split('·')[0].trim()} es más que un carro`,
-        texto: `Más allá de los números, un ${premium.nombre.split('·')[0].trim()} ofrece una experiencia de manejo, materiales y tecnología distintos. El estatus, el diseño y cómo te hace sentir al volante son factores reales en una decisión de este tamaño — no todo se reduce al costo. La diferencia económica de ${fmtCOP(difNeta)} es el precio de esa experiencia. Solo tú sabes si vale la pena.`
-      });
-    }
-  }
-
-  // 5b. Insight de km del carro
-  resultados.forEach(r => {
-    if (!r.km || r.km <= 0) return;
-    const anioActual = new Date().getFullYear();
-    const edadAnios  = anioActual - parseInt(r.anio);
-    if (edadAnios <= 0) return;
-    const kmPorAnio  = Math.round(r.km / edadAnios);
-    const nombreCorto = r.nombre.split('·')[0].trim();
-    if (kmPorAnio < 8000) {
-      insights.push({
-        tipo: 'opportunity',
-        icon: '🟢',
-        titulo: `${nombreCorto}: kilometraje muy bajo para su edad`,
-        texto: `Con ${r.km.toLocaleString('es-CO')} km en ${edadAnios} año${edadAnios>1?'s':''}, este carro ha rodado solo ${kmPorAnio.toLocaleString('es-CO')} km/año en promedio — muy por debajo de los 12.000–15.000 km/año típicos en Colombia. Esto sugiere bajo desgaste y puede ser una ventaja al negociar precio.`
-      });
-    } else if (kmPorAnio > 20000) {
-      insights.push({
-        tipo: 'warning',
-        icon: '🔴',
-        titulo: `${nombreCorto}: kilometraje alto para su edad`,
-        texto: `Con ${r.km.toLocaleString('es-CO')} km en ${edadAnios} año${edadAnios>1?'s':''}, este carro ha rodado ${kmPorAnio.toLocaleString('es-CO')} km/año en promedio — bastante más que los 12.000–15.000 km/año típicos. Un kilometraje alto implica mayor desgaste de motor, frenos y suspensión. Vale la pena una revisión técnica antes de comprar.`
-      });
-    } else if (kmPorAnio > 15000) {
-      insights.push({
-        tipo: 'neutral',
-        icon: '🟡',
-        titulo: `${nombreCorto}: kilometraje normal-alto`,
-        texto: `${r.km.toLocaleString('es-CO')} km en ${edadAnios} año${edadAnios>1?'s':''} equivale a ${kmPorAnio.toLocaleString('es-CO')} km/año — un poco más del promedio colombiano (12.000–15.000 km/año). No es una señal de alerta, pero vale revisar el estado de los consumibles.`
-      });
-    }
-  });
-
-  return insights;
+  return result;
 }
+
 function renderResultados(res) {
   document.getElementById('results-section').classList.remove('hidden');
   document.getElementById('compare-card').style.marginBottom='0';
@@ -1603,8 +1620,8 @@ function renderResultados(res) {
   cdt.innerHTML=`
     <div>
       <div class="comp-type-tag">Alternativa financiera</div>
-      <div class="comp-car-name">¿Y si inviertes?</div>
-      <div class="comp-car-sub">CDT al ${Math.round(defaults.cdtRate*100)}% E.A. · ${fmtCOP(ref.precio)}</div>
+      <div class="comp-car-name">¿Y si lo inviertes?</div>
+      <div class="comp-car-sub">Referencia: CDT al ${Math.round(defaults.cdtRate*100)}% E.A. · capital ${fmtCOP(ref.precio)}</div>
     </div>
     <div class="comp-metrics">
       <div class="comp-metric"><span class="cm-label">Capital inicial</span><span class="cm-val">${fmtCOP(ref.precio)}</span></div>
@@ -1621,22 +1638,23 @@ function renderResultados(res) {
     </div>`;
   cont.appendChild(cdt);
 
-  // Render insights
-  const insightsData = generarInsights(res, anos);
+  // Render pros y contras
+  const prosContrasData = generarProsContras(res, anos);
   const insightsEl = document.getElementById('comp-cards').parentElement;
   let insightsBlock = document.getElementById('insights-block');
   if (!insightsBlock) {
     insightsBlock = document.createElement('div');
     insightsBlock.id = 'insights-block';
-    insightsBlock.className = 'insights-block';
-    const detailEl = document.querySelector('.detail-wrapper') || insightsEl.children[2]; insightsEl.insertBefore(insightsBlock, detailEl);
+    insightsBlock.className = 'pros-contras-grid';
+    const detailEl = document.querySelector('.detail-wrapper') || insightsEl.children[2];
+    insightsEl.insertBefore(insightsBlock, detailEl);
   }
-  insightsBlock.innerHTML = insightsData.map(ins=>`
-    <div class="insight-card ${ins.tipo}">
-      <div class="insight-icon">${ins.icon}</div>
-      <div class="insight-body">
-        <div class="insight-title">${ins.titulo}</div>
-        <div class="insight-text">${ins.texto}</div>
+  insightsBlock.innerHTML = Object.values(prosContrasData).map(({nombre, pros, cons}) => `
+    <div class="pc-card">
+      <div class="pc-header">${nombre}</div>
+      <div class="pc-body">
+        ${pros.map(p=>`<div class="pc-row pro"><span class="pc-icon">+</span><span>${p}</span></div>`).join('')}
+        ${cons.map(c=>`<div class="pc-row con"><span class="pc-icon">−</span><span>${c}</span></div>`).join('')}
       </div>
     </div>`).join('');
 
