@@ -100,8 +100,11 @@ select,input{font-family:inherit}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* CAR SLOTS */
-.car-slots{display:flex;gap:0;align-items:stretch;margin-bottom:20px}
-.car-slot{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:var(--transition);position:relative}
+.car-slots{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;margin-bottom:20px}
+.car-slots.tres-slots{grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto}
+.car-slot{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:var(--transition);position:relative;min-width:0}
+.car-slots.tres-slots .car-slot:last-child{grid-column:1 / -1;margin-top:0}
+.car-slots.tres-slots .vs-pill:last-of-type{grid-column:1 / -1;padding:8px 0;text-align:center}
 .car-slot:focus-within{border-color:var(--forest);background:var(--white)}
 .btn-remove-slot{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--border-mid);font-size:0.9rem;cursor:pointer;padding:4px;line-height:1;transition:var(--transition)}
 .btn-remove-slot:hover{color:var(--cost)}
@@ -801,20 +804,20 @@ select:disabled{opacity:0.5;cursor:not-allowed}
     </div>
     <div class="sponsored-grid">
       <div class="sponsored-card featured">
-        <div class="sponsored-tag">Mejor costo total</div>
-        <div class="car-img-block"><img class="car-img" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80&auto=format&fit=crop" alt="Chevrolet Onix" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="car-img-ph" style="display:none"><span class="car-initial">ON</span></div></div>
-        <div><div class="sc-name">Chevrolet Onix</div><div class="sc-sub">Sedan · 1.0T · 2022 · Usado</div><div class="sc-price">$58,000,000</div><div class="sc-metrics"><span class="scm">52 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">20% devaluación</span></div><div class="sc-total-label">Costo neto 5 años</div><div class="sc-total">~$48,200,000</div></div>
+        <div class="sponsored-tag">Referencia premium</div>
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">Q3</span></div>
+        <div><div class="sc-name">Audi Q3</div><div class="sc-sub">Campero SUV · 1.4T · 2018 · Usado</div><div class="sc-price">$80,000,000</div><div class="sc-metrics"><span class="scm">40 km/gal</span><span class="scm">Mant. alto</span><span class="scm">Premium</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$131,000,000</div></div>
+        <button class="btn-car" onclick="loadExample('q3')">Analizar este carro</button>
+      </div>
+      <div class="sponsored-card">
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">M2</span></div>
+        <div><div class="sc-name">Mazda 2</div><div class="sc-sub">Automóvil · 1.5L · 2013 · Usado</div><div class="sc-price">$30,000,000</div><div class="sc-metrics"><span class="scm">44 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">Confiable</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$47,000,000</div></div>
+        <button class="btn-car" onclick="loadExample('mazda2')">Analizar este carro</button>
+      </div>
+      <div class="sponsored-card">
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">ON</span></div>
+        <div><div class="sc-name">Chevrolet Onix</div><div class="sc-sub">Automóvil · 1.0T · 2022 · Usado</div><div class="sc-price">$58,000,000</div><div class="sc-metrics"><span class="scm">52 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">Más vendido</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$48,200,000</div></div>
         <button class="btn-car" onclick="loadExample('onix')">Analizar este carro</button>
-      </div>
-      <div class="sponsored-card">
-        <div class="car-img-block"><img class="car-img" src="https://images.unsplash.com/photo-1609952124395-f8f2a29293f4?w=600&q=80&auto=format&fit=crop" alt="Kia Sportage" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="car-img-ph" style="display:none"><span class="car-initial">KS</span></div></div>
-        <div><div class="sc-name">Kia Sportage</div><div class="sc-sub">SUV · 2.0L · 2021 · Usado</div><div class="sc-price">$98,000,000</div><div class="sc-metrics"><span class="scm">43 km/gal</span><span class="scm">Mant. medio</span><span class="scm">20% devaluación</span></div><div class="sc-total-label">Costo neto 5 años</div><div class="sc-total">~$91,400,000</div></div>
-        <button class="btn-car" onclick="loadExample('sportage')">Analizar este carro</button>
-      </div>
-      <div class="sponsored-card">
-        <div class="car-img-block"><img class="car-img" src="https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=600&q=80&auto=format&fit=crop" alt="Corolla Cross" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="car-img-ph" style="display:none"><span class="car-initial">CC</span></div></div>
-        <div><div class="sc-name">Corolla Cross</div><div class="sc-sub">SUV · 1.8L · 2023 · Nuevo</div><div class="sc-price">$135,900,000</div><div class="sc-metrics"><span class="scm">70 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">30% devaluación</span></div><div class="sc-total-label">Costo neto 5 años</div><div class="sc-total">~$83,600,000</div></div>
-        <button class="btn-car" onclick="loadExample('corolla')">Analizar este carro</button>
       </div>
     </div>
     <div class="ad-tiles">
@@ -981,7 +984,12 @@ function poblarMarca(idx) {
   const anioActual  = slotState[idx].anio ? parseInt(slotState[idx].anio) : null;
   
   // Si hay año elegido, filtrar marcas que tengan al menos un modelo en ese año
-  let marcas = Object.keys(indice).sort();
+  // Marcas prioritarias primero: las 2 de Juan David + top 5 Colombia + resto alfabético
+  const MARCAS_TOP = ['MAZDA','AUDI','CHEVROLET','RENAULT','KIA','TOYOTA','SUZUKI'];
+  const todasMarcas = Object.keys(indice);
+  const topDisponibles = MARCAS_TOP.filter(m => todasMarcas.includes(m));
+  const resto = todasMarcas.filter(m => !MARCAS_TOP.includes(m)).sort();
+  let marcas = [...topDisponibles, ...resto];
   if (anioActual && aniosIdxListo && aniosIdx) {
     marcas = marcas.filter(m => {
       const modelos = aniosIdx[m] || {};
@@ -1343,13 +1351,16 @@ function calcular(c) {
   const costoNeto   = totalGast - reventa;
   const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
+  // Etiqueta de tipo de vehículo legible
+  const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
+  const tipoLabel = esMoto ? 'Moto' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
   return {
     nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
     soat:soatVal, seguro, impuesto, gasolina, mant,
     costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
     avaluoFasecolda: av?.precio||null, avaluoAnioRef: av?.anioRef||null,
-    cc, tipoVehiculo: soatCat
+    cc, tipoVehiculo: soatCat, tipoLabel
   };
 }
 
@@ -1408,6 +1419,7 @@ function addCarSlot() {
       </div>
     </div>`;
   cont.appendChild(sl);
+  cont.classList.add('tres-slots');
   tipoSlot[idx] = 'usado';
   slotState[idx] = { marca:'', modelo:'', anio:'' };
   numSlots++;
@@ -1418,7 +1430,10 @@ function addCarSlot() {
 function removeCarSlot(idx) {
   const sl=document.getElementById(`slot-${idx}`);
   if(sl?.previousElementSibling?.classList.contains('vs-pill')) sl.previousElementSibling.remove();
-  sl?.remove(); numSlots=Math.max(2,numSlots-1);
+  sl?.remove();
+  numSlots = Math.max(2, numSlots-1);
+  slotState[idx] = { marca:'', modelo:'', anio:'' };
+  if (numSlots <= 2) document.getElementById('car-slots').classList.remove('tres-slots');
   document.getElementById('btn-add-car').classList.remove('disabled');
 }
 
@@ -1570,7 +1585,7 @@ function renderResultados(res) {
     card.innerHTML = `
       ${win?'<div class="winner-badge">Más económico</div>':''}
       <div>
-        <div class="comp-type-tag">${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}${r.avaluoFasecolda?' · Avalúo oficial':''}</div>
+        <div class="comp-type-tag">${r.tipoLabel} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}${r.avaluoFasecolda?' · Avalúo oficial':''}</div>
         <div class="comp-car-name">${r.nombre}</div>
         <div class="comp-car-sub">${r.anio} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}</div>
         <div style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin-top:4px">${fmtCOP(r.precio)}</div>
@@ -1741,6 +1756,8 @@ function editarBusqueda(){document.getElementById('results-section').classList.a
 // ── Ejemplos ─────────────────────────────────────────────────
 function loadExample(key) {
   const ej={
+    q3:      {marca:'AUDI',linea:'Q3 (LINEA BASE ESTANDAR)',anio:'2018',precio:80000000,km:30000,tipo:'usado'},
+    mazda2:  {marca:'MAZDA',linea:'2',anio:'2013',precio:30000000,km:120000,tipo:'usado'},
     onix:    {marca:'CHEVROLET',linea:'ONIX LT',anio:'2022',precio:58000000,km:35000,tipo:'usado'},
     sportage:{marca:'KIA',linea:'SPORTAGE',anio:'2021',precio:98000000,km:30000,tipo:'usado'},
     corolla: {marca:'TOYOTA',linea:'COROLLA',anio:'2023',precio:135900000,km:0,tipo:'nuevo'},
