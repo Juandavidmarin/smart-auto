@@ -477,6 +477,24 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .var-tip.left::before{left:auto;right:14px;transform:none}
 
 
+/* ── Supuestos toast en resultados ──────────────────────── */
+.supuestos-toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:24px;overflow:hidden}
+.st-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;gap:12px;user-select:none}
+.st-header:hover{background:rgba(0,0,0,0.02)}
+.st-icon{font-size:0.85rem;flex-shrink:0;color:var(--ink-muted)}
+.st-text{font-size:0.8rem;color:var(--ink-muted);flex:1}
+.st-text strong{color:var(--ink);font-weight:500}
+.st-toggle-btn{background:none;border:1px solid var(--border-mid);color:var(--ink-muted);font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:var(--radius-xs);cursor:pointer;white-space:nowrap;transition:var(--transition)}
+.st-toggle-btn:hover{border-color:var(--forest);color:var(--forest)}
+.st-panel{border-top:1px solid var(--border);padding:18px 16px}
+.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:760px){.st-grid{grid-template-columns:1fr 1fr}}
+.st-group{display:flex;flex-direction:column;gap:5px}
+.st-group label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted)}
+.st-actions{display:flex;justify-content:flex-end}
+.btn-recalcular{background:var(--forest);color:var(--white);padding:9px 20px;border-radius:var(--radius-sm);font-size:0.83rem;font-weight:600;border:none;cursor:pointer;transition:var(--transition)}
+.btn-recalcular:hover{background:var(--forest-light);transform:translateY(-1px)}
+
 /* ── Pros y contras ──────────────────────────────────────── */
 .pros-contras-grid{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .pc-card{flex:1;min-width:200px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
@@ -606,7 +624,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="hero-grid">
       <div class="hero-content">
-        <p class="hero-eyebrow">Carros, camionetas, motos y más — gratis, siempre</p>
+        <p class="hero-eyebrow">Carros, camionetas, motos y más</p>
         <h1 class="hero-title">Compara vehículos<br/>antes de<br/><em>comprar.</em></h1>
         <p class="hero-subtitle">El precio de lista es solo una parte. Compara el costo total real: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender.</p>
         <div class="social-proof">
@@ -764,47 +782,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 
       <button class="btn-add-car" id="btn-add-car" onclick="addCarSlot()">+ Agregar tercer carro</button>
 
-      <div class="defaults-bar">
-        <span class="defaults-summary">Supuestos del análisis: <strong>10,000 km/año</strong> · <strong>5 años</strong> · <strong>CDT 12% E.A.</strong> · <strong>Gasolina $16,000/gal</strong></span>
-        <button class="defaults-toggle" onclick="toggleDefaults()">Ver y cambiar <span id="toggle-arrow">▾</span></button>
-      </div>
-      <div class="defaults-panel hidden" id="defaults-panel">
-        <div class="defaults-grid">
-          <div class="dg-group">
-            <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
-            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
-          </div>
-          <div class="dg-group">
-            <label>Tasa CDT <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
-            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
-          </div>
-          <div class="dg-group">
-            <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
-            <div class="select-wrapper">
-              <select id="def-ciudad">
-                <option value="bogota">Bogotá</option>
-                <option value="medellin">Medellín</option>
-                <option value="cali">Cali</option>
-                <option value="barranquilla">Barranquilla</option>
-                <option value="otra">Otra ciudad</option>
-              </select>
-            </div>
-          </div>
-          <div class="dg-group">
-            <label>Años a analizar</label>
-            <div class="select-wrapper">
-              <select id="def-anos">
-                <option value="1">1 año</option>
-                <option value="3">3 años</option>
-                <option value="5" selected>5 años</option>
-                <option value="8">8 años</option>
-                <option value="10">10 años</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="cc-footer">
         <p class="cc-note">Los costos se calculan con datos oficiales 2026: SOAT, impuesto vehicular, y avalúos de referencia.</p>
         <button class="btn-primary btn-analyze" onclick="analizarTodo()">¡Comparar! →</button>
@@ -829,10 +806,54 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="results-header">
       <div>
-        <p class="results-eyebrow">Análisis completo · 5 años</p>
+        <p class="results-eyebrow">Análisis completo · <span id="res-anos-label">5 años</span></p>
         <h2 class="results-title">Comparación de costo total</h2>
       </div>
       <button class="btn-secondary" onclick="editarBusqueda()">↑ Editar búsqueda</button>
+    </div>
+
+    <!-- Toast supuestos -->
+    <div class="supuestos-toast" id="supuestos-toast">
+      <div class="st-header" onclick="toggleSupuestosToast()">
+        <span class="st-icon">ℹ</span>
+        <span class="st-text" id="st-resumen">Análisis con <strong>5 años</strong> · <strong>10,000 km/año</strong> · Gasolina <strong>$16,000/gal</strong> · CDT <strong>12% E.A.</strong></span>
+        <button class="st-toggle-btn" id="st-btn">Editar supuestos ▾</button>
+      </div>
+      <div class="st-panel hidden" id="st-panel">
+        <div class="st-grid">
+          <div class="st-group">
+            <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
+            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
+          </div>
+          <div class="st-group">
+            <label>Años a analizar</label>
+            <div class="select-wrapper"><select id="def-anos">
+              <option value="1">1 año</option>
+              <option value="3">3 años</option>
+              <option value="5" selected>5 años</option>
+              <option value="8">8 años</option>
+              <option value="10">10 años</option>
+            </select></div>
+          </div>
+          <div class="st-group">
+            <label>Tasa CDT referencia <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
+            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
+          </div>
+          <div class="st-group">
+            <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
+            <div class="select-wrapper"><select id="def-ciudad">
+              <option value="bogota">Bogotá</option>
+              <option value="medellin">Medellín</option>
+              <option value="cali">Cali</option>
+              <option value="barranquilla">Barranquilla</option>
+              <option value="otra">Otra ciudad</option>
+            </select></div>
+          </div>
+        </div>
+        <div class="st-actions">
+          <button class="btn-recalcular" onclick="recalcularConSupuestos()">Recalcular →</button>
+        </div>
+      </div>
     </div>
     <div class="comp-cards" id="comp-cards"></div>
     <div class="detail-wrapper">
@@ -966,6 +987,7 @@ let numSlots = 2;
 let tipoSlot = ['usado','usado','usado'];
 let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota', anos:5 };
 const GASOLINA = 16000;
+let _minAnio = 2005; // se actualiza al cargar vehiculos_anios.json
 
 // Estado del selector por slot: { marca, modelo, anio }
 let slotState = [{}, {}, {}];
@@ -1003,7 +1025,7 @@ async function cargarDatos() {
     const totalMarcas  = Object.keys(indice).length;
     const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
     document.getElementById('sp-marcas').textContent = totalMarcas;
-    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT e Impuesto 2026`);
+    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos`);
     inicializarSelectores();
 
     // Fase 2: años exactos en background (~1.5MB) → filtra años al llegar
@@ -1012,6 +1034,17 @@ async function cargarDatos() {
       .then(d => {
         aniosIdx = d;
         aniosIdxListo = true;
+        // Calcular el año más antiguo disponible
+        let minYear = 2025;
+        for (const marcaData of Object.values(aniosIdx)) {
+          for (const lista of Object.values(marcaData)) {
+            if (lista.length) minYear = Math.min(minYear, Math.min(...lista));
+          }
+        }
+        _minAnio = minYear;
+        const totalMarcas  = Object.keys(indice).length;
+        const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
+        setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · desde ${_minAnio}`);
         // Refrescar selects de año si el usuario ya eligió algo
         [0,1,2].forEach(i => { if (slotState[i]?.marca) poblarAnio(i); });
       })
@@ -1384,42 +1417,56 @@ function getAvaluo(marca, linea, anio) {
 // Año 1: 15-20% | Año 2: 10-14% | Año 3-4: 8-10% | Año 5+: 5-7%
 // Ajuste adicional por marca (alemanes se devalúan más, japoneses menos)
 
-const DEVAL_MARCA = {
-  // Marcas que retienen valor / devalúan poco
-  TOYOTA:0.82, MAZDA:0.84, HONDA:0.83, SUZUKI:0.85, KIA:0.86, HYUNDAI:0.86,
-  RENAULT:0.87, CHEVROLET:0.87, NISSAN:0.87, SUBARU:0.83, VOLKSWAGEN:0.86,
-  // Marcas que se devalúan más (mantenimiento caro, repuestos escasos)
-  AUDI:0.75, BMW:0.74, 'MERCEDES BENZ':0.76, 'MERCEDES-BENZ':0.76,
-  PORSCHE:0.80, 'LAND ROVER':0.72, VOLVO:0.78,
-  // Marcas chinas/emergentes
-  CHERY:0.83, JAC:0.84, 'GREAT WALL MOTOR':0.84, GEELY:0.84,
-};
-const DEVAL_MARCA_DEFAULT = 0.86; // promedio mercado colombiano
+// ── Depreciación por ciclo de vida + ajuste por marca ────────
+// Curva base (para marcas europeas premium — las que más se deprecian)
+// Índice = año del ciclo de vida (1 = primer año de uso, 6+ = maduro)
+function _tasaDevalBase(anoEnCiclo) {
+  if (anoEnCiclo <= 1) return 0.15;
+  if (anoEnCiclo === 2) return 0.12;
+  if (anoEnCiclo === 3) return 0.10;
+  if (anoEnCiclo === 4) return 0.08;
+  if (anoEnCiclo === 5) return 0.06;
+  return 0.05; // año 6 en adelante
+}
 
-function calcularReventa(precioBase, marca, anosProyeccion) {
-  // Factores de retención acumulada por año (no lineal)
-  // Ej: después de 5 años un carro retiene ~55-70% del valor
-  const factorMarca = DEVAL_MARCA[marca.toUpperCase()] || DEVAL_MARCA_DEFAULT;
-  
-  // Curva de depreciación: mayor en los primeros años
-  // Factor = retención del valor original al final del año N
-  const curva = [1.0, 0.82, 0.72, 0.64, 0.58, 0.54, 0.51, 0.49, 0.47, 0.46, 0.45];
-  
-  // Ajustar curva por marca
-  let retencion = 1.0;
-  for (let y = 1; y <= Math.min(anosProyeccion, 10); y++) {
-    const curvaBase = curva[y] / curva[y-1]; // depreciación de ese año específico
-    // Interpolar entre la curva base y el factor de marca
-    const factorAnual = curvaBase + (factorMarca - 0.86) * (1 - (y-1)*0.08);
-    retencion *= factorAnual;
+// Multiplicadores por marca sobre la curva base
+// 1.0 = máxima depreciación (marcas europeas premium)
+// Menor = retiene más valor
+const DEVAL_MULT = {
+  // Europeas premium: base
+  AUDI: 1.0, BMW: 1.0, 'MERCEDES BENZ': 1.0, 'MERCEDES-BENZ': 1.0,
+  PORSCHE: 1.0, 'LAND ROVER': 1.0, VOLVO: 1.0, JAGUAR: 1.0,
+  // Chinas/emergentes
+  CHERY: 0.85, JAC: 0.85, 'GREAT WALL MOTOR': 0.85, GEELY: 0.85,
+  BYD: 0.85, MG: 0.85, HAVAL: 0.85, JETOUR: 0.85,
+  // Europeas masivas / populares en Colombia
+  VOLKSWAGEN: 0.70, RENAULT: 0.70, PEUGEOT: 0.70, CITROEN: 0.70,
+  FIAT: 0.70, FORD: 0.70, CHEVROLET: 0.65, NISSAN: 0.65,
+  // Coreanas: buena retención
+  KIA: 0.55, HYUNDAI: 0.55,
+  // Japonesas: 70% menos depreciación que la base → multiplicador 0.30
+  TOYOTA: 0.30, HONDA: 0.30, MAZDA: 0.30, SUZUKI: 0.30,
+  SUBARU: 0.30, MITSUBISHI: 0.35, ISUZU: 0.35,
+};
+const DEVAL_MULT_DEFAULT = 0.65;
+
+function calcularReventa(precioBase, marca, anosProyeccion, anioModelo) {
+  const anioActual = new Date().getFullYear();
+  const edadActual = Math.max(0, anioActual - parseInt(anioModelo || anioActual));
+  const mult = DEVAL_MULT[marca.toUpperCase()] || DEVAL_MULT_DEFAULT;
+
+  let valor = precioBase;
+  for (let y = 1; y <= anosProyeccion; y++) {
+    // Posición en el ciclo de vida al momento de ese año de análisis
+    const anoEnCiclo = edadActual + y;
+    const tasaBase = _tasaDevalBase(anoEnCiclo);
+    valor = valor * (1 - tasaBase * mult);
   }
-  
-  return Math.round(precioBase * Math.max(retencion, 0.30));
+  return Math.round(Math.max(valor, precioBase * 0.15)); // piso del 15%
 }
 
 function devalAnualPromedio(precioBase, reventa, anos) {
-  // Tasa anual equivalente
-  return (1 - Math.pow(reventa/precioBase, 1/anos));
+  return (1 - Math.pow(reventa / precioBase, 1 / anos));
 }
 
 function estimarParams(marca, linea, cc) {
@@ -1523,7 +1570,7 @@ function calcular(c) {
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
-  const reventa     = calcularReventa(precio, marca, anosCalc);
+  const reventa     = calcularReventa(precio, marca, anosCalc, anio);
   const costoNeto   = totalGast - reventa;
   const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
@@ -1618,9 +1665,47 @@ function removeCarSlot(idx) {
   document.getElementById('btn-add-car').classList.remove('disabled');
 }
 
+// ── Supuestos toast ───────────────────────────────────────────
+function toggleSupuestosToast() {
+  const panel = document.getElementById('st-panel');
+  const btn   = document.getElementById('st-btn');
+  const open  = panel.classList.toggle('hidden');
+  btn.textContent = open ? 'Editar supuestos ▾' : 'Cerrar ▴';
+}
+
+function actualizarResumenSupuestos() {
+  const el = document.getElementById('st-resumen');
+  if (!el) return;
+  const anos = defaults.anos || 5;
+  const km   = (defaults.kmAnio || 10000).toLocaleString('es-CO');
+  const cdt  = Math.round((defaults.cdtRate || 0.12) * 100);
+  el.innerHTML = `Análisis con <strong>${anos} año${anos>1?'s':''}</strong> · <strong>${km} km/año</strong> · Gasolina <strong>$16,000/gal</strong> · CDT <strong>${cdt}% E.A.</strong>`;
+  const eyebrow = document.getElementById('res-anos-label');
+  if (eyebrow) eyebrow.textContent = `${anos} año${anos>1?'s':''}`;
+}
+
+function recalcularConSupuestos() {
+  leerDefaults();
+  actualizarResumenSupuestos();
+  // Cerrar panel
+  document.getElementById('st-panel')?.classList.add('hidden');
+  document.getElementById('st-btn').textContent = 'Editar supuestos ▾';
+  // Re-correr análisis con los últimos carros
+  if (!_ultimosCarros || !_ultimosCarros.length) return;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  runLoadingAnim().then(() => {
+    const res = _ultimosCarros.map(c => calcular(c));
+    document.getElementById('loading-overlay').classList.add('hidden');
+    renderResultados(res, true); // true = no hacer scroll
+  });
+}
+
+let _ultimosCarros = []; // guarda los últimos carros para recalcular desde el toast
+
 // ── Defaults ─────────────────────────────────────────────────
 function toggleDefaults() {
   const p=document.getElementById('defaults-panel');
+  if (!p) return;
   document.getElementById('toggle-arrow').textContent=p.classList.toggle('hidden')?'▾':'▴';
 }
 function leerDefaults() {
@@ -1643,6 +1728,7 @@ function analizarTodo() {
     carros.push({marca,linea,anio,precio,km,tipo:tipoSlot[i]});
   }
   if(!carros.length) return;
+  _ultimosCarros = carros;
   document.getElementById('loading-overlay').classList.remove('hidden');
   runLoadingAnim().then(()=>{
     const res=carros.map(c=>calcular(c));
@@ -1735,9 +1821,11 @@ function generarProsContras(resultados, anos) {
   return result;
 }
 
-function renderResultados(res) {
+function renderResultados(res, skipScroll) {
   document.getElementById('results-section').classList.remove('hidden');
   document.getElementById('compare-card').style.marginBottom='0';
+  leerDefaults();
+  actualizarResumenSupuestos();
   const anos = defaults.anos || 5;
   const minC = Math.min(...res.map(r=>r.costoNeto));
   const maxC = Math.max(...res.map(r=>r.costoNeto));
@@ -1855,7 +1943,7 @@ function renderResultados(res) {
     </div>`).join('');
 
   buildDetailTable(res, anos);
-  setTimeout(()=>document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  if (!skipScroll) setTimeout(()=>document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
 }
 
 function mejorPeor(res,campo,idx){
