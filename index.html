@@ -100,11 +100,10 @@ select,input{font-family:inherit}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* CAR SLOTS */
-.car-slots{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;margin-bottom:20px}
+.car-slots{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin-bottom:20px}
 .car-slots.tres-slots{grid-template-columns:1fr 1fr;gap:14px}
 .car-slots.tres-slots .vs-pill{display:none}
 .car-slot{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:var(--transition);position:relative;min-width:0}
-
 .car-slots.tres-slots .vs-pill:last-of-type{grid-column:1 / -1;padding:8px 0;text-align:center}
 .car-slot:focus-within{border-color:var(--forest);background:var(--white)}
 .btn-remove-slot{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--border-mid);font-size:0.9rem;cursor:pointer;padding:4px;line-height:1;transition:var(--transition)}
@@ -486,23 +485,21 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .detail-table tr:not(.section-header):not(.assumptions):hover td{background:rgba(0,0,0,0.015)}
 
 /* ── Buscador tipo Google ─────────────────────────────────── */
-.sl-search-box{position:relative;width:100%}
-.sl-search-box input{width:100%;padding:8px 28px 8px 8px;font-size:0.875rem;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--white);color:var(--ink);outline:none;transition:border-color 0.15s;font-family:inherit}
+.sl-search-box{position:relative;width:100%;margin-bottom:3px}
+.sl-search-box input{width:100%;padding:7px 26px 7px 8px;font-size:0.875rem;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--white);color:var(--ink);outline:none;transition:border-color 0.15s;font-family:inherit}
 .sl-search-box input:focus{border-color:var(--forest)}
 .sl-search-box input:disabled{opacity:0.4;background:var(--surface);cursor:not-allowed}
 .sl-search-box input::placeholder{color:var(--ink-muted)}
-.sl-search-box .sb-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--border-mid);font-size:14px;line-height:1;padding:2px;display:none}
-.sl-search-box .sb-clear.show{display:block}
-.sl-search-box .sb-clear:hover{color:var(--ink-mid)}
-.sl-dropdown{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--white);border:1px solid var(--border-mid);border-radius:var(--radius-sm);box-shadow:0 6px 20px rgba(26,26,22,0.1);z-index:600;max-height:200px;overflow-y:auto;display:none}
+.sb-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--border-mid);font-size:13px;line-height:1;padding:2px;display:none}
+.sb-clear.show{display:block}
+.sb-clear:hover{color:var(--ink-mid)}
+.sl-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--white);border:1px solid var(--border-mid);border-radius:var(--radius-sm);box-shadow:0 6px 20px rgba(26,26,22,0.1);z-index:600;max-height:200px;overflow-y:auto;display:none}
 .sl-dropdown.open{display:block}
 .sl-dd-item{padding:8px 12px;font-size:0.82rem;cursor:pointer;color:var(--ink);border-bottom:0.5px solid var(--border)}
 .sl-dd-item:last-child{border-bottom:none}
 .sl-dd-item:hover,.sl-dd-item.active{background:var(--lime-soft)}
 .sl-dd-item mark{background:none;color:var(--forest);font-weight:600}
 .sl-dd-empty{padding:10px 12px;font-size:0.82rem;color:var(--ink-muted);font-style:italic}
-/* Ocultar el select nativo debajo del buscador */
-.sl-select-wrap select{display:none}
   </style>
 </head>
 <body>
@@ -526,7 +523,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
     <div class="hero-grid">
       <div class="hero-content">
         <p class="hero-eyebrow">Carros, motos, camperos y más</p>
-        <h1 class="hero-title">El precio del carro<br/>es solo<br/><em>el comienzo.</em></h1>
+        <h1 class="hero-title">Compara el costo<br/>real de cualquier<br/><em>vehículo.</em></h1>
         <p class="hero-subtitle">Compara lo que realmente gastas con cada carro: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender. Gratis, siempre.</p>
         <div class="social-proof">
           <div class="sp-item"><span class="sp-num" id="sp-marcas">123</span><span class="sp-label">marcas disponibles</span></div>
@@ -558,18 +555,18 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <circle cx="247" cy="186" r="16" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2" fill="none"/>
   <circle cx="247" cy="186" r="4" fill="rgba(200,240,80,0.5)"/>
   <text x="130" y="56" text-anchor="middle" font-size="9" fill="#C8F050" fill-opacity="0.4" font-family="DM Sans,sans-serif" letter-spacing="0.1em">AUTOMÓVIL</text>
-  <g transform="translate(248,105)">
-    <line x1="8" y1="16" x2="56" y2="16" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6"/>
-    <path d="M12 11L5 16L12 21" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6" fill="none" stroke-linejoin="round"/>
-    <path d="M52 11L59 16L52 21" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6" fill="none" stroke-linejoin="round"/>
-    <text x="32" y="9" text-anchor="middle" font-size="9" fill="#C8F050" fill-opacity="0.5" font-family="DM Sans,sans-serif" font-weight="700" letter-spacing="0.08em">VS</text>
+  <g transform="translate(248,108)">
+    <line x1="8" y1="14" x2="56" y2="14" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6"/>
+    <path d="M12 9L5 14L12 19" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6" fill="none" stroke-linejoin="round"/>
+    <path d="M52 9L59 14L52 19" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.6" fill="none" stroke-linejoin="round"/>
+    <text x="32" y="7" text-anchor="middle" font-size="9" fill="#C8F050" fill-opacity="0.5" font-family="DM Sans,sans-serif" font-weight="700" letter-spacing="0.08em">VS</text>
   </g>
   <rect x="218" y="148" width="124" height="40" rx="6" stroke="#C8F050" stroke-width="0.8" stroke-opacity="0.25" fill="rgba(200,240,80,0.04)"/>
   <text x="280" y="162" text-anchor="middle" font-size="7.5" fill="#C8F050" fill-opacity="0.4" font-family="DM Sans,sans-serif" letter-spacing="0.06em">COSTO NETO 5 AÑOS</text>
-  <text x="256" y="178" text-anchor="middle" font-size="11" fill="#C8F050" fill-opacity="0.65" font-family="DM Sans,sans-serif" font-weight="700">-$47M</text>
-  <text x="304" y="178" text-anchor="middle" font-size="11" fill="rgba(200,240,80,0.28)" font-family="DM Sans,sans-serif" font-weight="700">-$131M</text>
+  <text x="256" y="179" text-anchor="middle" font-size="11" fill="#C8F050" fill-opacity="0.65" font-family="DM Sans,sans-serif" font-weight="700">-$47M</text>
+  <text x="304" y="179" text-anchor="middle" font-size="11" fill="rgba(200,240,80,0.28)" font-family="DM Sans,sans-serif" font-weight="700">-$131M</text>
   <ellipse cx="430" cy="221" rx="100" ry="4" fill="rgba(0,0,0,0.2)"/>
-  <path d="M318 172C320 148 332 128 356 120L400 116C406 85 422 62 448 56L498 56C524 62 540 85 546 116L554 120C554 164 554 164 554 172L518 172C508 150 492 139 468 139C445 139 428 150 420 172L338 172C330 150 314 139 294 139C276 143 278 158 280 172Z" stroke="#C8F050" stroke-width="1.3" stroke-opacity="0.55" fill="rgba(200,240,80,0.04)"/>
+  <path d="M318 172C320 148 332 128 356 120L400 116C406 85 422 62 448 56L498 56C524 62 540 85 546 116L554 120C554 164 554 172 554 172L518 172C508 150 492 139 468 139C445 139 428 150 420 172L338 172C330 150 314 139 294 139C278 143 278 158 280 172Z" stroke="#C8F050" stroke-width="1.3" stroke-opacity="0.55" fill="rgba(200,240,80,0.04)"/>
   <path d="M404 116L428 116C430 88 444 66 456 60L448 56C422 62 404 85 404 116Z" fill="rgba(200,240,80,0.07)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
   <path d="M432 116L494 116C494 62 464 54 448 56L498 56C524 62 494 88 494 116Z" fill="rgba(200,240,80,0.07)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
   <circle cx="304" cy="188" r="29" stroke="#C8F050" stroke-width="1.3" stroke-opacity="0.55" fill="rgba(200,240,80,0.03)"/>
@@ -588,7 +585,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       <div class="cc-header">
         <div>
           <h3 class="cc-title">¿Qué opciones estás evaluando?</h3>
-          <p class="cc-subtitle">Agrega al menos un carro. Siempre comparamos contra CDT.</p>
+
         </div>
       </div>
 
@@ -605,23 +602,23 @@ select:disabled{opacity:0.5;cursor:not-allowed}
             <div class="sl-field">
               <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-0" onclick="resetCampo(0,'marca')" title="Limpiar marca">✕</button></div>
               <div class="sl-search-box" id="sb-marca-0">
-              <input type="text" id="si-marca-0" placeholder="Buscar marca…" disabled autocomplete="off"
-                oninput="sbInput(0,'marca')" onfocus="sbOpen(0,'marca')" onkeydown="sbKey(event,0,'marca')"/>
-              <button class="sb-clear" id="sc-marca-0" onclick="sbClear(0,'marca')" title="Limpiar">✕</button>
-              <div class="sl-dropdown" id="sd-marca-0"></div>
-            </div>
-            <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-0" onchange="onMarcaChange(0)" disabled><option value="">Cargando…</option></select></div>
+                <input type="text" id="si-marca-0" placeholder="Buscar marca…" autocomplete="off"
+                  oninput="sbInput(0,'marca')" onfocus="sbOpen(0,'marca')" onkeydown="sbKey(event,0,'marca')"/>
+                <button class="sb-clear" id="sc-marca-0" onclick="sbClear(0,'marca')">✕</button>
+                <div class="sl-dropdown" id="sd-marca-0"></div>
+              </div>
+                            <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-0" onchange="onMarcaChange(0)" disabled><option value="">Cargando…</option></select></div>
               <div class="sl-count" id="cnt-marca-0"></div>
             </div>
             <div class="sl-field">
               <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-0" onclick="resetCampo(0,'modelo')" title="Limpiar modelo">✕</button></div>
               <div class="sl-search-box" id="sb-modelo-0">
-              <input type="text" id="si-modelo-0" placeholder="Elige marca primero" disabled autocomplete="off"
-                oninput="sbInput(0,'modelo')" onfocus="sbOpen(0,'modelo')" onkeydown="sbKey(event,0,'modelo')"/>
-              <button class="sb-clear" id="sc-modelo-0" onclick="sbClear(0,'modelo')" title="Limpiar">✕</button>
-              <div class="sl-dropdown" id="sd-modelo-0"></div>
-            </div>
-            <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-0" onchange="onModeloChange(0)" disabled><option value="">Primero elige marca</option></select></div>
+                <input type="text" id="si-modelo-0" placeholder="Elige marca primero" autocomplete="off" disabled
+                  oninput="sbInput(0,'modelo')" onfocus="sbOpen(0,'modelo')" onkeydown="sbKey(event,0,'modelo')"/>
+                <button class="sb-clear" id="sc-modelo-0" onclick="sbClear(0,'modelo')">✕</button>
+                <div class="sl-dropdown" id="sd-modelo-0"></div>
+              </div>
+                            <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-0" onchange="onModeloChange(0)" disabled><option value="">Primero elige marca</option></select></div>
               <div class="sl-count" id="cnt-modelo-0"></div>
             </div>
             <div class="sl-field">
@@ -657,23 +654,23 @@ select:disabled{opacity:0.5;cursor:not-allowed}
             <div class="sl-field">
               <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-1" onclick="resetCampo(1,'marca')" title="Limpiar marca">✕</button></div>
               <div class="sl-search-box" id="sb-marca-1">
-              <input type="text" id="si-marca-1" placeholder="Buscar marca…" disabled autocomplete="off"
-                oninput="sbInput(1,'marca')" onfocus="sbOpen(1,'marca')" onkeydown="sbKey(event,1,'marca')"/>
-              <button class="sb-clear" id="sc-marca-1" onclick="sbClear(1,'marca')" title="Limpiar">✕</button>
-              <div class="sl-dropdown" id="sd-marca-1"></div>
-            </div>
-            <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-1" onchange="onMarcaChange(1)" disabled><option value="">Cargando…</option></select></div>
+                <input type="text" id="si-marca-1" placeholder="Buscar marca…" autocomplete="off"
+                  oninput="sbInput(1,'marca')" onfocus="sbOpen(1,'marca')" onkeydown="sbKey(event,1,'marca')"/>
+                <button class="sb-clear" id="sc-marca-1" onclick="sbClear(1,'marca')">✕</button>
+                <div class="sl-dropdown" id="sd-marca-1"></div>
+              </div>
+                            <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-1" onchange="onMarcaChange(1)" disabled><option value="">Cargando…</option></select></div>
               <div class="sl-count" id="cnt-marca-1"></div>
             </div>
             <div class="sl-field">
               <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-1" onclick="resetCampo(1,'modelo')" title="Limpiar modelo">✕</button></div>
               <div class="sl-search-box" id="sb-modelo-1">
-              <input type="text" id="si-modelo-1" placeholder="Elige marca primero" disabled autocomplete="off"
-                oninput="sbInput(1,'modelo')" onfocus="sbOpen(1,'modelo')" onkeydown="sbKey(event,1,'modelo')"/>
-              <button class="sb-clear" id="sc-modelo-1" onclick="sbClear(1,'modelo')" title="Limpiar">✕</button>
-              <div class="sl-dropdown" id="sd-modelo-1"></div>
-            </div>
-            <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-1" onchange="onModeloChange(1)" disabled><option value="">Primero elige marca</option></select></div>
+                <input type="text" id="si-modelo-1" placeholder="Elige marca primero" autocomplete="off" disabled
+                  oninput="sbInput(1,'modelo')" onfocus="sbOpen(1,'modelo')" onkeydown="sbKey(event,1,'modelo')"/>
+                <button class="sb-clear" id="sc-modelo-1" onclick="sbClear(1,'modelo')">✕</button>
+                <div class="sl-dropdown" id="sd-modelo-1"></div>
+              </div>
+                            <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-1" onchange="onModeloChange(1)" disabled><option value="">Primero elige marca</option></select></div>
               <div class="sl-count" id="cnt-modelo-1"></div>
             </div>
             <div class="sl-field">
@@ -710,10 +707,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
             <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
             <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
           </div>
-          <div class="dg-group">
-            <label>Tasa CDT <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
-            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
-          </div>
+
           <div class="dg-group">
             <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
             <div class="select-wrapper">
@@ -742,7 +736,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       </div>
 
       <div class="cc-footer">
-        <p class="cc-note">Siempre comparamos contra invertir ese dinero — CDT al 12% E.A. como referencia.</p>
         <button class="btn-primary btn-analyze" onclick="analizarTodo()">Comparar →</button>
       </div>
 
@@ -753,7 +746,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
           <div class="loading-step" id="ls-1">Consultando datos del vehículo</div>
           <div class="loading-step" id="ls-2">Calculando impuestos y SOAT</div>
           <div class="loading-step" id="ls-3">Estimando devaluación y reventa</div>
-          <div class="loading-step" id="ls-4">Comparando con CDT</div>
+
         </div>
       </div>
     </div>
@@ -1004,8 +997,10 @@ function usarDatosDemostracion() {
 }
 
 function setStatus(tipo, msg) {
-  document.getElementById('status-dot').className = `status-dot ${tipo}`;
-  document.getElementById('status-text').textContent = msg;
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  if (dot) dot.className = `status-dot ${tipo}`;
+  if (txt) txt.textContent = msg;
 }
 
 // ── Nuevo selector: flujo libre ─────────────────────────────
@@ -1020,6 +1015,7 @@ function inicializarSelectores() {
     poblarMarca(idx);
     poblarModelo(idx);
     poblarAnio(idx);
+    sbEnable(idx,'marca','Buscar marca…');
   });
 }
 
@@ -1427,47 +1423,47 @@ function setTipo(idx, tipo) {
 }
 
 function addCarSlot() {
-  if (numSlots>=3) return;
-  const idx=numSlots;
-  const cont=document.getElementById('car-slots');
-  const opts=indice?Object.keys(indice).sort().map(m=>`<option value="${m}">${m}</option>`).join(''):'';
-  const vsp=document.createElement('div'); vsp.className='vs-pill'; vsp.textContent='VS'; cont.appendChild(vsp);
-  const sl=document.createElement('div'); sl.className='car-slot'; sl.id=`slot-${idx}`; sl.dataset.slot=idx;
-  sl.innerHTML=`
-    <button class="btn-remove-slot" onclick="removeCarSlot(${idx})">✕</button>
-    <div class="slot-header"><span class="slot-label">Opción ${idx+1}</span>
+  if (numSlots >= 3) return;
+  const idx = numSlots;
+  const cont = document.getElementById('car-slots');
+  const opts = indice ? Object.keys(indice).sort().map(m=>`<option value="${m}">${m}</option>`).join('') : '';
+  const sl = document.createElement('div');
+  sl.className = 'car-slot'; sl.id = `slot-${idx}`; sl.dataset.slot = idx;
+  sl.innerHTML = `
+    <button class="btn-remove-slot" onclick="removeCarSlot(${idx})" title="Quitar">✕</button>
+    <div class="slot-header">
+      <span class="slot-label">Opción ${idx+1}</span>
       <div class="slot-type-toggle">
         <button class="type-btn active" onclick="setTipo(${idx},'usado')">Usado</button>
         <button class="type-btn" onclick="setTipo(${idx},'nuevo')">Nuevo 0km</button>
       </div>
     </div>
-    <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden</span></div>
     <div class="slot-selector-grid">
       <div class="sl-field">
-        <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-${idx}" onclick="resetCampo(${idx},'marca')">✕</button></div>
+        <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-${idx}" onclick="resetCampo(${idx},'marca')" title="Limpiar">✕</button></div>
         <div class="sl-search-box" id="sb-marca-${idx}">
           <input type="text" id="si-marca-${idx}" placeholder="Buscar marca…" autocomplete="off"
             oninput="sbInput(${idx},'marca')" onfocus="sbOpen(${idx},'marca')" onkeydown="sbKey(event,${idx},'marca')"/>
           <button class="sb-clear" id="sc-marca-${idx}" onclick="sbClear(${idx},'marca')">✕</button>
           <div class="sl-dropdown" id="sd-marca-${idx}"></div>
         </div>
-        <div class="sl-select-wrap"><select id="sel-marca-${idx}" onchange="onMarcaChange(${idx})" style="display:none"><option value="">— Marca —</option>${opts}</select></div>
+        <select id="sel-marca-${idx}" class="sl-marca" onchange="onMarcaChange(${idx})" style="display:none"><option value="">— Marca —</option>${opts}</select>
         <div class="sl-count" id="cnt-marca-${idx}"></div>
       </div>
       <div class="sl-field">
-        <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')">✕</button></div>
+        <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')" title="Limpiar">✕</button></div>
         <div class="sl-search-box" id="sb-modelo-${idx}">
           <input type="text" id="si-modelo-${idx}" placeholder="Elige marca primero" autocomplete="off" disabled
             oninput="sbInput(${idx},'modelo')" onfocus="sbOpen(${idx},'modelo')" onkeydown="sbKey(event,${idx},'modelo')"/>
           <button class="sb-clear" id="sc-modelo-${idx}" onclick="sbClear(${idx},'modelo')">✕</button>
           <div class="sl-dropdown" id="sd-modelo-${idx}"></div>
         </div>
-        <div class="sl-select-wrap"><select id="sel-modelo-${idx}" onchange="onModeloChange(${idx})" disabled style="display:none"><option value="">Primero elige marca</option></select></div>
+        <select id="sel-modelo-${idx}" class="sl-modelo" onchange="onModeloChange(${idx})" disabled style="display:none"><option value="">Primero elige marca</option></select>
         <div class="sl-count" id="cnt-modelo-${idx}"></div>
       </div>
       <div class="sl-field">
-        <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')">✕</button></div>
-        <div class="sl-select-wrap"><select id="sel-anio-${idx}" onchange="onAnioChange(${idx})" disabled><option value="">Año</option></select></div>
+        <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')" title="Limpiar">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-anio-${idx}" class="sl-anio" onchange="onAnioChange(${idx})" disabled><option value="">Año</option></select></div>
         <div class="sl-count" id="cnt-anio-${idx}"></div>
       </div>
     </div>
@@ -1478,26 +1474,22 @@ function addCarSlot() {
         <div class="avaluo-hint" id="avaluo-${idx}"></div>
       </div>
       <div class="sl-field narrow slot-km" id="km-row-${idx}">
-        <label>Km actuales</label>
+        <label>Km actuales <span class="tip" data-tip="Odómetro. Afecta la devaluación estimada.">i</span></label>
         <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
       </div>
     </div>`;
   cont.appendChild(sl);
-  cont.classList.add('tres-slots');
   tipoSlot[idx] = 'usado';
   slotState[idx] = { marca:'', modelo:'', anio:'' };
   numSlots++;
-  document.getElementById('btn-add-car').classList.toggle('disabled', numSlots>=3);
+  document.getElementById('btn-add-car').classList.add('disabled');
   if (indice) { poblarMarca(idx); sbEnable(idx,'marca','Buscar marca…'); }
 }
 
 function removeCarSlot(idx) {
-  const sl=document.getElementById(`slot-${idx}`);
-  if(sl?.previousElementSibling?.classList.contains('vs-pill')) sl.previousElementSibling.remove();
-  sl?.remove();
-  numSlots = Math.max(2, numSlots-1);
+  document.getElementById(`slot-${idx}`)?.remove();
+  numSlots = Math.max(2, numSlots - 1);
   slotState[idx] = { marca:'', modelo:'', anio:'' };
-  if (numSlots <= 2) document.getElementById('car-slots').classList.remove('tres-slots');
   document.getElementById('btn-add-car').classList.remove('disabled');
 }
 
@@ -1508,7 +1500,7 @@ function toggleDefaults() {
 }
 function leerDefaults() {
   defaults.kmAnio =(parseInt((document.getElementById('def-km').value||'').replace(/\D/g,''))||10000);
-  defaults.cdtRate=(parseFloat(document.getElementById('def-cdt').value)||12)/100;
+  const cdtEl = document.getElementById('def-cdt'); defaults.cdtRate=(parseFloat(cdtEl?cdtEl.value:'12')||12)/100;
   defaults.ciudad = document.getElementById('def-ciudad').value;
   defaults.anos   = parseInt(document.getElementById('def-anos')?.value||'5')||5;
 }
@@ -1872,10 +1864,7 @@ function mostrarError(sl,msg){let e=sl.querySelector('.slot-error');if(!e){e=doc
 
 // ── Init ──────────────────────────────────────────────────────
 
-// ── Buscador tipo Google ──────────────────────────────────────
-// Funciona sobre los selects existentes (que permanecen ocultos).
-// No reemplaza ninguna función existente.
-
+// ── Buscador tipo Google ───────────────────────────────────
 var sbFocusIdx = {};
 
 function sbGetOpts(slotIdx, campo) {
@@ -1888,25 +1877,23 @@ function sbRender(slotIdx, campo, query) {
   var drop = document.getElementById('sd-' + campo + '-' + slotIdx);
   if (!drop) return;
   var opts = sbGetOpts(slotIdx, campo);
-  var q = query.toLowerCase().trim();
+  var q = (query||'').toLowerCase().trim();
   var filtered = q ? opts.filter(function(o){ return o.text.toLowerCase().indexOf(q) >= 0; }) : opts;
   if (!filtered.length) {
-    drop.innerHTML = '<div class="sl-dd-empty">Sin resultados para "' + query + '"</div>';
+    drop.innerHTML = '<div class="sl-dd-empty">Sin resultados' + (q ? ' para "' + query + '"' : '') + '</div>';
   } else {
-    var max = Math.min(filtered.length, 80);
-    var items = '';
+    var max = Math.min(filtered.length, 100);
+    var html = '';
     for (var i = 0; i < max; i++) {
-      var t = filtered[i].text;
-      var v = filtered[i].value;
-      var disp = q ? t.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\]/g,'\$&') + ')', 'gi'), '<mark>$1</mark>') : t;
-      items += '<div class="sl-dd-item" data-v="' + v.replace(/"/g,'&quot;') + '" data-t="' + t.replace(/"/g,'&quot;') + '">' + disp + '</div>';
+      var t = filtered[i].text, v = filtered[i].value;
+      var qi = q ? t.toLowerCase().indexOf(q) : -1;
+      var disp = (q && qi >= 0) ? t.slice(0,qi) + '<mark>' + t.slice(qi, qi+q.length) + '</mark>' + t.slice(qi+q.length) : t;
+      html += '<div class="sl-dd-item" data-v="' + v.replace(/"/g,'&quot;') + '" data-t="' + t.replace(/"/g,'&quot;') + '">' + disp + '</div>';
     }
-    if (filtered.length > 80) items += '<div class="sl-dd-empty">Escribe más para afinar (' + filtered.length + ' resultados)…</div>';
-    drop.innerHTML = items;
+    if (filtered.length > 100) html += '<div class="sl-dd-empty">Escribe más para afinar (' + filtered.length + ' resultados)…</div>';
+    drop.innerHTML = html;
     drop.querySelectorAll('.sl-dd-item').forEach(function(el){
-      el.addEventListener('click', function(){
-        sbSelect(slotIdx, campo, this.dataset.v, this.dataset.t);
-      });
+      el.addEventListener('click', function(){ sbSelect(slotIdx, campo, this.dataset.v, this.dataset.t); });
     });
   }
   sbFocusIdx[slotIdx + '-' + campo] = -1;
@@ -1922,7 +1909,6 @@ function sbSelect(slotIdx, campo, value, text) {
   if (inp) inp.value = text;
   if (clr) clr.className = 'sb-clear show';
   if (drop) drop.classList.remove('open');
-  // Disparar el handler existente
   if (campo === 'marca') onMarcaChange(slotIdx);
   else if (campo === 'modelo') onModeloChange(slotIdx);
 }
@@ -1931,9 +1917,8 @@ function sbInput(slotIdx, campo) {
   var inp = document.getElementById('si-' + campo + '-' + slotIdx);
   var clr = document.getElementById('sc-' + campo + '-' + slotIdx);
   if (!inp) return;
-  var q = inp.value;
-  if (clr) clr.className = q ? 'sb-clear show' : 'sb-clear';
-  sbRender(slotIdx, campo, q);
+  if (clr) clr.className = inp.value ? 'sb-clear show' : 'sb-clear';
+  sbRender(slotIdx, campo, inp.value);
 }
 
 function sbOpen(slotIdx, campo) {
@@ -1945,15 +1930,12 @@ function sbKey(e, slotIdx, campo) {
   var drop = document.getElementById('sd-' + campo + '-' + slotIdx);
   var items = drop ? drop.querySelectorAll('.sl-dd-item') : [];
   var key = slotIdx + '-' + campo;
-  if (!drop || !drop.classList.contains('open')) {
-    if (e.key === 'ArrowDown' || e.key === 'Enter') sbOpen(slotIdx, campo);
-    return;
-  }
+  if (!drop || !drop.classList.contains('open')) { if (e.key === 'ArrowDown' || e.key === 'Enter') sbOpen(slotIdx, campo); return; }
   if (e.key === 'ArrowDown') { e.preventDefault(); sbFocusIdx[key] = Math.min((sbFocusIdx[key]||0)+1, items.length-1); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); sbFocusIdx[key] = Math.max((sbFocusIdx[key]||0)-1, 0); }
   else if (e.key === 'Enter') { e.preventDefault(); var fi = sbFocusIdx[key]||0; if(items[fi]) items[fi].click(); return; }
   else if (e.key === 'Escape') { drop.classList.remove('open'); return; }
-  items.forEach(function(it, i){ it.classList.toggle('active', i === sbFocusIdx[key]); });
+  items.forEach(function(it,i){ it.classList.toggle('active', i === sbFocusIdx[key]); });
   if (items[sbFocusIdx[key]]) items[sbFocusIdx[key]].scrollIntoView({block:'nearest'});
 }
 
@@ -1964,16 +1946,15 @@ function sbClear(slotIdx, campo) {
   if (inp) inp.value = '';
   if (clr) clr.className = 'sb-clear';
   if (drop) drop.classList.remove('open');
-  resetCampo(slotIdx, campo);
-  // Si limpiamos modelo, también limpiar el input de modelo
   if (campo === 'marca') {
     var mi = document.getElementById('si-modelo-' + slotIdx);
     var mc = document.getElementById('sc-modelo-' + slotIdx);
     var md = document.getElementById('sd-modelo-' + slotIdx);
-    if (mi) mi.value = '';
+    if (mi) { mi.value = ''; mi.disabled = true; }
     if (mc) mc.className = 'sb-clear';
     if (md) md.classList.remove('open');
   }
+  resetCampo(slotIdx, campo);
 }
 
 function sbEnable(slotIdx, campo, placeholder) {
@@ -1988,7 +1969,6 @@ function sbDisable(slotIdx, campo, placeholder) {
   if (drop) drop.classList.remove('open');
 }
 
-// Cerrar dropdowns al hacer click fuera
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.sl-search-box')) {
     document.querySelectorAll('.sl-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
