@@ -540,6 +540,50 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .detail-table tr.result-row td.negative-result{color:var(--cost);font-size:1.1rem}
 .detail-table tr.result-row td.cdt-col{color:var(--gain);font-size:1.1rem;background:var(--gain-soft)}
 .detail-table tr:not(.section-header):not(.assumptions):hover td{background:rgba(0,0,0,0.015)}
+
+/* ── Dark mode ───────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cream: #101612;
+    --cream-dark: #0c1210;
+    --white: #18211d;
+    --surface: #121a16;
+    --ink: #e2ddd4;
+    --ink-mid: #b8b3a8;
+    --ink-muted: #7a7870;
+    --border: #2a3830;
+    --border-mid: #3a4d40;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.5);
+  }
+  body { background: #10150f; }
+  .compare-card { background: #18211d; }
+  select { background: #18211d; color: var(--ink); border-color: var(--border); }
+  select:disabled { background: #121a16; }
+  .ss-input { background: #18211d; color: var(--ink); }
+  .ss-input:disabled { background: #121a16; }
+  .ss-list { background: #18211d; border-color: var(--forest-light); }
+  .ss-list li:hover { background: rgba(200,240,80,0.12); }
+  .input-money { background: #18211d; border-color: var(--border); }
+  .input-money input { background: #18211d; color: var(--ink); }
+  .input-pre, .input-suf { background: #121a16; color: var(--ink-muted); }
+  .detail-table-wrapper { background: #18211d; }
+  .detail-table th { background: #1e2c22; }
+  .detail-table td { color: var(--ink); }
+  .detail-table tr.total-row td { background: #121a16; }
+  .detail-table tr.result-row td { background: #18211d; }
+  .comp-card { background: #18211d; }
+  .how-card { background: rgba(255,255,255,0.04); }
+  .how-card:hover { background: var(--lime); }
+  .sponsored-card { background: #18211d; }
+  .ad-banner, .ad-tile { background: #18211d; }
+  .pc-card { background: #18211d; }
+  .defaults-panel { background: #121a16; }
+  .data-status { background: #121a16; }
+  .slot-type-toggle { background: #18211d; }
+  .hero-comp-table { background: rgba(255,255,255,0.03); }
+}
   </style>
 </head>
 <body>
@@ -562,8 +606,8 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="hero-grid">
       <div class="hero-content">
-        <p class="hero-eyebrow">Colombia · Compara el costo real de tu próximo carro</p>
-        <h1 class="hero-title">Compara<br/>antes de<br/><em>comprar.</em></h1>
+        <p class="hero-eyebrow">Carros, camionetas, motos y más — gratis, siempre</p>
+        <h1 class="hero-title">Compara vehículos<br/>antes de<br/><em>comprar.</em></h1>
         <p class="hero-subtitle">El precio de lista es solo una parte. Compara el costo total real: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender.</p>
         <div class="social-proof">
           <div class="sp-item"><span class="sp-num" id="sp-marcas">123</span><span class="sp-label">marcas disponibles</span></div>
@@ -619,7 +663,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       <div class="cc-header">
         <div>
           <h3 class="cc-title">¿Qué opciones estás evaluando?</h3>
-          <p class="cc-subtitle">Agrega al menos un carro. Siempre comparamos contra CDT.</p>
+          <p class="cc-subtitle">Agrega hasta 3 vehículos para comparar.</p>
         </div>
       </div>
 
@@ -762,7 +806,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       </div>
 
       <div class="cc-footer">
-        <p class="cc-note">Siempre comparamos contra invertir ese dinero — CDT al 12% E.A. como referencia.</p>
+        <p class="cc-note">Los costos se calculan con datos oficiales 2026: SOAT, impuesto vehicular, y avalúos de referencia.</p>
         <button class="btn-primary btn-analyze" onclick="analizarTodo()">¡Comparar! →</button>
       </div>
 
@@ -944,9 +988,11 @@ async function cargarDatos() {
     impData  = impRaw;
 
     // Aplanar el índice: todas las categorías → marca -> [modelos únicos]
+    // Normalizamos marca a MAYÚSCULAS para evitar duplicados por casing (ej: 'Audi' vs 'AUDI')
     indice = {};
     for (const cat of Object.values(indiceCompleto)) {
-      for (const [marca, modelos] of Object.entries(cat)) {
+      for (const [marcaRaw, modelos] of Object.entries(cat)) {
+        const marca = marcaRaw.toUpperCase();
         if (!indice[marca]) indice[marca] = new Set();
         modelos.forEach(m => indice[marca].add(m));
       }
