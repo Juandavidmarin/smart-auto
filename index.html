@@ -57,7 +57,7 @@ select,input{font-family:inherit}
 .deco-ring-1{width:320px;height:320px;top:50%;left:50%;transform:translate(-50%,-50%)}
 .deco-ring-2{width:180px;height:180px;top:8%;right:2%;background:rgba(200,240,80,0.04);border-color:rgba(200,240,80,0.18)}
 .hero-eyebrow{font-size:0.75rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:20px}
-.hero-title{font-size:clamp(2.6rem,5vw,4rem);font-weight:600;color:#fff;line-height:1.1;letter-spacing:-0.03em;margin-bottom:22px}
+.hero-title{font-size:clamp(2.6rem,5vw,4rem);font-weight:600;color:var(--white);line-height:1.1;letter-spacing:-0.03em;margin-bottom:22px}
 .hero-title em{font-style:italic;color:var(--lime)}
 .hero-subtitle{color:rgba(255,255,255,0.5);font-size:1rem;max-width:520px;line-height:1.75;font-weight:300}
 .social-proof{display:flex;align-items:center;margin-top:36px;width:fit-content}
@@ -87,6 +87,9 @@ select,input{font-family:inherit}
 .cc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:16px}
 .cc-title{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:4px}
 .cc-subtitle{font-size:0.82rem;color:var(--ink-muted)}
+.btn-add-car{background:transparent;border:1.5px dashed var(--border-mid);color:var(--ink-muted);padding:9px 16px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:500;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.btn-add-car:hover{border-color:var(--forest);color:var(--forest);background:var(--surface)}
+.btn-add-car.disabled{opacity:0.35;pointer-events:none}
 
 /* DATA STATUS */
 .data-status{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--ink-muted);padding:8px 14px;background:var(--surface);border-radius:var(--radius-xs);border:1px solid var(--border);margin-bottom:16px}
@@ -97,14 +100,15 @@ select,input{font-family:inherit}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* CAR SLOTS */
-.car-slots{display:flex;flex-direction:column;gap:14px;margin-bottom:12px}
+.car-slots{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;margin-bottom:20px}
+.car-slots.tres-slots{grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto}
 .car-slot{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:var(--transition);position:relative;min-width:0}
+.car-slots.tres-slots .car-slot:last-child{grid-column:1 / -1;margin-top:0}
+.car-slots.tres-slots .vs-pill:last-of-type{grid-column:1 / -1;padding:8px 0;text-align:center}
 .car-slot:focus-within{border-color:var(--forest);background:var(--white)}
 .btn-remove-slot{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--border-mid);font-size:0.9rem;cursor:pointer;padding:4px;line-height:1;transition:var(--transition)}
 .btn-remove-slot:hover{color:var(--cost)}
-.btn-add-car{display:block;width:100%;background:transparent;border:1.5px dashed var(--border-mid);color:var(--ink-muted);padding:10px 16px;border-radius:var(--radius-sm);font-size:0.83rem;font-weight:500;text-align:center;cursor:pointer;transition:var(--transition);margin-bottom:14px}
-.btn-add-car:hover{border-color:var(--forest);color:var(--forest);background:var(--surface)}
-.btn-add-car.disabled{opacity:0.35;pointer-events:none}
+.vs-pill{display:flex;align-items:center;justify-content:center;padding:0 10px;font-size:0.68rem;font-weight:700;color:var(--border-mid);letter-spacing:0.1em;flex-shrink:0}
 .slot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .slot-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted)}
 .slot-type-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--white)}
@@ -394,67 +398,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .slot-price-row .sl-field.narrow { flex: 1; }
 @media(max-width:680px){ .slot-selector-grid { grid-template-columns: 1fr 1fr; } .slot-selector-grid .sl-field:last-child { grid-column: span 2; } }
 
-/* ── Search select (buscador tipo Google) ───────────────── */
-.ss-wrap { position: relative; }
-.ss-input {
-  width: 100%; padding: 9px 26px 9px 10px;
-  border: 1.5px solid var(--border); border-radius: var(--radius-xs);
-  background: var(--white); color: var(--ink); font-size: 0.85rem;
-  font-family: inherit; transition: var(--transition); outline: none;
-}
-.ss-input::placeholder { color: var(--ink-muted); font-weight: 400; }
-.ss-input:focus { border-color: var(--forest); }
-.ss-input.filled { border-color: var(--forest); background: rgba(28,43,30,0.03); font-weight: 500; }
-.ss-input:disabled { opacity: 0.45; cursor: not-allowed; background: var(--surface); }
-.ss-input.filtered { border-color: var(--lime-hover); }
-.ss-list {
-  position: absolute; top: calc(100% + 3px); left: 0; right: 0;
-  background: var(--white); border: 1.5px solid var(--forest);
-  border-radius: var(--radius-xs); z-index: 500;
-  max-height: 210px; overflow-y: auto;
-  box-shadow: var(--shadow-lg); list-style: none; margin: 0; padding: 4px 0;
-}
-.ss-list li {
-  padding: 8px 12px; font-size: 0.84rem; cursor: pointer;
-  transition: background 0.1s; color: var(--ink);
-}
-.ss-list li:hover { background: var(--lime-soft); color: var(--forest); }
-.ss-list li.ss-empty { color: var(--ink-muted); cursor: default; font-size: 0.78rem; }
-.ss-list.hidden { display: none; }
-
-/* ── Hero comparison table ───────────────────────────────── */
-.hero-comp-table {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px; overflow: hidden; width: 100%; font-size: 0.82rem;
-}
-.hct-head { display: grid; grid-template-columns: 1.4fr 1fr 1fr; background: rgba(255,255,255,0.04); }
-.hct-head-cell { padding: 12px 14px; font-size: 0.68rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); }
-.hct-head-cell.car { color: var(--lime); font-size: 0.75rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
-.hct-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr;
-  border-top: 1px solid rgba(255,255,255,0.06); }
-.hct-row:hover { background: rgba(255,255,255,0.03); }
-.hct-cell { padding: 9px 14px; color: rgba(255,255,255,0.55); }
-.hct-cell.val { color: rgba(255,255,255,0.8); text-align: right; font-variant-numeric: tabular-nums; }
-.hct-row.total-row { background: rgba(200,240,80,0.06); border-top: 1px solid rgba(200,240,80,0.2); }
-.hct-row.total-row .hct-cell { font-weight: 700; color: rgba(255,255,255,0.7); font-size: 0.85rem; }
-.hct-row.total-row .hct-cell.val { color: var(--lime); font-size: 0.92rem; }
-.hct-winner { display: inline-block; font-size: 0.58rem; font-weight: 800; background: var(--lime);
-  color: var(--forest); padding: 2px 6px; border-radius: 100px; margin-left: 6px;
-  text-transform: uppercase; letter-spacing: 0.06em; vertical-align: middle; }
-
-/* ── Detail toggle prominente ────────────────────────────── */
-.detail-toggle {
-  background: var(--forest); color: var(--white);
-  border: none; border-radius: var(--radius-sm);
-  padding: 13px 24px; font-size: 0.88rem; font-weight: 600;
-  cursor: pointer; width: 100%; text-align: center;
-  transition: var(--transition); margin-bottom: 12px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.detail-toggle:hover { background: var(--forest-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.detail-toggle .dt-icon { font-size: 1rem; }
-
 /* ── Tooltips variables — diseño refinado ────────────────── */
 .var-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border-mid);background:var(--white);color:var(--ink-muted);font-size:0.58rem;font-weight:700;cursor:help;vertical-align:middle;margin-left:5px;position:relative;font-style:normal;transition:all 0.15s;flex-shrink:0;line-height:1}
 .var-tip:hover{border-color:var(--forest);color:var(--forest);background:var(--lime-soft)}
@@ -476,24 +419,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .var-tip.left::after{left:auto;right:-8px;transform:none}
 .var-tip.left::before{left:auto;right:14px;transform:none}
 
-
-/* ── Supuestos toast en resultados ──────────────────────── */
-.supuestos-toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:24px;overflow:hidden}
-.st-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;gap:12px;user-select:none}
-.st-header:hover{background:rgba(0,0,0,0.02)}
-.st-icon{font-size:0.85rem;flex-shrink:0;color:var(--ink-muted)}
-.st-text{font-size:0.8rem;color:var(--ink-muted);flex:1}
-.st-text strong{color:var(--ink);font-weight:500}
-.st-toggle-btn{background:none;border:1px solid var(--border-mid);color:var(--ink-muted);font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:var(--radius-xs);cursor:pointer;white-space:nowrap;transition:var(--transition)}
-.st-toggle-btn:hover{border-color:var(--forest);color:var(--forest)}
-.st-panel{border-top:1px solid var(--border);padding:18px 16px}
-.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
-@media(max-width:760px){.st-grid{grid-template-columns:1fr 1fr}}
-.st-group{display:flex;flex-direction:column;gap:5px}
-.st-group label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted)}
-.st-actions{display:flex;justify-content:flex-end}
-.btn-recalcular{background:var(--forest);color:var(--white);padding:9px 20px;border-radius:var(--radius-sm);font-size:0.83rem;font-weight:600;border:none;cursor:pointer;transition:var(--transition)}
-.btn-recalcular:hover{background:var(--forest-light);transform:translateY(-1px)}
 
 /* ── Pros y contras ──────────────────────────────────────── */
 .pros-contras-grid{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
@@ -558,50 +483,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .detail-table tr.result-row td.negative-result{color:var(--cost);font-size:1.1rem}
 .detail-table tr.result-row td.cdt-col{color:var(--gain);font-size:1.1rem;background:var(--gain-soft)}
 .detail-table tr:not(.section-header):not(.assumptions):hover td{background:rgba(0,0,0,0.015)}
-
-/* ── Dark mode ───────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --cream: #101612;
-    --cream-dark: #0c1210;
-    --white: #18211d;
-    --surface: #121a16;
-    --ink: #e2ddd4;
-    --ink-mid: #b8b3a8;
-    --ink-muted: #7a7870;
-    --border: #2a3830;
-    --border-mid: #3a4d40;
-    --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
-    --shadow-lg: 0 12px 48px rgba(0,0,0,0.5);
-  }
-  body { background: #10150f; }
-  .compare-card { background: #18211d; }
-  select { background: #18211d; color: var(--ink); border-color: var(--border); }
-  select:disabled { background: #121a16; }
-  .ss-input { background: #18211d; color: var(--ink); }
-  .ss-input:disabled { background: #121a16; }
-  .ss-list { background: #18211d; border-color: var(--forest-light); }
-  .ss-list li:hover { background: rgba(200,240,80,0.12); }
-  .input-money { background: #18211d; border-color: var(--border); }
-  .input-money input { background: #18211d; color: var(--ink); }
-  .input-pre, .input-suf { background: #121a16; color: var(--ink-muted); }
-  .detail-table-wrapper { background: #18211d; }
-  .detail-table th { background: #1e2c22; }
-  .detail-table td { color: var(--ink); }
-  .detail-table tr.total-row td { background: #121a16; }
-  .detail-table tr.result-row td { background: #18211d; }
-  .comp-card { background: #18211d; }
-  .how-card { background: rgba(255,255,255,0.04); }
-  .how-card:hover { background: var(--lime); }
-  .sponsored-card { background: #18211d; }
-  .ad-banner, .ad-tile { background: #18211d; }
-  .pc-card { background: #18211d; }
-  .defaults-panel { background: #121a16; }
-  .data-status { background: #121a16; }
-  .slot-type-toggle { background: #18211d; }
-  .hero-comp-table { background: rgba(255,255,255,0.03); }
-}
   </style>
 </head>
 <body>
@@ -624,9 +505,9 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="hero-grid">
       <div class="hero-content">
-        <p class="hero-eyebrow">Carros, camionetas, motos y más</p>
-        <h1 class="hero-title">Compara vehículos<br/>antes de<br/><em>comprar.</em></h1>
-        <p class="hero-subtitle">El precio de lista es solo una parte. Compara el costo total real: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender.</p>
+        <p class="hero-eyebrow">Colombia · Compra tu próximo carro con los ojos abiertos</p>
+        <h1 class="hero-title">El precio del carro<br/>es solo<br/><em>el comienzo.</em></h1>
+        <p class="hero-subtitle">Compara lo que realmente gastas con cada carro: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender. Gratis, siempre.</p>
         <div class="social-proof">
           <div class="sp-item"><span class="sp-num" id="sp-marcas">123</span><span class="sp-label">marcas disponibles</span></div>
           <div class="sp-divider"></div>
@@ -636,43 +517,44 @@ select:disabled{opacity:0.5;cursor:not-allowed}
         </div>
       </div>
       <div class="hero-visual">
-        <div class="hero-comp-table">
-          <div class="hct-head">
-            <div class="hct-head-cell">Concepto · 5 años</div>
-            <div class="hct-head-cell car">Chevrolet Onix</div>
-            <div class="hct-head-cell car">Renault Sandero</div>
-          </div>
-          <div class="hct-row">
-            <div class="hct-cell">Precio de compra</div>
-            <div class="hct-cell val">$57.000.000</div>
-            <div class="hct-cell val">$49.000.000</div>
-          </div>
-          <div class="hct-row">
-            <div class="hct-cell">SOAT + seguro / año</div>
-            <div class="hct-cell val">$2.050.000</div>
-            <div class="hct-cell val">$1.760.000</div>
-          </div>
-          <div class="hct-row">
-            <div class="hct-cell">Impuesto vehicular / año</div>
-            <div class="hct-cell val">$1.140.000</div>
-            <div class="hct-cell val">$980.000</div>
-          </div>
-          <div class="hct-row">
-            <div class="hct-cell">Gasolina + mantenimiento / año</div>
-            <div class="hct-cell val">$3.100.000</div>
-            <div class="hct-cell val">$3.350.000</div>
-          </div>
-          <div class="hct-row">
-            <div class="hct-cell">Reventa estimada</div>
-            <div class="hct-cell val" style="color:var(--lime)">$39.000.000</div>
-            <div class="hct-cell val" style="color:var(--lime)">$33.500.000</div>
-          </div>
-          <div class="hct-row total-row">
-            <div class="hct-cell">Costo neto real</div>
-            <div class="hct-cell val">$50.700.000</div>
-            <div class="hct-cell val">$45.100.000<span class="hct-winner">−$5.6M</span></div>
-          </div>
-        </div>
+        <div class="deco-ring deco-ring-1"></div>
+        <div class="deco-ring deco-ring-2"></div>
+        <svg class="car-svg" viewBox="0 0 520 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="cg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <radialGradient id="rg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C8F050" stop-opacity="0.22"/><stop offset="100%" stop-color="#C8F050" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="260" cy="218" rx="190" ry="7" fill="rgba(0,0,0,0.2)"/>
+          <path d="M58 172C60 150 72 132 95 124L148 120C156 86 178 64 208 57L312 57C342 64 364 86 372 120L428 124C450 132 462 150 464 172L422 172C410 150 388 139 365 139C342 139 320 150 308 172L212 172C200 150 178 139 155 139C132 139 110 150 98 172Z" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.04)" filter="url(#cg)"/>
+          <path d="M150 120L175 120C180 88 196 66 212 59L308 59C324 66 340 88 345 120L370 120" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="none"/>
+          <path d="M178 120C183 90 198 68 214 61L253 61L252 120Z" fill="rgba(200,240,80,0.05)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
+          <path d="M256 61L307 61C322 68 337 90 342 120L256 120Z" fill="rgba(200,240,80,0.05)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
+          <circle cx="155" cy="186" r="34" fill="url(#rg)"/>
+          <circle cx="155" cy="186" r="34" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.03)"/>
+          <circle cx="155" cy="186" r="22" stroke="#C8F050" stroke-width="0.8" stroke-opacity="0.3" fill="none"/>
+          <circle cx="155" cy="186" r="8" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="rgba(200,240,80,0.08)"/>
+          <circle cx="155" cy="186" r="3" fill="rgba(200,240,80,0.6)"/>
+          <line x1="155" y1="164" x2="155" y2="208" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="133" y1="186" x2="177" y2="186" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="139" y1="170" x2="171" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="171" y1="170" x2="139" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <circle cx="365" cy="186" r="34" fill="url(#rg)"/>
+          <circle cx="365" cy="186" r="34" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.03)"/>
+          <circle cx="365" cy="186" r="22" stroke="#C8F050" stroke-width="0.8" stroke-opacity="0.3" fill="none"/>
+          <circle cx="365" cy="186" r="8" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="rgba(200,240,80,0.08)"/>
+          <circle cx="365" cy="186" r="3" fill="rgba(200,240,80,0.6)"/>
+          <line x1="365" y1="164" x2="365" y2="208" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="343" y1="186" x2="387" y2="186" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="349" y1="170" x2="381" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="381" y1="170" x2="349" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <path d="M165 120Q260 136 355 120" stroke="#C8F050" stroke-width="0.6" stroke-opacity="0.15" fill="none"/>
+          <path d="M456 128L463 137L463 147L456 154" stroke="#C8F050" stroke-width="1.2" stroke-opacity="0.5" fill="none"/>
+          <ellipse cx="461" cy="141" rx="4" ry="12" fill="#C8F050" fill-opacity="0.14"/>
+          <rect x="56" y="128" width="3" height="32" rx="1.5" fill="#C8F050" fill-opacity="0.4"/>
+          <line x1="6" y1="118" x2="44" y2="118" stroke="#C8F050" stroke-width="0.9" stroke-opacity="0.2"/>
+          <line x1="0" y1="133" x2="42" y2="133" stroke="#C8F050" stroke-width="1.3" stroke-opacity="0.15"/>
+          <line x1="18" y1="222" x2="502" y2="222" stroke="#C8F050" stroke-width="0.5" stroke-opacity="0.1"/>
+        </svg>
       </div>
     </div>
 
@@ -681,8 +563,9 @@ select:disabled{opacity:0.5;cursor:not-allowed}
       <div class="cc-header">
         <div>
           <h3 class="cc-title">¿Qué opciones estás evaluando?</h3>
-          <p class="cc-subtitle">Agrega hasta 3 vehículos para comparar.</p>
+          <p class="cc-subtitle">Agrega al menos un carro. Siempre comparamos contra CDT.</p>
         </div>
+        <button class="btn-add-car" id="btn-add-car" onclick="addCarSlot()">+ Tercer carro</button>
       </div>
 
       <div class="data-status" id="data-status">
@@ -699,26 +582,21 @@ select:disabled{opacity:0.5;cursor:not-allowed}
               <button class="type-btn" onclick="setTipo(0,'nuevo')">Nuevo 0km</button>
             </div>
           </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
           <div class="slot-selector-grid">
             <div class="sl-field">
-              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-0" onclick="resetCampo(0,'marca')" title="Limpiar">✕</button></div>
-              <div class="ss-wrap">
-                <input type="text" class="ss-input" id="inp-marca-0" placeholder="Buscar marca…" autocomplete="off" oninput="filtrarOpciones('marca',0)" onfocus="mostrarDropdown('marca',0)" onblur="cerrarDropdown('marca',0)" disabled>
-                <ul class="ss-list hidden" id="dd-marca-0"></ul>
-              </div>
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-0" onclick="resetCampo(0,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-0" onchange="onMarcaChange(0)" disabled><option value="">Cargando…</option></select></div>
               <div class="sl-count" id="cnt-marca-0"></div>
             </div>
             <div class="sl-field">
-              <div class="sl-field-header"><label>Referencia</label><button class="sl-reset-btn" id="reset-modelo-0" onclick="resetCampo(0,'modelo')" title="Limpiar">✕</button></div>
-              <div class="ss-wrap">
-                <input type="text" class="ss-input" id="inp-modelo-0" placeholder="Primero elige marca" autocomplete="off" oninput="filtrarOpciones('modelo',0)" onfocus="mostrarDropdown('modelo',0)" onblur="cerrarDropdown('modelo',0)" disabled>
-                <ul class="ss-list hidden" id="dd-modelo-0"></ul>
-              </div>
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-0" onclick="resetCampo(0,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-0" onchange="onModeloChange(0)" disabled><option value="">Primero elige marca</option></select></div>
               <div class="sl-count" id="cnt-modelo-0"></div>
             </div>
             <div class="sl-field">
-              <div class="sl-field-header"><label>Año</label><button class="sl-reset-btn" id="reset-anio-0" onclick="resetCampo(0,'anio')" title="Limpiar año">✕</button></div>
-              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-0" onchange="onAnioChange(0)" disabled><option value="">— Año —</option></select></div>
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-0" onclick="resetCampo(0,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-0" onchange="onAnioChange(0)" disabled><option value="">Año</option></select></div>
               <div class="sl-count" id="cnt-anio-0"></div>
             </div>
           </div>
@@ -735,6 +613,8 @@ select:disabled{opacity:0.5;cursor:not-allowed}
           </div>
         </div>
 
+        <div class="vs-pill">VS</div>
+
         <div class="car-slot" id="slot-1" data-slot="1">
           <div class="slot-header">
             <span class="slot-label">Opción 2</span>
@@ -743,26 +623,21 @@ select:disabled{opacity:0.5;cursor:not-allowed}
               <button class="type-btn" onclick="setTipo(1,'nuevo')">Nuevo 0km</button>
             </div>
           </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
           <div class="slot-selector-grid">
             <div class="sl-field">
-              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-1" onclick="resetCampo(1,'marca')" title="Limpiar">✕</button></div>
-              <div class="ss-wrap">
-                <input type="text" class="ss-input" id="inp-marca-1" placeholder="Buscar marca…" autocomplete="off" oninput="filtrarOpciones('marca',1)" onfocus="mostrarDropdown('marca',1)" onblur="cerrarDropdown('marca',1)" disabled>
-                <ul class="ss-list hidden" id="dd-marca-1"></ul>
-              </div>
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-1" onclick="resetCampo(1,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-1" onchange="onMarcaChange(1)" disabled><option value="">Cargando…</option></select></div>
               <div class="sl-count" id="cnt-marca-1"></div>
             </div>
             <div class="sl-field">
-              <div class="sl-field-header"><label>Referencia</label><button class="sl-reset-btn" id="reset-modelo-1" onclick="resetCampo(1,'modelo')" title="Limpiar">✕</button></div>
-              <div class="ss-wrap">
-                <input type="text" class="ss-input" id="inp-modelo-1" placeholder="Primero elige marca" autocomplete="off" oninput="filtrarOpciones('modelo',1)" onfocus="mostrarDropdown('modelo',1)" onblur="cerrarDropdown('modelo',1)" disabled>
-                <ul class="ss-list hidden" id="dd-modelo-1"></ul>
-              </div>
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-1" onclick="resetCampo(1,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-1" onchange="onModeloChange(1)" disabled><option value="">Primero elige marca</option></select></div>
               <div class="sl-count" id="cnt-modelo-1"></div>
             </div>
             <div class="sl-field">
-              <div class="sl-field-header"><label>Año</label><button class="sl-reset-btn" id="reset-anio-1" onclick="resetCampo(1,'anio')" title="Limpiar año">✕</button></div>
-              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-1" onchange="onAnioChange(1)" disabled><option value="">— Año —</option></select></div>
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-1" onclick="resetCampo(1,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-1" onchange="onAnioChange(1)" disabled><option value="">Año</option></select></div>
               <div class="sl-count" id="cnt-anio-1"></div>
             </div>
           </div>
@@ -780,11 +655,50 @@ select:disabled{opacity:0.5;cursor:not-allowed}
         </div>
       </div>
 
-      <button class="btn-add-car" id="btn-add-car" onclick="addCarSlot()">+ Agregar tercer carro</button>
+      <div class="defaults-bar">
+        <span class="defaults-summary">Supuestos: <strong>10,000 km/año</strong> · <strong>5 años</strong> · <strong>CDT 12% E.A.</strong> · <strong>Gasolina $16,000/gal</strong></span>
+        <button class="defaults-toggle" onclick="toggleDefaults()">Ajustar <span id="toggle-arrow">▾</span></button>
+      </div>
+      <div class="defaults-panel hidden" id="defaults-panel">
+        <div class="defaults-grid">
+          <div class="dg-group">
+            <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
+            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
+          </div>
+          <div class="dg-group">
+            <label>Tasa CDT <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
+            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
+          </div>
+          <div class="dg-group">
+            <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
+            <div class="select-wrapper">
+              <select id="def-ciudad">
+                <option value="bogota">Bogotá</option>
+                <option value="medellin">Medellín</option>
+                <option value="cali">Cali</option>
+                <option value="barranquilla">Barranquilla</option>
+                <option value="otra">Otra ciudad</option>
+              </select>
+            </div>
+          </div>
+          <div class="dg-group">
+            <label>Años a analizar</label>
+            <div class="select-wrapper">
+              <select id="def-anos">
+                <option value="1">1 año</option>
+                <option value="3">3 años</option>
+                <option value="5" selected>5 años</option>
+                <option value="8">8 años</option>
+                <option value="10">10 años</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="cc-footer">
-        <p class="cc-note">Los costos se calculan con datos oficiales 2026: SOAT, impuesto vehicular, y avalúos de referencia.</p>
-        <button class="btn-primary btn-analyze" onclick="analizarTodo()">¡Comparar! →</button>
+        <p class="cc-note">Siempre comparamos contra invertir ese dinero — CDT al 12% E.A. como referencia.</p>
+        <button class="btn-primary btn-analyze" onclick="analizarTodo()">Ver comparación completa →</button>
       </div>
 
       <div class="loading-overlay hidden" id="loading-overlay">
@@ -806,58 +720,14 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   <div class="container">
     <div class="results-header">
       <div>
-        <p class="results-eyebrow">Análisis completo · <span id="res-anos-label">5 años</span></p>
+        <p class="results-eyebrow">Análisis completo · 5 años</p>
         <h2 class="results-title">Comparación de costo total</h2>
       </div>
       <button class="btn-secondary" onclick="editarBusqueda()">↑ Editar búsqueda</button>
     </div>
-
-    <!-- Toast supuestos -->
-    <div class="supuestos-toast" id="supuestos-toast">
-      <div class="st-header" onclick="toggleSupuestosToast()">
-        <span class="st-icon">ℹ</span>
-        <span class="st-text" id="st-resumen">Análisis con <strong>5 años</strong> · <strong>10,000 km/año</strong> · Gasolina <strong>$16,000/gal</strong> · CDT <strong>12% E.A.</strong></span>
-        <button class="st-toggle-btn" id="st-btn">Editar supuestos ▾</button>
-      </div>
-      <div class="st-panel hidden" id="st-panel">
-        <div class="st-grid">
-          <div class="st-group">
-            <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
-            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
-          </div>
-          <div class="st-group">
-            <label>Años a analizar</label>
-            <div class="select-wrapper"><select id="def-anos">
-              <option value="1">1 año</option>
-              <option value="3">3 años</option>
-              <option value="5" selected>5 años</option>
-              <option value="8">8 años</option>
-              <option value="10">10 años</option>
-            </select></div>
-          </div>
-          <div class="st-group">
-            <label>Tasa CDT referencia <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
-            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
-          </div>
-          <div class="st-group">
-            <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
-            <div class="select-wrapper"><select id="def-ciudad">
-              <option value="bogota">Bogotá</option>
-              <option value="medellin">Medellín</option>
-              <option value="cali">Cali</option>
-              <option value="barranquilla">Barranquilla</option>
-              <option value="otra">Otra ciudad</option>
-            </select></div>
-          </div>
-        </div>
-        <div class="st-actions">
-          <button class="btn-recalcular" onclick="recalcularConSupuestos()">Recalcular →</button>
-        </div>
-      </div>
-    </div>
     <div class="comp-cards" id="comp-cards"></div>
     <div class="detail-wrapper">
-      <button class="detail-toggle" onclick="toggleDetail()" id="detail-toggle-btn"><span class="dt-icon">📊</span> Ver desglose completo por año y concepto ▾</button>
+      <button class="detail-toggle" onclick="toggleDetail()" id="detail-toggle-btn">Ver desglose completo ▾</button>
       <div class="detail-panel hidden" id="detail-panel">
         <div class="detail-table-wrapper">
           <table class="detail-table" id="detail-table"></table>
@@ -977,6 +847,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 
 const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 
+let segurosData = null; // seguros_referencia.json — prima por marca/modelo
 let indice   = null;  // marca -> [modelos] — unificado todas las categorías
 let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
 let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
@@ -987,34 +858,30 @@ let numSlots = 2;
 let tipoSlot = ['usado','usado','usado'];
 let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota', anos:5 };
 const GASOLINA = 16000;
-let _minAnio = 2005; // se actualiza al cargar vehiculos_anios.json
 
 // Estado del selector por slot: { marca, modelo, anio }
 let slotState = [{}, {}, {}];
-// Opciones disponibles para los buscadores
-let _marcasDisponibles = [[], [], []];
-let _modelosDisponibles = [[], [], []];
 
 // ── Carga de datos ──────────────────────────────────────────
 async function cargarDatos() {
   setStatus('loading','Cargando catálogo de vehículos…');
   try {
     // Fase 1: índice unificado + SOAT + impuesto (~250KB) → selector activo inmediato
-    const [ri, rs, rim] = await Promise.all([
+    const [ri, rs, rim, rsg] = await Promise.all([
       fetch(`${BASE}/vehiculos_indice_completo.json`),
       fetch(`${BASE}/soat_2026.json`),
-      fetch(`${BASE}/impuesto_vehicular_2026.json`)
+      fetch(`${BASE}/impuesto_vehicular_2026.json`),
+      fetch(`${BASE}/seguros_referencia.json`)
     ]);
-    const [indiceCompleto, soatRaw, impRaw] = await Promise.all([ri.json(), rs.json(), rim.json()]);
+    const [indiceCompleto, soatRaw, impRaw, sgRaw] = await Promise.all([ri.json(), rs.json(), rim.json(), rsg.json()]);
+    segurosData = sgRaw;
     soatData = soatRaw;
     impData  = impRaw;
 
     // Aplanar el índice: todas las categorías → marca -> [modelos únicos]
-    // Normalizamos marca a MAYÚSCULAS para evitar duplicados por casing (ej: 'Audi' vs 'AUDI')
     indice = {};
     for (const cat of Object.values(indiceCompleto)) {
-      for (const [marcaRaw, modelos] of Object.entries(cat)) {
-        const marca = marcaRaw.toUpperCase();
+      for (const [marca, modelos] of Object.entries(cat)) {
         if (!indice[marca]) indice[marca] = new Set();
         modelos.forEach(m => indice[marca].add(m));
       }
@@ -1025,7 +892,7 @@ async function cargarDatos() {
     const totalMarcas  = Object.keys(indice).length;
     const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
     document.getElementById('sp-marcas').textContent = totalMarcas;
-    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos`);
+    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT e Impuesto 2026`);
     inicializarSelectores();
 
     // Fase 2: años exactos en background (~1.5MB) → filtra años al llegar
@@ -1034,17 +901,6 @@ async function cargarDatos() {
       .then(d => {
         aniosIdx = d;
         aniosIdxListo = true;
-        // Calcular el año más antiguo disponible
-        let minYear = 2025;
-        for (const marcaData of Object.values(aniosIdx)) {
-          for (const lista of Object.values(marcaData)) {
-            if (lista.length) minYear = Math.min(minYear, Math.min(...lista));
-          }
-        }
-        _minAnio = minYear;
-        const totalMarcas  = Object.keys(indice).length;
-        const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
-        setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · desde ${_minAnio}`);
         // Refrescar selects de año si el usuario ya eligió algo
         [0,1,2].forEach(i => { if (slotState[i]?.marca) poblarAnio(i); });
       })
@@ -1126,9 +982,12 @@ function inicializarSelectores() {
 }
 
 function poblarMarca(idx) {
+  const sel = document.getElementById(`sel-marca-${idx}`);
   const marcaActual = slotState[idx].marca;
   const anioActual  = slotState[idx].anio ? parseInt(slotState[idx].anio) : null;
-
+  
+  // Si hay año elegido, filtrar marcas que tengan al menos un modelo en ese año
+  // Marcas prioritarias primero: las 2 de Juan David + top 5 Colombia + resto alfabético
   const MARCAS_TOP = ['MAZDA','AUDI','CHEVROLET','RENAULT','KIA','TOYOTA','SUZUKI'];
   const todasMarcas = Object.keys(indice);
   const topDisponibles = MARCAS_TOP.filter(m => todasMarcas.includes(m));
@@ -1140,16 +999,13 @@ function poblarMarca(idx) {
       return Object.values(modelos).some(lista => lista.includes(anioActual));
     });
   }
-
-  _marcasDisponibles[idx] = marcas;
-
-  const inp = document.getElementById(`inp-marca-${idx}`);
-  if (!inp) return;
-  inp.disabled = false;
-  // Actualizar texto del input si ya hay selección en slotState
-  if (marcaActual && inp.value !== marcaActual) inp.value = marcaActual;
-  inp.classList.toggle('filled', !!marcaActual);
-
+  
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Marca —</option>';
+  marcas.forEach(m => sel.innerHTML += `<option value="${m}"${m===marcaActual?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = marcaActual ? 'filled' : (anioActual ? 'filtered' : '');
+  
   const cnt = document.getElementById(`cnt-marca-${idx}`);
   if (anioActual && marcas.length < Object.keys(indice).length) {
     cnt.textContent = `${marcas.length} marcas con año ${anioActual}`;
@@ -1162,23 +1018,22 @@ function poblarMarca(idx) {
 }
 
 function poblarModelo(idx) {
-  const inp = document.getElementById(`inp-modelo-${idx}`);
-  if (!inp) return;
+  const sel = document.getElementById(`sel-modelo-${idx}`);
   const { marca, modelo, anio } = slotState[idx];
   const anioN = anio ? parseInt(anio) : null;
 
   if (!marca) {
-    _modelosDisponibles[idx] = [];
-    inp.value = '';
-    inp.disabled = true;
-    inp.classList.remove('filled');
-    inp.placeholder = 'Primero elige marca';
+    sel.innerHTML = '<option value="">Primero elige marca</option>';
+    sel.disabled = true;
+    sel.className = '';
     document.getElementById(`cnt-modelo-${idx}`).textContent = '';
     document.getElementById(`reset-modelo-${idx}`).className = 'sl-reset-btn';
     return;
   }
 
   let modelos = (indice[marca] || []).slice().sort();
+  
+  // Filtrar por año si está elegido
   if (anioN && aniosIdxListo && aniosIdx?.[marca]) {
     modelos = modelos.filter(m => {
       const lista = aniosIdx[marca][m];
@@ -1186,19 +1041,18 @@ function poblarModelo(idx) {
     });
   }
 
-  _modelosDisponibles[idx] = modelos;
-  inp.disabled = false;
-  inp.placeholder = 'Buscar referencia…';
-  if (modelo && inp.value !== modelo) inp.value = modelo;
-  inp.classList.toggle('filled', !!modelo);
+  sel.innerHTML = '<option value="">— Modelo —</option>';
+  modelos.forEach(m => sel.innerHTML += `<option value="${m}"${m===modelo?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = modelo ? 'filled' : (anioN ? 'filtered' : '');
 
   const cnt = document.getElementById(`cnt-modelo-${idx}`);
   const total = (indice[marca]||[]).length;
   if (anioN && modelos.length < total) {
-    cnt.textContent = `${modelos.length} de ${total} para ${anioN}`;
+    cnt.textContent = `${modelos.length} de ${total} modelos para ${anioN}`;
     cnt.className = 'sl-count ok';
   } else {
-    cnt.textContent = `${total} referencias`;
+    cnt.textContent = `${total} modelos`;
     cnt.className = 'sl-count';
   }
   document.getElementById(`reset-modelo-${idx}`).className = modelo ? 'sl-reset-btn visible' : 'sl-reset-btn';
@@ -1241,79 +1095,29 @@ function poblarAnio(idx) {
   document.getElementById(`reset-anio-${idx}`).className = anio ? 'sl-reset-btn visible' : 'sl-reset-btn';
 }
 
-// ── Buscador handlers ───────────────────────────────────────
-function filtrarOpciones(campo, idx) {
-  const inp = document.getElementById(`inp-${campo}-${idx}`);
-  const dd  = document.getElementById(`dd-${campo}-${idx}`);
-  const q   = inp.value.toLowerCase().trim();
-  const opts = campo === 'marca' ? (_marcasDisponibles[idx] || []) : (_modelosDisponibles[idx] || []);
-  const filtradas = q ? opts.filter(o => o.toLowerCase().includes(q)) : opts;
-  _renderDropdown(dd, filtradas, idx, campo);
-  dd.classList.remove('hidden');
-}
-
-function mostrarDropdown(campo, idx) {
-  if (campo === 'modelo' && !slotState[idx].marca) return;
-  const inp = document.getElementById(`inp-${campo}-${idx}`);
-  const dd  = document.getElementById(`dd-${campo}-${idx}`);
-  const q   = inp.value.toLowerCase().trim();
-  const opts = campo === 'marca' ? (_marcasDisponibles[idx] || []) : (_modelosDisponibles[idx] || []);
-  const filtradas = q ? opts.filter(o => o.toLowerCase().includes(q)) : opts;
-  _renderDropdown(dd, filtradas, idx, campo);
-  dd.classList.remove('hidden');
-}
-
-function _renderDropdown(dd, items, idx, campo) {
-  if (!items.length) {
-    dd.innerHTML = '<li class="ss-empty">Sin resultados</li>';
-    return;
-  }
-  dd.innerHTML = items.map(item =>
-    `<li onmousedown="seleccionarOpcion('${campo}',${idx},this.dataset.val)" data-val="${item.replace(/"/g,'&quot;')}">${item}</li>`
-  ).join('');
-}
-
-function seleccionarOpcion(campo, idx, valor) {
-  const inp = document.getElementById(`inp-${campo}-${idx}`);
-  inp.value = valor;
-  inp.classList.add('filled');
-  document.getElementById(`dd-${campo}-${idx}`).classList.add('hidden');
-  document.getElementById(`reset-${campo}-${idx}`).className = 'sl-reset-btn visible';
-
-  if (campo === 'marca') {
-    if (valor !== slotState[idx].marca) {
-      slotState[idx] = { marca: valor, modelo: '', anio: slotState[idx].anio };
-      // Limpiar input de modelo
-      const inpMod = document.getElementById(`inp-modelo-${idx}`);
-      if (inpMod) { inpMod.value = ''; inpMod.classList.remove('filled'); }
-      document.getElementById(`reset-modelo-${idx}`).className = 'sl-reset-btn';
-    }
-  } else {
-    slotState[idx].modelo = valor;
-    // Verificar si el año sigue siendo válido
-    const { marca, anio } = slotState[idx];
-    if (anio && marca && aniosIdx?.[marca]?.[valor]) {
-      if (!aniosIdx[marca][valor].includes(parseInt(anio))) slotState[idx].anio = '';
-    }
+// ── Handlers de cambio ──────────────────────────────────────
+function onMarcaChange(idx) {
+  const v = document.getElementById(`sel-marca-${idx}`).value;
+  // Si la marca cambió, resetear modelo y anio
+  if (v !== slotState[idx].marca) {
+    slotState[idx] = { marca: v, modelo: '', anio: '' };
   }
   actualizarSlot(idx);
 }
 
-function cerrarDropdown(campo, idx) {
-  setTimeout(() => {
-    document.getElementById(`dd-${campo}-${idx}`)?.classList.add('hidden');
-    // Si el texto no coincide con la selección actual, restaurar
-    const inp = document.getElementById(`inp-${campo}-${idx}`);
-    if (!inp) return;
-    const current = campo === 'marca' ? slotState[idx].marca : slotState[idx].modelo;
-    if (inp.value !== (current || '')) {
-      inp.value = current || '';
-      if (!current) inp.classList.remove('filled');
+function onModeloChange(idx) {
+  const v = document.getElementById(`sel-modelo-${idx}`).value;
+  slotState[idx].modelo = v;
+  // Verificar si el año actual sigue siendo válido
+  if (slotState[idx].anio && slotState[idx].marca && v && aniosIdx?.[slotState[idx].marca]?.[v]) {
+    const lista = aniosIdx[slotState[idx].marca][v];
+    const anioN = parseInt(slotState[idx].anio);
+    if (!lista.includes(anioN)) {
+      slotState[idx].anio = ''; // reset año si ese modelo no tiene ese año
     }
-  }, 160);
+  }
+  actualizarSlot(idx);
 }
-
-// ── Handlers de cambio ──────────────────────────────────────
 
 function onAnioChange(idx) {
   const v = document.getElementById(`sel-anio-${idx}`).value;
@@ -1339,17 +1143,6 @@ function actualizarSlot(idx) {
 
 function resetCampo(idx, campo) {
   slotState[idx][campo] = '';
-  if (campo === 'marca') {
-    // Al limpiar marca también limpiamos modelo
-    slotState[idx].modelo = '';
-    const inpMod = document.getElementById(`inp-modelo-${idx}`);
-    if (inpMod) { inpMod.value = ''; inpMod.classList.remove('filled'); }
-    document.getElementById(`reset-modelo-${idx}`).className = 'sl-reset-btn';
-  }
-  const inp = document.getElementById(`inp-${campo}-${idx}`);
-  if (inp) { inp.value = ''; inp.classList.remove('filled'); }
-  const dd = document.getElementById(`dd-${campo}-${idx}`);
-  if (dd) dd.classList.add('hidden');
   actualizarSlot(idx);
 }
 
@@ -1377,11 +1170,12 @@ function mostrarAvaluo(idx) {
 
 // ── Compatibilidad con addCarSlot (usa slotState) ───────────
 function getSlotValues(idx) {
+  // Leer valores del estado O directamente del DOM como fallback
   const st = slotState[idx] || {};
   return {
-    marca:  st.marca  || '',
-    modelo: st.modelo || '',
-    anio:   st.anio   || document.getElementById(`sel-anio-${idx}`)?.value || '',
+    marca:  st.marca  || document.getElementById(`sel-marca-${idx}`)?.value  || '',
+    modelo: st.modelo || document.getElementById(`sel-modelo-${idx}`)?.value || '',
+    anio:   st.anio   || document.getElementById(`sel-anio-${idx}`)?.value   || '',
   };
 }
 
@@ -1417,56 +1211,42 @@ function getAvaluo(marca, linea, anio) {
 // Año 1: 15-20% | Año 2: 10-14% | Año 3-4: 8-10% | Año 5+: 5-7%
 // Ajuste adicional por marca (alemanes se devalúan más, japoneses menos)
 
-// ── Depreciación por ciclo de vida + ajuste por marca ────────
-// Curva base (para marcas europeas premium — las que más se deprecian)
-// Índice = año del ciclo de vida (1 = primer año de uso, 6+ = maduro)
-function _tasaDevalBase(anoEnCiclo) {
-  if (anoEnCiclo <= 1) return 0.15;
-  if (anoEnCiclo === 2) return 0.12;
-  if (anoEnCiclo === 3) return 0.10;
-  if (anoEnCiclo === 4) return 0.08;
-  if (anoEnCiclo === 5) return 0.06;
-  return 0.05; // año 6 en adelante
-}
-
-// Multiplicadores por marca sobre la curva base
-// 1.0 = máxima depreciación (marcas europeas premium)
-// Menor = retiene más valor
-const DEVAL_MULT = {
-  // Europeas premium: base
-  AUDI: 1.0, BMW: 1.0, 'MERCEDES BENZ': 1.0, 'MERCEDES-BENZ': 1.0,
-  PORSCHE: 1.0, 'LAND ROVER': 1.0, VOLVO: 1.0, JAGUAR: 1.0,
-  // Chinas/emergentes
-  CHERY: 0.85, JAC: 0.85, 'GREAT WALL MOTOR': 0.85, GEELY: 0.85,
-  BYD: 0.85, MG: 0.85, HAVAL: 0.85, JETOUR: 0.85,
-  // Europeas masivas / populares en Colombia
-  VOLKSWAGEN: 0.70, RENAULT: 0.70, PEUGEOT: 0.70, CITROEN: 0.70,
-  FIAT: 0.70, FORD: 0.70, CHEVROLET: 0.65, NISSAN: 0.65,
-  // Coreanas: buena retención
-  KIA: 0.55, HYUNDAI: 0.55,
-  // Japonesas: 70% menos depreciación que la base → multiplicador 0.30
-  TOYOTA: 0.30, HONDA: 0.30, MAZDA: 0.30, SUZUKI: 0.30,
-  SUBARU: 0.30, MITSUBISHI: 0.35, ISUZU: 0.35,
+const DEVAL_MARCA = {
+  // Marcas que retienen valor / devalúan poco
+  TOYOTA:0.82, MAZDA:0.84, HONDA:0.83, SUZUKI:0.85, KIA:0.86, HYUNDAI:0.86,
+  RENAULT:0.87, CHEVROLET:0.87, NISSAN:0.87, SUBARU:0.83, VOLKSWAGEN:0.86,
+  // Marcas que se devalúan más (mantenimiento caro, repuestos escasos)
+  AUDI:0.75, BMW:0.74, 'MERCEDES BENZ':0.76, 'MERCEDES-BENZ':0.76,
+  PORSCHE:0.80, 'LAND ROVER':0.72, VOLVO:0.78,
+  // Marcas chinas/emergentes
+  CHERY:0.83, JAC:0.84, 'GREAT WALL MOTOR':0.84, GEELY:0.84,
 };
-const DEVAL_MULT_DEFAULT = 0.65;
+const DEVAL_MARCA_DEFAULT = 0.86; // promedio mercado colombiano
 
-function calcularReventa(precioBase, marca, anosProyeccion, anioModelo) {
-  const anioActual = new Date().getFullYear();
-  const edadActual = Math.max(0, anioActual - parseInt(anioModelo || anioActual));
-  const mult = DEVAL_MULT[marca.toUpperCase()] || DEVAL_MULT_DEFAULT;
-
-  let valor = precioBase;
-  for (let y = 1; y <= anosProyeccion; y++) {
-    // Posición en el ciclo de vida al momento de ese año de análisis
-    const anoEnCiclo = edadActual + y;
-    const tasaBase = _tasaDevalBase(anoEnCiclo);
-    valor = valor * (1 - tasaBase * mult);
+function calcularReventa(precioBase, marca, anosProyeccion) {
+  // Factores de retención acumulada por año (no lineal)
+  // Ej: después de 5 años un carro retiene ~55-70% del valor
+  const factorMarca = DEVAL_MARCA[marca.toUpperCase()] || DEVAL_MARCA_DEFAULT;
+  
+  // Curva de depreciación: mayor en los primeros años
+  // Factor = retención del valor original al final del año N
+  const curva = [1.0, 0.82, 0.72, 0.64, 0.58, 0.54, 0.51, 0.49, 0.47, 0.46, 0.45];
+  
+  // Ajustar curva por marca
+  let retencion = 1.0;
+  for (let y = 1; y <= Math.min(anosProyeccion, 10); y++) {
+    const curvaBase = curva[y] / curva[y-1]; // depreciación de ese año específico
+    // Interpolar entre la curva base y el factor de marca
+    const factorAnual = curvaBase + (factorMarca - 0.86) * (1 - (y-1)*0.08);
+    retencion *= factorAnual;
   }
-  return Math.round(Math.max(valor, precioBase * 0.15)); // piso del 15%
+  
+  return Math.round(precioBase * Math.max(retencion, 0.30));
 }
 
 function devalAnualPromedio(precioBase, reventa, anos) {
-  return (1 - Math.pow(reventa / precioBase, 1 / anos));
+  // Tasa anual equivalente
+  return (1 - Math.pow(reventa/precioBase, 1/anos));
 }
 
 function estimarParams(marca, linea, cc) {
@@ -1552,7 +1332,7 @@ function calcular(c) {
   const soatCat   = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
-  const seguro    = Math.round(precio * (/AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER/.test(marca.toUpperCase()) ? 0.035 : 0.025));
+  const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
   const gasolina  = Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
   const mant      = Math.round(precio * p.mantPct);
   const costosAnu = [];
@@ -1570,7 +1350,7 @@ function calcular(c) {
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
-  const reventa     = calcularReventa(precio, marca, anosCalc, anio);
+  const reventa     = calcularReventa(precio, marca, anosCalc);
   const costoNeto   = totalGast - reventa;
   const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
@@ -1601,6 +1381,8 @@ function addCarSlot() {
   if (numSlots>=3) return;
   const idx=numSlots;
   const cont=document.getElementById('car-slots');
+  const opts=indice?Object.keys(indice).sort().map(m=>`<option value="${m}">${m}</option>`).join(''):'';
+  const vsp=document.createElement('div'); vsp.className='vs-pill'; vsp.textContent='VS'; cont.appendChild(vsp);
   const sl=document.createElement('div'); sl.className='car-slot'; sl.id=`slot-${idx}`; sl.dataset.slot=idx;
   sl.innerHTML=`
     <button class="btn-remove-slot" onclick="removeCarSlot(${idx})">✕</button>
@@ -1610,28 +1392,21 @@ function addCarSlot() {
         <button class="type-btn" onclick="setTipo(${idx},'nuevo')">Nuevo 0km</button>
       </div>
     </div>
+    <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden</span></div>
     <div class="slot-selector-grid">
       <div class="sl-field">
         <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-${idx}" onclick="resetCampo(${idx},'marca')">✕</button></div>
-        <div class="ss-wrap">
-          <input type="text" class="ss-input" id="inp-marca-${idx}" placeholder="Buscar marca…" autocomplete="off"
-            oninput="filtrarOpciones('marca',${idx})" onfocus="mostrarDropdown('marca',${idx})" onblur="cerrarDropdown('marca',${idx})">
-          <ul class="ss-list hidden" id="dd-marca-${idx}"></ul>
-        </div>
+        <div class="sl-select-wrap"><select id="sel-marca-${idx}" onchange="onMarcaChange(${idx})"><option value="">— Marca —</option>${opts}</select></div>
         <div class="sl-count" id="cnt-marca-${idx}"></div>
       </div>
       <div class="sl-field">
-        <div class="sl-field-header"><label>Referencia</label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')">✕</button></div>
-        <div class="ss-wrap">
-          <input type="text" class="ss-input" id="inp-modelo-${idx}" placeholder="Primero elige marca" autocomplete="off" disabled
-            oninput="filtrarOpciones('modelo',${idx})" onfocus="mostrarDropdown('modelo',${idx})" onblur="cerrarDropdown('modelo',${idx})">
-          <ul class="ss-list hidden" id="dd-modelo-${idx}"></ul>
-        </div>
+        <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-modelo-${idx}" onchange="onModeloChange(${idx})" disabled><option value="">Primero elige marca</option></select></div>
         <div class="sl-count" id="cnt-modelo-${idx}"></div>
       </div>
       <div class="sl-field">
-        <div class="sl-field-header"><label>Año</label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')">✕</button></div>
-        <div class="sl-select-wrap"><select id="sel-anio-${idx}" onchange="onAnioChange(${idx})" disabled><option value="">— Año —</option></select></div>
+        <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-anio-${idx}" onchange="onAnioChange(${idx})" disabled><option value="">Año</option></select></div>
         <div class="sl-count" id="cnt-anio-${idx}"></div>
       </div>
     </div>
@@ -1647,65 +1422,27 @@ function addCarSlot() {
       </div>
     </div>`;
   cont.appendChild(sl);
+  cont.classList.add('tres-slots');
   tipoSlot[idx] = 'usado';
   slotState[idx] = { marca:'', modelo:'', anio:'' };
-  _marcasDisponibles[idx] = [];
-  _modelosDisponibles[idx] = [];
   numSlots++;
   document.getElementById('btn-add-car').classList.toggle('disabled', numSlots>=3);
   if (indice) poblarMarca(idx);
 }
 
 function removeCarSlot(idx) {
-  document.getElementById(`slot-${idx}`)?.remove();
+  const sl=document.getElementById(`slot-${idx}`);
+  if(sl?.previousElementSibling?.classList.contains('vs-pill')) sl.previousElementSibling.remove();
+  sl?.remove();
   numSlots = Math.max(2, numSlots-1);
   slotState[idx] = { marca:'', modelo:'', anio:'' };
-  _marcasDisponibles[idx] = [];
-  _modelosDisponibles[idx] = [];
+  if (numSlots <= 2) document.getElementById('car-slots').classList.remove('tres-slots');
   document.getElementById('btn-add-car').classList.remove('disabled');
 }
-
-// ── Supuestos toast ───────────────────────────────────────────
-function toggleSupuestosToast() {
-  const panel = document.getElementById('st-panel');
-  const btn   = document.getElementById('st-btn');
-  const open  = panel.classList.toggle('hidden');
-  btn.textContent = open ? 'Editar supuestos ▾' : 'Cerrar ▴';
-}
-
-function actualizarResumenSupuestos() {
-  const el = document.getElementById('st-resumen');
-  if (!el) return;
-  const anos = defaults.anos || 5;
-  const km   = (defaults.kmAnio || 10000).toLocaleString('es-CO');
-  const cdt  = Math.round((defaults.cdtRate || 0.12) * 100);
-  el.innerHTML = `Análisis con <strong>${anos} año${anos>1?'s':''}</strong> · <strong>${km} km/año</strong> · Gasolina <strong>$16,000/gal</strong> · CDT <strong>${cdt}% E.A.</strong>`;
-  const eyebrow = document.getElementById('res-anos-label');
-  if (eyebrow) eyebrow.textContent = `${anos} año${anos>1?'s':''}`;
-}
-
-function recalcularConSupuestos() {
-  leerDefaults();
-  actualizarResumenSupuestos();
-  // Cerrar panel
-  document.getElementById('st-panel')?.classList.add('hidden');
-  document.getElementById('st-btn').textContent = 'Editar supuestos ▾';
-  // Re-correr análisis con los últimos carros
-  if (!_ultimosCarros || !_ultimosCarros.length) return;
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  runLoadingAnim().then(() => {
-    const res = _ultimosCarros.map(c => calcular(c));
-    document.getElementById('loading-overlay').classList.add('hidden');
-    renderResultados(res, true); // true = no hacer scroll
-  });
-}
-
-let _ultimosCarros = []; // guarda los últimos carros para recalcular desde el toast
 
 // ── Defaults ─────────────────────────────────────────────────
 function toggleDefaults() {
   const p=document.getElementById('defaults-panel');
-  if (!p) return;
   document.getElementById('toggle-arrow').textContent=p.classList.toggle('hidden')?'▾':'▴';
 }
 function leerDefaults() {
@@ -1728,7 +1465,6 @@ function analizarTodo() {
     carros.push({marca,linea,anio,precio,km,tipo:tipoSlot[i]});
   }
   if(!carros.length) return;
-  _ultimosCarros = carros;
   document.getElementById('loading-overlay').classList.remove('hidden');
   runLoadingAnim().then(()=>{
     const res=carros.map(c=>calcular(c));
@@ -1821,11 +1557,9 @@ function generarProsContras(resultados, anos) {
   return result;
 }
 
-function renderResultados(res, skipScroll) {
+function renderResultados(res) {
   document.getElementById('results-section').classList.remove('hidden');
   document.getElementById('compare-card').style.marginBottom='0';
-  leerDefaults();
-  actualizarResumenSupuestos();
   const anos = defaults.anos || 5;
   const minC = Math.min(...res.map(r=>r.costoNeto));
   const maxC = Math.max(...res.map(r=>r.costoNeto));
@@ -1943,7 +1677,7 @@ function renderResultados(res, skipScroll) {
     </div>`).join('');
 
   buildDetailTable(res, anos);
-  if (!skipScroll) setTimeout(()=>document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  setTimeout(()=>document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
 }
 
 function mejorPeor(res,campo,idx){
@@ -2019,13 +1753,7 @@ function buildDetailTable(res, anos=5){
 
   document.getElementById('detail-table').innerHTML = `${thead}<tbody>${supuestos}${entrada}${anuales}${ingresos}${resultado}</tbody>`;
 }
-function toggleDetail(){
-  const p=document.getElementById('detail-panel');
-  const open=p.classList.toggle('hidden');
-  document.getElementById('detail-toggle-btn').innerHTML=
-    open ? '<span class="dt-icon">📊</span> Ver desglose completo por año y concepto ▾'
-         : '<span class="dt-icon">📊</span> Ocultar desglose ▴';
-}
+function toggleDetail(){const p=document.getElementById('detail-panel');document.getElementById('detail-toggle-btn').textContent=p.classList.toggle('hidden')?'Ver desglose completo ▾':'Ocultar desglose ▴';}
 function editarBusqueda(){document.getElementById('results-section').classList.add('hidden');document.getElementById('compare-card').style.marginBottom='';document.getElementById('compare-card').scrollIntoView({behavior:'smooth'});}
 
 // ── Ejemplos ─────────────────────────────────────────────────
@@ -2038,41 +1766,24 @@ function loadExample(key) {
     corolla: {marca:'TOYOTA',linea:'COROLLA',anio:'2023',precio:135900000,km:0,tipo:'nuevo'},
   }[key];
   if(!ej) return;
-
-  // Actualizar slotState con la marca
-  slotState[0] = { marca: ej.marca, modelo: '', anio: '' };
-  const inpMarca = document.getElementById('inp-marca-0');
-  if (inpMarca) { inpMarca.value = ej.marca; inpMarca.classList.add('filled'); }
-
-  poblarMarca(0);
-  poblarModelo(0);
-
-  setTimeout(() => {
-    // Buscar la referencia más cercana
-    const modelos = _modelosDisponibles[0] || [];
-    const primerPalabra = ej.linea.split(' ')[0];
-    const match = modelos.find(m => m === ej.linea)
-      || modelos.find(m => m.includes(primerPalabra))
-      || modelos[0];
-    if (match) {
-      slotState[0].modelo = match;
-      const inpMod = document.getElementById('inp-modelo-0');
-      if (inpMod) { inpMod.value = match; inpMod.classList.add('filled'); }
-      document.getElementById('reset-modelo-0').className = 'sl-reset-btn visible';
-    }
-    poblarAnio(0);
-    setTimeout(() => {
-      const anioSel = document.getElementById('sel-anio-0');
-      const opts = Array.from(anioSel.options);
-      const anioMatch = opts.find(o => o.value === ej.anio) || opts[1];
-      if (anioMatch) { anioSel.value = anioMatch.value; slotState[0].anio = anioMatch.value; }
-      mostrarAvaluo(0);
-      const sl = document.getElementById('slot-0');
-      sl.querySelector('.sl-precio').value = ej.precio.toLocaleString('es-CO');
-      setTipo(0, ej.tipo);
-      if (ej.tipo==='usado' && sl.querySelector('.sl-km')) sl.querySelector('.sl-km').value = ej.km.toLocaleString('es-CO');
-    }, 50);
-  }, 50);
+  const sl=document.getElementById('slot-0');
+  sl.querySelector('.sl-marca').value=ej.marca; updateLineas(0);
+  setTimeout(()=>{
+    // Buscar el modelo más parecido
+    const opts=Array.from(sl.querySelector('.sl-modelo').options);
+    const match=opts.find(o=>o.value.includes(ej.linea.split(' ')[0]))||opts[1];
+    if(match) sl.querySelector('.sl-modelo').value=match.value;
+    updateAnios(0);
+    setTimeout(()=>{
+      const anioOpts=Array.from(sl.querySelector('.sl-anio').options);
+      const anioMatch=anioOpts.find(o=>o.value===ej.anio)||anioOpts[1];
+      if(anioMatch) sl.querySelector('.sl-anio').value=anioMatch.value;
+      actualizarSlot(0);
+      sl.querySelector('.sl-precio').value=ej.precio.toLocaleString('es-CO');
+      setTipo(0,ej.tipo);
+      if(ej.tipo==='usado'&&sl.querySelector('.sl-km')) sl.querySelector('.sl-km').value=ej.km.toLocaleString('es-CO');
+    },50);
+  },50);
   document.getElementById('compare-card').scrollIntoView({behavior:'smooth'});
 }
 
@@ -2098,6 +1809,63 @@ function fmtNum(el){const v=el.value.replace(/\D/g,'');if(v)el.value=parseInt(v)
 function shake(el){el.style.animation='none';el.offsetHeight;el.style.animation='shake 0.4s ease';setTimeout(()=>el.style.animation='',500);}
 function mostrarError(sl,msg){let e=sl.querySelector('.slot-error');if(!e){e=document.createElement('p');e.className='slot-error';sl.appendChild(e);}e.textContent=msg;setTimeout(()=>e?.remove(),3000);}
 
+
+// ── Seguro desde JSON de referencia ──────────────────────────
+function calcularSeguro(marca, linea, avaluo, categoriaCascada) {
+  // 1. Buscar en el JSON de seguros por categoría → marca → modelo
+  if (segurosData) {
+    // Determinar qué categorías revisar según el tipo de vehículo
+    const cats = categoriaCascada
+      ? [categoriaCascada]
+      : ['automoviles','camperos_camionetas','doble_cabina','electricos','hibridos','motos'];
+
+    for (const cat of cats) {
+      const marcaData = segurosData[cat]?.[marca.toUpperCase()];
+      if (!marcaData) continue;
+
+      // Buscar coincidencia exacta primero
+      if (marcaData[linea]) {
+        const [prima_base, factor] = marcaData[linea];
+        return ajustarPorAvaluo(prima_base, factor, avaluo);
+      }
+      // Luego match por inicio del nombre
+      const lineaU = linea.toUpperCase();
+      for (const [key, val] of Object.entries(marcaData)) {
+        if (lineaU.startsWith(key.toUpperCase()) || key.toUpperCase().includes(lineaU.substring(0,6))) {
+          const [prima_base, factor] = val;
+          return ajustarPorAvaluo(prima_base, factor, avaluo);
+        }
+      }
+    }
+  }
+  // Fallback si no hay dato en el JSON
+  return calcularSeguroFallback(marca, avaluo);
+}
+
+function ajustarPorAvaluo(prima_base, factor, avaluo) {
+  // La prima_base del JSON ya está calibrada para el modelo específico.
+  // Solo ajustamos si el avalúo actual difiere significativamente del rango típico.
+  // Avalúo de referencia implícito para ese nivel de prima:
+  const avaluoRef = prima_base / 0.038;
+  const ratio = avaluo / avaluoRef;
+  // Si ratio está entre 0.5 y 1.8, prima_base es adecuada sin ajuste mayor
+  if (ratio >= 0.5 && ratio <= 1.8) return prima_base;
+  // Fuera de ese rango, ajuste suave (raíz cuadrada para suavizar)
+  const ajuste = 0.5 + 0.5 * Math.sqrt(ratio);
+  return Math.round(prima_base * Math.min(Math.max(ajuste, 0.6), 2.2));
+}
+
+function calcularSeguroFallback(marca, avaluo) {
+  // Fallback cuando no hay dato en el JSON
+  const m = marca.toUpperCase();
+  const esPremium = /AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|FERRARI|LAMBORGHINI|MASERATI/.test(m);
+  const esMoto = /YAMAHA|AKT|BAJAJ|KAWASAKI|ROYAL ENFIELD|DUCATI|KTM|HARLEY/.test(m);
+  if (esMoto) return Math.round(avaluo * 0.045 + 300000);
+  const base = 550000;
+  const tasa = avaluo < 30e6 ? 0.045 : avaluo < 60e6 ? 0.038 : avaluo < 100e6 ? 0.032 : 0.027;
+  const factor = esPremium ? 1.15 : 1.0;
+  return Math.round((base + avaluo * tasa) * factor);
+}
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   const t=document.getElementById('stats-track');
