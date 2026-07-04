@@ -468,15 +468,17 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 /* Tooltip box */
 .var-tip::after{
   content:attr(data-tip);
-  position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  position:fixed;
   background:var(--forest);color:rgba(255,255,255,0.92);
   padding:14px 16px;border-radius:12px;
   font-size:0.75rem;font-weight:400;line-height:1.65;
-  width:260px;text-align:left;
+  width:260px;max-width:calc(100vw - 32px);text-align:left;
   opacity:0;pointer-events:none;transition:opacity 0.18s;
-  z-index:400;box-shadow:0 12px 40px rgba(0,0,0,0.3);
+  z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.3);
   white-space:normal;font-family:'DM Sans',sans-serif;
   letter-spacing:0.01em;
+  left:50%;transform:translateX(-50%);
+  bottom:auto;top:auto;
 }
 .var-tip::before{content:'';position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--forest);opacity:0;transition:opacity 0.18s;z-index:401}
 .var-tip:hover::after,.var-tip:hover::before{opacity:1}
@@ -939,7 +941,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
         <div class="st-grid">
           <div class="st-group">
             <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
-            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
+            <div class="input-money"><input type="text" id="def-km" value="12,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
           </div>
           <div class="st-group">
             <label>Años a analizar</label>
@@ -1090,6 +1092,7 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 
 let segurosData = null;
+let rendimientoData = null;
 let indice   = null;  // marca -> [modelos] — unificado todas las categorías
 let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
 let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
@@ -1113,14 +1116,16 @@ async function cargarDatos() {
   setStatus('loading','Cargando catálogo de vehículos…');
   try {
     // Fase 1: índice unificado + SOAT + impuesto (~250KB) → selector activo inmediato
-    const [ri, rs, rim, rsg] = await Promise.all([
+    const [ri, rs, rim, rsg, rrd] = await Promise.all([
       fetch(`${BASE}/vehiculos_indice_completo.json`),
       fetch(`${BASE}/soat_2026.json`),
       fetch(`${BASE}/impuesto_vehicular_2026.json`),
-      fetch(`${BASE}/seguros_referencia.json`)
+      fetch(`${BASE}/seguros_referencia.json`),
+      fetch(`${BASE}/rendimiento_combustible.json`)
     ]);
-    const [indiceCompleto, soatRaw, impRaw, sgRaw] = await Promise.all([ri.json(), rs.json(), rim.json(), rsg.json()]);
+    const [indiceCompleto, soatRaw, impRaw, sgRaw, rdRaw] = await Promise.all([ri.json(), rs.json(), rim.json(), rsg.json(), rrd.json()]);
     segurosData = sgRaw;
+    rendimientoData = rdRaw;
     soatData = soatRaw;
     impData  = impRaw;
 
@@ -1670,7 +1675,12 @@ function calcular(c) {
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
   const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
-  const gasolina  = Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
+  const rendim   = obtenerRendimiento(marca, linea, av?.categoria || null);
+  const kmGalon  = rendim.valor || p.kmGalon;
+  const PRECIO_KWH = defaults.precioKwh || 1000;
+  const gasolina  = rendim.valor
+    ? calcularCombustible(rendim, defaults.kmAnio, GASOLINA, PRECIO_KWH)
+    : Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
   const mant      = Math.round(precio * p.mantPct);
   const costosAnu = [];
   const anosCalc = defaults.anos || 5;
@@ -1828,9 +1838,10 @@ function toggleDefaults() {
   if (arr) arr.textContent = open ? '▾' : '▴';
 }
 function leerDefaults() {
-  defaults.kmAnio =(parseInt((document.getElementById('def-km').value||'').replace(/\D/g,''))||10000);
-  const cdtEl=document.getElementById('def-cdt'); defaults.cdtRate=(parseFloat(cdtEl?cdtEl.value:'12')||12)/100;
-  defaults.ciudad = document.getElementById('def-ciudad').value;
+  defaults.kmAnio  = (parseInt((document.getElementById('def-km')?.value||'').replace(/\D/g,''))||12000);
+  defaults.precioKwh = 1000;
+  const cdtEl = document.getElementById('def-cdt'); defaults.cdtRate=(parseFloat(cdtEl?cdtEl.value:'12')||12)/100;
+  defaults.ciudad = document.getElementById('def-ciudad')?.value || 'bogota';
   defaults.anos   = parseInt(document.getElementById('def-anos')?.value||'5')||5;
 }
 
@@ -2265,6 +2276,77 @@ function seguroFallback(marca, avaluo) {
   const base = 550000;
   const tasa = avaluo < 30e6 ? 0.045 : avaluo < 60e6 ? 0.038 : avaluo < 100e6 ? 0.032 : 0.027;
   return Math.round((base + avaluo * tasa) * (premium ? 1.15 : 1.0));
+}
+
+
+// ── Tooltips dinámicos — evitar que se corten ─────────────
+document.addEventListener('mouseover', function(e) {
+  const tip = e.target.closest('.var-tip');
+  if (!tip) return;
+  // Forzar reflow para obtener posición real
+  requestAnimationFrame(function() {
+    const after = window.getComputedStyle(tip, '::after');
+    const rect = tip.getBoundingClientRect();
+    const tipWidth = 260;
+    const margin = 16;
+    let leftPct = 50;
+    // Si se sale por la derecha, mover a la izquierda
+    const rightEdge = rect.left + rect.width/2 + tipWidth/2;
+    if (rightEdge > window.innerWidth - margin) {
+      tip.classList.add('left');
+    } else {
+      tip.classList.remove('left');
+    }
+    // Si se sale por la izquierda, centrar diferente
+    const leftEdge = rect.left + rect.width/2 - tipWidth/2;
+    if (leftEdge < margin) {
+      tip.classList.add('right');
+    }
+  });
+});
+
+
+// ── Rendimiento desde JSON de referencia ─────────────────────
+// Retorna: { tipo: 'gasolina'|'electrico'|'hibrido', valor: número }
+// gasolina/hibrido: km/gal  |  electrico: kWh/100km
+function obtenerRendimiento(marca, linea, cat) {
+  if (rendimientoData) {
+    const cats = cat
+      ? [cat]
+      : ['automoviles','camperos_camionetas','doble_cabina','electricos','hibridos','motos'];
+    for (const c of cats) {
+      const md = rendimientoData[c]?.[marca.toUpperCase()];
+      if (!md) continue;
+      // Búsqueda exacta
+      if (md[linea]) {
+        const [t, v] = md[linea];
+        return { tipo: t==='e'?'electrico':t==='h'?'hibrido':'gasolina', valor: v };
+      }
+      // Match parcial por inicio del nombre
+      const lu = linea.toUpperCase();
+      for (const [k, arr] of Object.entries(md)) {
+        if (lu.startsWith(k.toUpperCase()) || k.toUpperCase().includes(lu.substring(0,6))) {
+          const [t, v] = arr;
+          return { tipo: t==='e'?'electrico':t==='h'?'hibrido':'gasolina', valor: v };
+        }
+      }
+    }
+  }
+  // Fallback: usar estimarParams existente
+  return { tipo: 'gasolina', valor: null };
+}
+
+function calcularCombustible(rendimiento, kmAnio, precioGal, precioKwh) {
+  if (rendimiento.tipo === 'electrico') {
+    // kWh/100km → costo anual
+    return Math.round((kmAnio / 100) * rendimiento.valor * precioKwh);
+  }
+  if (rendimiento.tipo === 'hibrido') {
+    // km/gal equivalente — multiplicamos por 0.65 porque mezcla gasolina+electrico
+    return Math.round((kmAnio / rendimiento.valor) * precioGal * 0.65);
+  }
+  // gasolina normal
+  return Math.round((kmAnio / rendimiento.valor) * precioGal);
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
