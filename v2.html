@@ -906,6 +906,20 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .var-tip::after{ left:var(--tip-left, 50%) !important; top:var(--tip-top, auto) !important; bottom:auto !important; }
 @media (pointer: coarse){ .var-tip::before{ display:none !important; } }
 
+
+/* ═══ Ingreso manual ═══ */
+.manual-link{display:inline-block;margin:10px 0 2px;padding:6px 0;background:none;border:none;color:var(--forest);font:inherit;font-size:0.82rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.manual-link:hover{color:var(--ink)}
+.manual-box{border:1.5px dashed var(--border-mid);border-radius:var(--radius-sm);padding:14px;margin-top:4px;background:var(--surface)}
+.manual-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft,#55554C)}
+.manual-back{background:none;border:none;color:var(--forest);font:inherit;font-size:0.8rem;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;padding:4px 0}
+.manual-grid{display:grid;grid-template-columns:1fr 1.4fr 0.8fr;gap:10px}
+.manual-grid .sl-field:nth-child(4),.manual-grid .sl-field:nth-child(5){grid-column:span 1}
+.manual-grid select,.manual-grid input{width:100%;box-sizing:border-box;min-width:0}
+.manual-note{font-size:0.74rem;line-height:1.5;color:var(--ink-soft,#55554C);margin:12px 0 0}
+.slot-selector-grid.hidden,.manual-box.hidden,.manual-link.hidden{display:none !important}
+@media (max-width:680px){.manual-grid{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
@@ -1675,7 +1689,7 @@ function mostrarAvaluo(idx) {
   const dat = getAvaluo(marca, modelo, anio);
   if (dat) {
     const edadA = new Date().getFullYear() - parseInt(anio);
-    const soatCat = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo) ? 'campero_suv' : 'auto_familiar';
+    const soatCat = (dat.cat==='camperos_camionetas'||dat.cat==='doble_cabina'||/suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo)) ? 'campero_suv' : 'auto_familiar';
     const soatV = calcularSOAT(dat.cc, soatCat, edadA);
     el.textContent = `Avalúo oficial: ${fmtCOP(dat.precio)} · SOAT ${anio}: ${fmtCOP(soatV)}`;
     el.className = 'avaluo-hint';
@@ -1698,12 +1712,12 @@ function getSlotValues(idx) {
 function getAvaluo(marca, linea, anio) {
   if (!cascada) return null;
   // Buscar en todas las categorías del cascada completo
-  for (const cat of Object.values(cascada)) {
+  for (const [catNombre, cat] of Object.entries(cascada)) {
     const variantes = cat?.[marca]?.[linea];
     if (!variantes) continue;
     // Buscar año exacto primero
     for (const v of variantes) {
-      if (v.valores_por_año?.[anio]) return { precio: v.valores_por_año[anio], cc: v.cilindraje };
+      if (v.valores_por_año?.[anio]) return { precio: v.valores_por_año[anio], cc: v.cilindraje, cat: catNombre };
     }
     // Si no hay año exacto, buscar el más cercano
     let mejorAnio = null, mejorDif = Infinity;
@@ -1711,7 +1725,7 @@ function getAvaluo(marca, linea, anio) {
       Object.keys(v.valores_por_año||{}).forEach(a => {
         if (a === '2001_ant') return;
         const dif = Math.abs(parseInt(a) - parseInt(anio));
-        if (dif < mejorDif) { mejorDif = dif; mejorAnio = { precio: v.valores_por_año[a], cc: v.cilindraje, anioRef: a }; }
+        if (dif < mejorDif) { mejorDif = dif; mejorAnio = { precio: v.valores_por_año[a], cc: v.cilindraje, anioRef: a, cat: catNombre }; }
       });
     }
     if (mejorAnio) return mejorAnio;
@@ -1779,7 +1793,7 @@ function devalAnualPromedio(precioBase, reventa, anos) {
   return (1 - Math.pow(reventa / precioBase, 1 / anos));
 }
 
-function estimarParams(marca, linea, cc) {
+function estimarParams(marca, linea, cc, tipoForzado) {
   const cc_n = parseInt(cc)||1600;
   const L = linea.toUpperCase();
   const M = marca.toUpperCase();
@@ -1787,6 +1801,7 @@ function estimarParams(marca, linea, cc) {
   if (/SUV|SPORT|CRV|RAV|TUCSON|SANTA|SORENTO|EXPLORER|OUTLANDER|FORESTER|DUSTER|TRACKER|ECOSPORT|KICKS|CRETA|EQUINOX|COMPASS|CAPTUR|TIGUAN|CX-5|CX-3|CX-30|VITARA|XL7|S-CROSS|SONET|SELTOS|HAVAL|WRANGLER|RENEGADE|T-CROSS|TAOS|HR-V|WR-V|STEPWAY|GRANDLAND|2008|3008|5008/.test(L)) tipo='suv';
   else if (/HILUX|RANGER|AMAROK|NAVARA|FRONTIER|L200|COLORADO|SILVERADO|WINGLE|STRADA/.test(L)) tipo='pickup';
   else if (/SPARK|PICANTO|KWID|HB20|I10|GRAND I10|ARGO|MOBI|CELERIO|FIT|FIESTA|208 /.test(L)) tipo='hatchback';
+  if (tipoForzado) tipo = tipoForzado;
 
   const kmG = {hatchback:cc_n<=1000?58:cc_n<=1200?52:47, sedan:cc_n<=1400?48:cc_n<=1600?44:cc_n<=2000?40:34, suv:cc_n<=1000?52:cc_n<=1400?46:cc_n<=1600?42:cc_n<=2000?37:30, pickup:cc_n<=2000?33:cc_n<=2500?28:23}[tipo]||40;
   let dev  = {hatchback:0.12, sedan:0.14, suv:0.17, pickup:0.13}[tipo]||0.15;
@@ -1850,20 +1865,21 @@ function getImpuestoPct(avaluo) {
 // ── Cálculo principal ────────────────────────────────────────
 function calcular(c) {
   const { marca, linea, anio, precio, km, tipo } = c;
-  const av = getAvaluo(marca, linea, anio);
-  const cc = av?.cc || '1600';
-  const p  = estimarParams(marca, linea, cc);
+  const man = c.manual || null; // ingreso manual: carro que no está en la tabla oficial
+  const av = man ? null : getAvaluo(marca, linea, anio);
+  const cc = av?.cc || (man ? ({suv:'1600',pickup:'2400',sedan:'1500',hatchback:'1200'}[man.carroceria]||'1600') : '1600');
+  const p  = estimarParams(marca, linea, cc, man ? man.carroceria : undefined);
   const devExtra = km > 100000 ? 0.05 : km > 60000 ? 0.02 : 0;
   const devaluacion = Math.min(p.devaluacion + devExtra, 0.55);
   const traspaso  = tipo==='usado' ? Math.round(precio*0.015) : 0;
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
   const edadAnios = new Date().getFullYear() - parseInt(anio);
-  const soatCat   = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : (av?.cat==='camperos_camionetas'||av?.cat==='doble_cabina') ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
   const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
-  const rendim   = obtenerRendimiento(marca, linea, av?.categoria || null);
+  const rendim   = man ? (man.combustible==='electrico' ? {tipo:'electrico', valor:({suv:18,pickup:20}[man.carroceria]||15)} : man.combustible==='hibrido' ? {tipo:'hibrido', valor:({suv:55,pickup:45}[man.carroceria]||60)} : {tipo:'gasolina', valor:null}) : obtenerRendimiento(marca, linea, av?.categoria || null);
   const kmGalon  = rendim.valor || p.kmGalon;
   const PRECIO_KWH = defaults.precioKwh || 1000;
   const gasolina  = rendim.valor
@@ -1898,7 +1914,7 @@ function calcular(c) {
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
   // Etiqueta de tipo de vehículo legible
   const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
-  const tipoLabel = esMoto ? 'Moto' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
+  const tipoLabel = man ? ({suv:'Campero / SUV',pickup:'Pickup',sedan:'Automóvil',hatchback:'Automóvil'}[man.carroceria]||'Automóvil') + (man.combustible==='electrico'?' eléctrico':man.combustible==='hibrido'?' híbrido':'') + ' · ingresado a mano' : esMoto ? 'Moto' : av?.cat==='doble_cabina' ? 'Pickup' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
   return { desgloseAnual,
     nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
@@ -1971,6 +1987,7 @@ function addCarSlot() {
   cont.appendChild(sl);
   tipoSlot[idx] = 'usado';
   slotState[idx] = { marca:'', modelo:'', anio:'' };
+  prepararManual(idx);
   _marcasDisponibles[idx] = [];
   _modelosDisponibles[idx] = [];
   numSlots++;
@@ -1979,6 +1996,7 @@ function addCarSlot() {
 }
 
 function removeCarSlot(idx) {
+  if (window._manual) window._manual[idx] = false;
   document.getElementById(`slot-${idx}`)?.remove();
   numSlots = Math.max(2, numSlots-1);
   slotState[idx] = { marca:'', modelo:'', anio:'' };
@@ -1986,6 +2004,51 @@ function removeCarSlot(idx) {
   _modelosDisponibles[idx] = [];
   document.getElementById('btn-add-car').classList.remove('disabled');
 }
+
+
+// ── Ingreso manual: carros que no están en la tabla del Ministerio ──
+window._manual = window._manual || {};
+function prepararManual(idx) {
+  const sl = document.getElementById(`slot-${idx}`);
+  if (!sl || sl.querySelector('.manual-box')) return;
+  const grid = sl.querySelector('.slot-selector-grid');
+  if (!grid) return;
+  const anioMax = new Date().getFullYear() + 1;
+  let opts = '<option value="">— Año —</option>';
+  for (let y = anioMax; y >= 2005; y--) opts += `<option value="${y}">${y}</option>`;
+  const link = document.createElement('button');
+  link.type = 'button'; link.className = 'manual-link'; link.id = `man-link-${idx}`;
+  link.textContent = '¿No encuentras tu carro? Escríbelo a mano';
+  link.onclick = () => setManual(idx, true);
+  const box = document.createElement('div');
+  box.className = 'manual-box hidden'; box.id = `man-box-${idx}`;
+  box.innerHTML = `
+    <div class="manual-head"><span>Ingreso manual</span>
+      <button type="button" class="manual-back" onclick="setManual(${idx}, false)">← Volver al buscador</button></div>
+    <div class="manual-grid">
+      <div class="sl-field"><label>Marca</label><input type="text" class="ss-input" id="man-marca-${idx}" placeholder="Ej: MG" autocomplete="off"></div>
+      <div class="sl-field"><label>Modelo</label><input type="text" class="ss-input" id="man-modelo-${idx}" placeholder="Ej: HS Comfort" autocomplete="off"></div>
+      <div class="sl-field"><label>Año</label><div class="sl-select-wrap"><select id="man-anio-${idx}">${opts}</select></div></div>
+      <div class="sl-field"><label>Tipo</label><div class="sl-select-wrap"><select id="man-carro-${idx}">
+        <option value="suv">SUV / Campero</option><option value="sedan">Sedán</option><option value="hatchback">Hatchback</option><option value="pickup">Pickup</option></select></div></div>
+      <div class="sl-field"><label>Combustible</label><div class="sl-select-wrap"><select id="man-comb-${idx}">
+        <option value="gasolina">Gasolina</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select></div></div>
+    </div>
+    <p class="manual-note">Como este carro no está en la tabla oficial del Ministerio, usamos el precio pedido como avalúo, igual que hace la ley con los carros nuevos que aún no aparecen en ella. Consumo, seguro y mantenimiento se estiman según el tipo de carro.</p>`;
+  grid.after(link);
+  link.after(box);
+}
+function setManual(idx, on) {
+  window._manual[idx] = on;
+  const sl = document.getElementById(`slot-${idx}`); if (!sl) return;
+  sl.querySelector('.slot-selector-grid')?.classList.toggle('hidden', on);
+  document.getElementById(`man-box-${idx}`)?.classList.toggle('hidden', !on);
+  document.getElementById(`man-link-${idx}`)?.classList.toggle('hidden', on);
+  const hint = document.getElementById(`avaluo-${idx}`);
+  if (hint) { hint.textContent = on ? 'El precio pedido se usará como avalúo' : ''; hint.className = 'avaluo-hint'; if (!on) mostrarAvaluo(idx); }
+  if (on) setTimeout(() => document.getElementById(`man-marca-${idx}`)?.focus(), 50);
+}
+document.addEventListener('DOMContentLoaded', () => { [0,1,2].forEach(prepararManual); });
 
 // ── Supuestos toast ───────────────────────────────────────────
 function toggleSupuestosToast() {
@@ -2048,11 +2111,18 @@ function analizarTodo() {
   const carros=[];
   for(let i=0;i<numSlots;i++){
     const sl=document.getElementById(`slot-${i}`); if(!sl) continue;
-    const {marca, modelo:linea, anio} = slotState[i]||{};
+    const esManual = !!(window._manual && window._manual[i]);
+    let {marca, modelo:linea, anio} = slotState[i]||{};
+    let manual = null;
+    if (esManual) {
+      const v = id => (document.getElementById(id)?.value || '').trim();
+      marca = v(`man-marca-${i}`).toUpperCase(); linea = v(`man-modelo-${i}`).toUpperCase(); anio = v(`man-anio-${i}`);
+      manual = { carroceria: v(`man-carro-${i}`) || 'suv', combustible: v(`man-comb-${i}`) || 'gasolina' };
+    }
     const precio=parseInt((sl.querySelector('.sl-precio').value||'').replace(/\D/g,''));
     const km    =parseInt((sl.querySelector('.sl-km')?.value||'').replace(/\D/g,''))||0;
     if(!marca||!linea||!anio||!precio){shake(sl);mostrarError(sl,'Completa todos los campos.');return;}
-    carros.push({marca,linea,anio,precio,km,tipo:tipoSlot[i]});
+    carros.push({marca,linea,anio,precio,km,tipo:tipoSlot[i],manual});
   }
   if(!carros.length) return;
   _ultimosCarros = carros;
