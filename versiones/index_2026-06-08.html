@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartAuto — Compara el costo real de tu carro en Colombia</title>
+  <meta name="description" content="Compara el costo total de propiedad de cualquier carro en Colombia. SOAT, impuesto, seguro, gasolina, devaluación y más. Compara el costo real de cualquier vehículo en Colombia." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <style>
+:root {
+  --cream:#F5F0E8; --cream-dark:#EDE7D9; --white:#FFFFFF;
+  --forest:#1C2B1E; --forest-mid:#253628; --forest-light:#354D39;
+  --lime:#C8F050; --lime-hover:#B5DC3A; --lime-soft:rgba(200,240,80,0.10);
+  --cost:#C9503A; --cost-soft:rgba(201,80,58,0.08);
+  --gain:#3D7A52; --gain-soft:rgba(61,122,82,0.08);
+  --ink:#1A1A16; --ink-mid:#3D3D38; --ink-muted:#757568;
+  --border:#E2DDD3; --border-mid:#CBC5B8; --surface:#FAF8F4;
+  --shadow-sm:0 1px 4px rgba(26,26,22,0.06);
+  --shadow-md:0 4px 20px rgba(26,26,22,0.09);
+  --shadow-lg:0 12px 48px rgba(26,26,22,0.14);
+  --radius:14px; --radius-sm:8px; --radius-xs:5px;
+  --transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-optical-sizing:auto}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;font-family:inherit}
+select,input{font-family:inherit}
+.container{max-width:1160px;margin:0 auto;padding:0 28px}
+.hidden{display:none!important}
+
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--forest);border-bottom:1px solid rgba(255,255,255,0.06)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--lime);color:var(--forest);font-size:0.7rem;font-weight:700;letter-spacing:0.04em;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-text{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--white);letter-spacing:-0.02em}
+.logo-text em{font-style:italic;color:var(--lime)}
+.nav{display:flex;align-items:center;gap:32px}
+.nav a{color:rgba(255,255,255,0.55);font-size:0.875rem;transition:var(--transition)}
+.nav a:hover{color:var(--white)}
+.btn-nav{background:var(--lime);color:var(--forest);padding:9px 20px;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;transition:var(--transition)}
+.btn-nav:hover{background:var(--lime-hover);transform:translateY(-1px)}
+
+/* HERO */
+.hero{background:var(--forest);padding:130px 0 100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(200,240,80,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:52px}
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center;min-height:280px}
+.car-svg{width:100%;max-width:520px;height:auto;z-index:2;animation:floatCar 5s ease-in-out infinite}
+@keyframes floatCar{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.deco-ring{position:absolute;border-radius:50%;border:1px solid rgba(200,240,80,0.12);pointer-events:none}
+.deco-ring-1{width:320px;height:320px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.deco-ring-2{width:180px;height:180px;top:8%;right:2%;background:rgba(200,240,80,0.04);border-color:rgba(200,240,80,0.18)}
+.hero-eyebrow{font-size:0.75rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:20px}
+.hero-title{font-size:clamp(2.6rem,5vw,4rem);font-weight:600;color:var(--white);line-height:1.1;letter-spacing:-0.03em;margin-bottom:22px}
+.hero-title em{font-style:italic;color:var(--lime)}
+.hero-subtitle{color:rgba(255,255,255,0.5);font-size:1rem;max-width:520px;line-height:1.75;font-weight:300}
+.social-proof{display:flex;align-items:center;margin-top:36px;width:fit-content}
+.sp-item{display:flex;flex-direction:column;gap:3px;padding:0 28px}
+.sp-item:first-child{padding-left:0}
+.sp-item:last-child{padding-right:0}
+.sp-num{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--white);letter-spacing:-0.02em;line-height:1}
+.sp-label{font-size:0.72rem;color:rgba(255,255,255,0.4);letter-spacing:0.02em}
+.sp-divider{width:1px;height:32px;background:rgba(255,255,255,0.1)}
+
+/* STATS BAND */
+.stats-band{background:var(--lime);overflow:hidden;padding:13px 0;white-space:nowrap}
+.stats-track{display:inline-flex;animation:marquee 28s linear infinite}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.stat-item{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--forest);padding:0 20px;flex-shrink:0}
+.stat-dot{color:var(--forest);opacity:0.4;padding:0 4px;flex-shrink:0}
+
+/* TOOLTIP */
+.tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--border-mid);color:var(--ink-muted);font-size:0.6rem;font-weight:700;cursor:help;vertical-align:middle;margin-left:5px;position:relative;font-style:normal;transition:var(--transition)}
+.tip:hover{border-color:var(--ink-mid)}
+.tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--forest);color:rgba(255,255,255,0.88);padding:10px 14px;border-radius:10px;font-size:0.73rem;line-height:1.55;width:220px;text-align:left;opacity:0;pointer-events:none;transition:opacity 0.16s;z-index:200;box-shadow:var(--shadow-lg);white-space:normal}
+.tip::before{content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--forest);opacity:0;transition:opacity 0.16s;z-index:201}
+.tip:hover::after,.tip:hover::before{opacity:1}
+
+/* COMPARE CARD */
+.compare-card{background:var(--white);border-radius:18px;padding:32px;box-shadow:var(--shadow-lg);position:relative;z-index:2;margin-bottom:-72px}
+.cc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:16px}
+.cc-title{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:4px}
+.cc-subtitle{font-size:0.82rem;color:var(--ink-muted)}
+.btn-add-car{background:transparent;border:1.5px dashed var(--border-mid);color:var(--ink-muted);padding:9px 16px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:500;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.btn-add-car:hover{border-color:var(--forest);color:var(--forest);background:var(--surface)}
+.btn-add-car.disabled{opacity:0.35;pointer-events:none}
+
+/* DATA STATUS */
+.data-status{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--ink-muted);padding:8px 14px;background:var(--surface);border-radius:var(--radius-xs);border:1px solid var(--border);margin-bottom:16px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background 0.3s}
+.status-dot.loading{background:var(--border-mid);animation:pulse 1s ease-in-out infinite}
+.status-dot.ok{background:var(--lime)}
+.status-dot.error{background:var(--cost)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* CAR SLOTS */
+.car-slots{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;margin-bottom:20px}
+.car-slots.tres-slots{grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto}
+.car-slot{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:var(--transition);position:relative;min-width:0}
+.car-slots.tres-slots .car-slot:last-child{grid-column:1 / -1;margin-top:0}
+.car-slots.tres-slots .vs-pill:last-of-type{grid-column:1 / -1;padding:8px 0;text-align:center}
+.car-slot:focus-within{border-color:var(--forest);background:var(--white)}
+.btn-remove-slot{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--border-mid);font-size:0.9rem;cursor:pointer;padding:4px;line-height:1;transition:var(--transition)}
+.btn-remove-slot:hover{color:var(--cost)}
+.vs-pill{display:flex;align-items:center;justify-content:center;padding:0 10px;font-size:0.68rem;font-weight:700;color:var(--border-mid);letter-spacing:0.1em;flex-shrink:0}
+.slot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.slot-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted)}
+.slot-type-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--white)}
+.type-btn{padding:4px 12px;font-size:0.75rem;font-weight:500;background:transparent;color:var(--ink-muted);border:none;cursor:pointer;transition:var(--transition)}
+.type-btn.active{background:var(--forest);color:var(--white)}
+.slot-inputs{display:flex;flex-direction:column;gap:10px}
+.si-row{display:flex;gap:8px}
+.si-group{display:flex;flex-direction:column;gap:5px}
+.si-group.wide{flex:2;min-width:0}
+.si-group.narrow{flex:1;min-width:0}
+.si-group label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);display:flex;align-items:center}
+.select-wrapper{position:relative;width:100%}
+.select-wrapper::after{content:'↓';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--ink-muted);pointer-events:none;font-size:0.7rem}
+select{width:100%;padding:9px 28px 9px 10px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--white);color:var(--ink);font-size:0.875rem;appearance:none;transition:var(--transition);cursor:pointer}
+select:focus{outline:none;border-color:var(--forest)}
+select:disabled{opacity:0.5;cursor:not-allowed}
+.input-money{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-xs);overflow:hidden;background:var(--white);transition:var(--transition);width:100%}
+.input-money:focus-within{border-color:var(--forest)}
+.input-pre,.input-suf{padding:9px 8px;background:var(--surface);color:var(--ink-muted);font-size:0.78rem;font-weight:500;white-space:nowrap;flex-shrink:0}
+.input-money input{flex:1;padding:9px 10px;border:none;outline:none;font-size:0.875rem;color:var(--ink);background:var(--white);min-width:0}
+.hidden-km{display:none!important}
+.avaluo-hint{font-size:0.73rem;color:var(--gain);margin-top:5px;min-height:16px;font-weight:500}
+.avaluo-hint.warn{color:var(--ink-muted)}
+
+/* DEFAULTS */
+.defaults-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;gap:16px}
+.defaults-summary{font-size:0.8rem;color:var(--ink-muted)}
+.defaults-summary strong{color:var(--ink);font-weight:500}
+.defaults-toggle{background:none;border:none;color:var(--forest);font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+.defaults-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;margin-bottom:18px}
+.defaults-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.dg-group{display:flex;flex-direction:column;gap:7px}
+.dg-group label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);display:flex;align-items:center}
+
+/* CC FOOTER */
+.cc-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid var(--border);padding-top:18px}
+.cc-note{font-size:0.8rem;color:var(--ink-muted);max-width:400px;line-height:1.5}
+.btn-primary{background:var(--lime);color:var(--forest);padding:14px 28px;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:700;transition:var(--transition);display:inline-flex;align-items:center;gap:8px;border:none}
+.btn-primary:hover{background:var(--lime-hover);transform:translateY(-2px);box-shadow:0 6px 20px rgba(200,240,80,0.3)}
+.btn-analyze{padding:16px 32px;font-size:0.95rem;flex-shrink:0}
+.btn-secondary{background:transparent;border:1.5px solid var(--border-mid);color:var(--ink-muted);padding:10px 20px;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:500;transition:var(--transition);cursor:pointer}
+.btn-secondary:hover{border-color:var(--ink-mid);color:var(--ink)}
+
+/* LOADING */
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.97);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:10}
+.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--forest);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:0.95rem;font-weight:500;color:var(--ink)}
+.loading-steps{display:flex;flex-direction:column;gap:6px;text-align:center}
+.loading-step{font-size:0.8rem;color:var(--border-mid);padding:5px 14px;border-radius:6px;transition:var(--transition)}
+.loading-step.active{color:var(--forest);background:var(--lime-soft);font-weight:600}
+.loading-step.done{color:var(--gain)}
+
+/* RESULTS */
+.results-section{padding:108px 0 60px;background:var(--cream)}
+.results-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;gap:20px}
+.results-eyebrow{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px}
+.results-title{font-size:1.8rem;font-weight:600;color:var(--ink);letter-spacing:-0.02em;line-height:1.15}
+.comp-cards{display:flex;gap:14px;align-items:stretch;margin-bottom:20px;overflow-x:auto}
+.comp-card{flex:1;min-width:210px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px;position:relative}
+.comp-card.winner{border-color:var(--forest);border-width:2px}
+.comp-card.cdt-card{background:var(--forest);border-color:transparent;color:var(--white);flex:0.65;min-width:170px;opacity:0.85}
+.winner-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--lime);color:var(--forest);font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:4px 14px;border-radius:100px;white-space:nowrap;box-shadow:0 2px 8px rgba(200,240,80,0.4);z-index:10}
+.comp-cards{overflow:visible!important}
+.comp-card.winner{padding-top:22px}
+.comp-type-tag{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);margin-bottom:4px}
+.cdt-card .comp-type-tag{color:rgba(255,255,255,0.4)}
+.comp-car-name{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;color:var(--ink);letter-spacing:-0.01em;line-height:1.25}
+.cdt-card .comp-car-name{color:var(--white)}
+.comp-car-sub{font-size:0.78rem;color:var(--ink-muted);margin-top:2px}
+.cdt-card .comp-car-sub{color:rgba(255,255,255,0.4)}
+.comp-metrics{display:flex;flex-direction:column;gap:9px}
+.comp-metric{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem}
+.cm-label{color:var(--ink-muted)}
+.cdt-card .cm-label{color:rgba(255,255,255,0.45)}
+.cm-val{font-weight:500;color:var(--ink)}
+.cdt-card .cm-val{color:rgba(255,255,255,0.85)}
+.cm-val.best{color:var(--gain);font-weight:600}
+.cm-val.worst{color:var(--cost)}
+.cm-divider{height:1px;background:var(--border);margin:3px 0}
+.cdt-card .cm-divider{background:rgba(255,255,255,0.08)}
+.comp-total{border-top:1.5px solid var(--border);padding-top:14px;margin-top:auto;display:flex;flex-direction:column;gap:5px}
+.cdt-card .comp-total{border-top-color:rgba(255,255,255,0.1)}
+.comp-total-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:600}
+.cdt-card .comp-total-label{color:rgba(255,255,255,0.4)}
+.comp-total-val{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--cost);letter-spacing:-0.02em;line-height:1}
+.comp-total-val.positive{color:var(--gain)}
+.cdt-card .comp-total-val{color:var(--lime)}
+.comp-score{display:flex;align-items:center;gap:5px;margin-top:6px}
+.score-dot{width:7px;height:7px;border-radius:50%;background:var(--border)}
+.score-dot.filled{background:var(--forest)}
+.comp-card.winner .score-dot.filled{background:var(--lime)}
+.comp-score-label{font-size:0.72rem;color:var(--ink-muted)}
+
+/* DETAIL TABLE */
+.detail-wrapper{margin-bottom:24px}
+.detail-toggle{background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 20px;font-size:0.82rem;font-weight:500;color:var(--ink-muted);cursor:pointer;width:100%;text-align:center;transition:var(--transition);margin-bottom:10px}
+.detail-toggle:hover{border-color:var(--forest);color:var(--forest)}
+.detail-table-wrapper{overflow-x:auto;background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border)}
+.detail-table{width:100%;border-collapse:collapse}
+.detail-table th{background:var(--forest);color:rgba(255,255,255,0.7);font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;padding:13px 18px;text-align:right;white-space:nowrap}
+.detail-table th:first-child{text-align:left}
+.detail-table th.cdt-col{background:var(--forest-mid);color:var(--lime)}
+.detail-table td{padding:11px 18px;font-size:0.85rem;border-bottom:1px solid var(--border);color:var(--ink);text-align:right;white-space:nowrap}
+.detail-table td:first-child{text-align:left;color:var(--ink-muted)}
+.detail-table td.cdt-col{color:var(--gain);font-weight:500;background:var(--gain-soft)}
+.detail-table tr.total-row td{font-weight:700;background:var(--surface);font-size:0.9rem;border-top:2px solid var(--border-mid);border-bottom:none}
+.detail-table tr.total-row td.cdt-col{color:var(--gain);background:var(--gain-soft)}
+.detail-table tr:hover td{background:var(--surface)}
+.detail-note{font-size:0.73rem;color:var(--ink-muted);margin-top:10px}
+
+/* AD */
+.ad-inline{margin-top:8px}
+.ad-label{font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--border-mid);margin-bottom:8px;display:block}
+.ad-banner{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px}
+.ad-banner-content{display:flex;align-items:center;gap:14px}
+.ad-logo-ph{width:44px;height:44px;background:var(--cream-dark);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:var(--ink-muted);flex-shrink:0}
+.ad-headline{font-size:0.875rem;font-weight:600;color:var(--ink)}
+.ad-sub{font-size:0.78rem;color:var(--ink-muted);margin-top:2px}
+.ad-cta{background:var(--forest);color:var(--white);padding:10px 18px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;border:none;cursor:pointer;flex-shrink:0;transition:var(--transition)}
+.ad-cta:hover{background:var(--forest-light)}
+
+/* HOW IT WORKS */
+.how-section{padding:100px 0;background:var(--cream-dark);position:relative;overflow:hidden}
+.how-section::before{content:'';position:absolute;width:480px;height:480px;background:rgba(193,74,53,0.07);border-radius:60% 40% 55% 45%/45% 55% 40% 60%;top:-140px;right:-100px;pointer-events:none}
+.section-header{margin-bottom:60px;position:relative;z-index:1}
+.section-eyebrow{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-muted);margin-bottom:14px}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.9rem,3.5vw,2.6rem);font-weight:600;color:var(--ink);letter-spacing:-0.025em;line-height:1.15}
+.section-title em{font-style:italic;color:var(--forest)}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;position:relative;z-index:1}
+.how-card{background:rgba(255,255,255,0.75);padding:32px 28px;transition:var(--transition)}
+.how-card:first-child{border-radius:var(--radius) 0 0 var(--radius)}
+.how-card:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.how-card:hover{background:var(--lime)}
+.how-card:hover .how-num,.how-card:hover h4,.how-card:hover p{color:var(--forest)}
+.how-num{font-family:'Fraunces',serif;font-size:2.5rem;font-weight:400;letter-spacing:-0.03em;line-height:1;margin-bottom:16px;display:block;transition:var(--transition)}
+.how-card:nth-child(1) .how-num{color:#C14A35}
+.how-card:nth-child(2) .how-num{color:var(--forest)}
+.how-card:nth-child(3) .how-num{color:#6B5B95}
+.how-rule{height:1px;background:var(--border);margin-bottom:20px;transition:var(--transition)}
+.how-card h4{font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:10px;transition:var(--transition)}
+.how-card p{font-size:0.85rem;color:var(--ink-muted);line-height:1.65;transition:var(--transition)}
+
+/* POPULARES */
+.sponsored-section{padding:80px 0 100px;background:#EEE8F8}
+.sponsored-section .section-eyebrow{color:#7B6BA0}
+.sponsored-section .section-title em{color:#6B5B95}
+.sponsored-grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px}
+.sponsored-card{background:var(--white);border-radius:var(--radius);padding:24px;border:1.5px solid var(--border);transition:var(--transition);position:relative;display:flex;flex-direction:column;gap:16px}
+.sponsored-card:hover{border-color:var(--forest);transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.sponsored-card.featured{background:var(--forest);border-color:transparent}
+.sponsored-tag{position:absolute;top:18px;right:18px;background:var(--lime);color:var(--forest);font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:100px}
+.car-img-block{width:100%}
+.car-img{width:100%;height:150px;object-fit:cover;border-radius:var(--radius-sm);display:block}
+.car-img-ph{background:linear-gradient(135deg,var(--forest-mid) 0%,var(--forest-light) 100%);border-radius:var(--radius-sm);height:150px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.car-img-ph::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(200,240,80,0.1) 0%,transparent 60%)}
+.featured .car-img-ph{background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.02) 100%)}
+.car-initial{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:600;color:rgba(200,240,80,0.35);position:relative;z-index:1}
+.sc-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:var(--ink)}
+.featured .sc-name{color:var(--white)}
+.sc-sub{font-size:0.75rem;color:var(--ink-muted);margin-top:3px}
+.featured .sc-sub{color:rgba(255,255,255,0.4)}
+.sc-price{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:var(--forest);margin-top:6px}
+.featured .sc-price{color:var(--lime)}
+.sc-metrics{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.scm{background:var(--surface);border-radius:4px;padding:3px 9px;font-size:0.7rem;font-weight:500;color:var(--ink-muted);border:1px solid var(--border)}
+.featured .scm{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);border-color:transparent}
+.sc-total-label{font-size:0.68rem;color:var(--ink-muted);font-weight:500;margin-top:8px;text-transform:uppercase;letter-spacing:0.06em}
+.featured .sc-total-label{color:rgba(255,255,255,0.35)}
+.sc-total{font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:var(--ink);margin-top:2px}
+.featured .sc-total{color:var(--white)}
+.btn-car{width:100%;padding:11px;background:var(--surface);color:var(--ink);border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;transition:var(--transition);margin-top:auto;border:1px solid var(--border)}
+.btn-car:hover{background:var(--forest);color:var(--white);border-color:var(--forest)}
+.featured .btn-car{background:var(--lime);color:var(--forest);border-color:transparent}
+.featured .btn-car:hover{background:var(--lime-hover)}
+.ad-tiles{margin-top:36px}
+.ad-tiles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.ad-tile{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;transition:var(--transition);cursor:pointer}
+.ad-tile:hover{border-color:var(--forest)}
+.ad-tile-icon{width:36px;height:36px;background:var(--surface);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--ink-muted);flex-shrink:0}
+.ad-tile-body{flex:1;min-width:0}
+.ad-tile-name{font-size:0.82rem;font-weight:600;color:var(--ink)}
+.ad-tile-desc{font-size:0.73rem;color:var(--ink-muted);margin-top:2px;line-height:1.4}
+.ad-tile-cta{font-size:0.75rem;font-weight:600;color:var(--forest);flex-shrink:0;white-space:nowrap}
+
+/* FOOTER */
+.footer{background:var(--forest);padding:44px 0}
+.footer-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.footer-text{color:rgba(255,255,255,0.35);font-size:0.78rem;max-width:500px;line-height:1.7;font-weight:300}
+.footer-copy{color:rgba(255,255,255,0.2);font-size:0.72rem}
+
+/* ERRORS */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.slot-error{color:var(--cost);font-size:0.8rem;margin-top:8px}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:32px}
+  .hero-visual{min-height:200px}
+  .car-svg{max-width:380px}
+  .si-row{flex-wrap:wrap}
+  .sponsored-grid{grid-template-columns:1fr}
+  .how-grid{grid-template-columns:1fr;gap:2px}
+  .how-card:first-child{border-radius:var(--radius) var(--radius) 0 0}
+  .how-card:last-child{border-radius:0 0 var(--radius) var(--radius)}
+  .defaults-grid{grid-template-columns:1fr 1fr}
+  .ad-tiles-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .compare-card{padding:20px}
+  .car-slots{flex-direction:column}
+  .vs-pill{padding:8px 0}
+  .hero-title{font-size:2.2rem}
+  .cc-footer{flex-direction:column;align-items:stretch}
+  .btn-analyze{text-align:center;justify-content:center}
+  .nav a:not(.btn-nav){display:none}
+  .defaults-grid{grid-template-columns:1fr}
+  .results-header{flex-direction:column;align-items:flex-start}
+  .comp-cards{flex-direction:column}
+  .social-proof{flex-direction:column;gap:12px;align-items:flex-start}
+  .sp-divider{width:32px;height:1px}
+}
+
+/* ── Selector rediseñado ─────────────────────── */
+.slot-selector-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr 0.8fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sl-field { display: flex; flex-direction: column; gap: 4px; }
+.sl-field label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.sl-field label .fl-badge {
+  font-size: 0.55rem; background: var(--lime-soft); color: var(--forest);
+  border: 1px solid rgba(200,240,80,0.3); padding: 1px 5px;
+  border-radius: 3px; font-weight: 600; letter-spacing: 0.05em;
+}
+/* Estado del select: vacío, activo, filtrado */
+.sl-select-wrap { position: relative; }
+.sl-select-wrap::after {
+  content: '↓'; position: absolute; right: 9px; top: 50%;
+  transform: translateY(-50%); color: var(--ink-muted);
+  pointer-events: none; font-size: 0.65rem; transition: var(--transition);
+}
+.sl-select-wrap select {
+  width: 100%; padding: 9px 26px 9px 10px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-xs);
+  background: var(--white); color: var(--ink); font-size: 0.85rem;
+  appearance: none; transition: var(--transition); cursor: pointer;
+}
+.sl-select-wrap select:focus { outline: none; border-color: var(--forest); }
+.sl-select-wrap select:disabled { opacity: 0.45; cursor: not-allowed; background: var(--surface); }
+.sl-select-wrap select.filled { border-color: var(--forest); background: rgba(28,43,30,0.03); font-weight: 500; }
+.sl-select-wrap select.filtered { border-color: var(--lime-hover); }
+/* Contador de opciones */
+.sl-count {
+  font-size: 0.65rem; color: var(--ink-muted);
+  margin-top: 3px; min-height: 14px; transition: var(--transition);
+}
+.sl-count.ok { color: var(--gain); }
+.sl-count.warn { color: var(--cost); }
+/* Indicador de flujo libre */
+.selector-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; color: var(--ink-muted);
+  padding: 6px 10px; background: var(--surface);
+  border-radius: var(--radius-xs); margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.selector-hint .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
+/* Reset badge por campo */
+.sl-field-header { display: flex; justify-content: space-between; align-items: center; }
+.sl-reset-btn {
+  background: none; border: none; font-size: 0.65rem; color: var(--border-mid);
+  cursor: pointer; padding: 0; line-height: 1; transition: var(--transition);
+  display: none;
+}
+.sl-reset-btn.visible { display: block; }
+.sl-reset-btn:hover { color: var(--cost); }
+/* Precio + km row */
+.slot-price-row { display: flex; gap: 8px; }
+.slot-price-row .sl-field { flex: 2; }
+.slot-price-row .sl-field.narrow { flex: 1; }
+@media(max-width:680px){ .slot-selector-grid { grid-template-columns: 1fr 1fr; } .slot-selector-grid .sl-field:last-child { grid-column: span 2; } }
+
+/* ── Tooltips variables — diseño refinado ────────────────── */
+.var-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border-mid);background:var(--white);color:var(--ink-muted);font-size:0.58rem;font-weight:700;cursor:help;vertical-align:middle;margin-left:5px;position:relative;font-style:normal;transition:all 0.15s;flex-shrink:0;line-height:1}
+.var-tip:hover{border-color:var(--forest);color:var(--forest);background:var(--lime-soft)}
+/* Tooltip box */
+.var-tip::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  background:var(--forest);color:rgba(255,255,255,0.92);
+  padding:14px 16px;border-radius:12px;
+  font-size:0.75rem;font-weight:400;line-height:1.65;
+  width:260px;text-align:left;
+  opacity:0;pointer-events:none;transition:opacity 0.18s;
+  z-index:400;box-shadow:0 12px 40px rgba(0,0,0,0.3);
+  white-space:normal;font-family:'DM Sans',sans-serif;
+  letter-spacing:0.01em;
+}
+.var-tip::before{content:'';position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--forest);opacity:0;transition:opacity 0.18s;z-index:401}
+.var-tip:hover::after,.var-tip:hover::before{opacity:1}
+.var-tip.left::after{left:auto;right:-8px;transform:none}
+.var-tip.left::before{left:auto;right:14px;transform:none}
+
+
+/* ── Pros y contras ──────────────────────────────────────── */
+.pros-contras-grid{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.pc-card{flex:1;min-width:200px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.pc-header{font-family:'Fraunces',serif;font-size:0.9rem;font-weight:600;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.pc-body{display:flex;flex-direction:column;gap:7px}
+.pc-row{display:flex;gap:10px;align-items:flex-start;font-size:0.8rem;line-height:1.5}
+.pc-icon{font-size:0.9rem;font-weight:700;flex-shrink:0;margin-top:1px;width:14px;text-align:center}
+.pc-row.pro .pc-icon{color:var(--gain)}
+.pc-row.con .pc-icon{color:var(--cost)}
+.pc-row.pro span:last-child{color:var(--ink-mid)}
+.pc-row.con span:last-child{color:var(--ink-muted)}
+/* ── Insights block (legado) ─── */
+.insights-block{margin-bottom:24px;display:flex;flex-direction:column;gap:10px}
+.insight-card{display:flex;gap:14px;padding:14px 18px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white)}
+.insight-card.economic{border-left:3px solid var(--gain)}
+.insight-card.opportunity{border-left:3px solid #7F77DD}
+.insight-card.warning{border-left:3px solid var(--cost)}
+.insight-card.neutral{border-left:3px solid var(--border-mid)}
+.insight-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.insight-body{}
+.insight-title{font-size:0.82rem;font-weight:600;color:var(--ink);margin-bottom:3px}
+.insight-text{font-size:0.78rem;color:var(--ink-muted);line-height:1.6}
+
+/* ── Score rediseñado → "Precio relativo" ────────────────── */
+.price-indicator{display:flex;align-items:center;gap:8px;margin-top:8px}
+.pi-label{font-size:0.68rem;color:var(--ink-muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
+.pi-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.pi-fill{height:4px;border-radius:2px;background:var(--forest);transition:width 0.6s ease}
+.comp-card.winner .pi-fill{background:var(--lime)}
+.pi-val{font-size:0.72rem;font-weight:600;color:var(--ink-muted);white-space:nowrap}
+
+/* ── Desglose completo — diseño editorial limpio ─────────── */
+.detail-table-wrapper{overflow-x:auto;background:var(--white);border-radius:var(--radius);border:1px solid var(--border)}
+.detail-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.detail-table th{background:var(--surface);color:var(--ink-muted);font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;padding:10px 16px;text-align:right;white-space:nowrap;border-bottom:2px solid var(--border)}
+.detail-table th:first-child{text-align:left}
+.detail-table th.cdt-col{color:var(--gain);background:var(--gain-soft)}
+.detail-table td{padding:9px 16px;font-size:0.83rem;border-bottom:1px solid var(--border);color:var(--ink);text-align:right;white-space:nowrap}
+.detail-table td:first-child{text-align:left;color:var(--ink-mid)}
+.detail-table td.cdt-col{color:var(--gain);background:var(--gain-soft)}
+.detail-table td.neutral-val{color:var(--ink-muted);font-size:0.78rem}
+/* Sección headers: borde izquierdo verde + fondo muy sutil */
+.detail-table tr.section-header td{
+  background:var(--surface);color:var(--ink-muted);
+  font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  padding:10px 16px 6px;border:none;border-top:2px solid var(--border)
+}
+.detail-table tr.section-header:first-child td{border-top:none}
+/* Supuestos: tono más suave */
+.detail-table tr.assumptions td{color:var(--ink-muted);font-size:0.78rem;background:transparent}
+/* Total intermedio */
+.detail-table tr.total-row td{font-weight:600;border-top:1.5px solid var(--border-mid);background:var(--surface)}
+.detail-table tr.total-row td.cdt-col{background:var(--gain-soft)}
+/* Resultado final: la gran cifra */
+.detail-table tr.result-row td{
+  padding:14px 16px;font-size:0.95rem;font-weight:700;
+  border-top:2px solid var(--border);border-bottom:none;background:var(--white)
+}
+.detail-table tr.result-row td:first-child{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted)}
+.detail-table tr.result-row td.positive-result{color:var(--gain);font-size:1.1rem}
+.detail-table tr.result-row td.negative-result{color:var(--cost);font-size:1.1rem}
+.detail-table tr.result-row td.cdt-col{color:var(--gain);font-size:1.1rem;background:var(--gain-soft)}
+.detail-table tr:not(.section-header):not(.assumptions):hover td{background:rgba(0,0,0,0.015)}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-mark">SA</div>
+      <span class="logo-text">Smart<em>Auto</em></span>
+    </div>
+    <nav class="nav">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#destacados">Análisis populares</a>
+      <button class="btn-nav" onclick="scrollToSearch()">Comparar ahora</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Colombia · Compra tu próximo carro con los ojos abiertos</p>
+        <h1 class="hero-title">El precio del carro<br/>es solo<br/><em>el comienzo.</em></h1>
+        <p class="hero-subtitle">Compara lo que realmente gastas con cada carro: seguro, gasolina, impuestos, mantenimiento y cuánto recuperas al vender. Gratis, siempre.</p>
+        <div class="social-proof">
+          <div class="sp-item"><span class="sp-num" id="sp-marcas">123</span><span class="sp-label">marcas disponibles</span></div>
+          <div class="sp-divider"></div>
+          <div class="sp-item"><span class="sp-num">Precios</span><span class="sp-label">de referencia oficiales</span></div>
+          <div class="sp-divider"></div>
+          <div class="sp-item"><span class="sp-num">Gratis</span><span class="sp-label">sin registro, sin trampas</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="deco-ring deco-ring-1"></div>
+        <div class="deco-ring deco-ring-2"></div>
+        <svg class="car-svg" viewBox="0 0 520 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="cg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <radialGradient id="rg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C8F050" stop-opacity="0.22"/><stop offset="100%" stop-color="#C8F050" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="260" cy="218" rx="190" ry="7" fill="rgba(0,0,0,0.2)"/>
+          <path d="M58 172C60 150 72 132 95 124L148 120C156 86 178 64 208 57L312 57C342 64 364 86 372 120L428 124C450 132 462 150 464 172L422 172C410 150 388 139 365 139C342 139 320 150 308 172L212 172C200 150 178 139 155 139C132 139 110 150 98 172Z" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.04)" filter="url(#cg)"/>
+          <path d="M150 120L175 120C180 88 196 66 212 59L308 59C324 66 340 88 345 120L370 120" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="none"/>
+          <path d="M178 120C183 90 198 68 214 61L253 61L252 120Z" fill="rgba(200,240,80,0.05)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
+          <path d="M256 61L307 61C322 68 337 90 342 120L256 120Z" fill="rgba(200,240,80,0.05)" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.2"/>
+          <circle cx="155" cy="186" r="34" fill="url(#rg)"/>
+          <circle cx="155" cy="186" r="34" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.03)"/>
+          <circle cx="155" cy="186" r="22" stroke="#C8F050" stroke-width="0.8" stroke-opacity="0.3" fill="none"/>
+          <circle cx="155" cy="186" r="8" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="rgba(200,240,80,0.08)"/>
+          <circle cx="155" cy="186" r="3" fill="rgba(200,240,80,0.6)"/>
+          <line x1="155" y1="164" x2="155" y2="208" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="133" y1="186" x2="177" y2="186" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="139" y1="170" x2="171" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="171" y1="170" x2="139" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <circle cx="365" cy="186" r="34" fill="url(#rg)"/>
+          <circle cx="365" cy="186" r="34" stroke="#C8F050" stroke-width="1.4" stroke-opacity="0.55" fill="rgba(200,240,80,0.03)"/>
+          <circle cx="365" cy="186" r="22" stroke="#C8F050" stroke-width="0.8" stroke-opacity="0.3" fill="none"/>
+          <circle cx="365" cy="186" r="8" stroke="#C8F050" stroke-width="1" stroke-opacity="0.4" fill="rgba(200,240,80,0.08)"/>
+          <circle cx="365" cy="186" r="3" fill="rgba(200,240,80,0.6)"/>
+          <line x1="365" y1="164" x2="365" y2="208" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="343" y1="186" x2="387" y2="186" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="349" y1="170" x2="381" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <line x1="381" y1="170" x2="349" y2="202" stroke="#C8F050" stroke-width="0.7" stroke-opacity="0.22"/>
+          <path d="M165 120Q260 136 355 120" stroke="#C8F050" stroke-width="0.6" stroke-opacity="0.15" fill="none"/>
+          <path d="M456 128L463 137L463 147L456 154" stroke="#C8F050" stroke-width="1.2" stroke-opacity="0.5" fill="none"/>
+          <ellipse cx="461" cy="141" rx="4" ry="12" fill="#C8F050" fill-opacity="0.14"/>
+          <rect x="56" y="128" width="3" height="32" rx="1.5" fill="#C8F050" fill-opacity="0.4"/>
+          <line x1="6" y1="118" x2="44" y2="118" stroke="#C8F050" stroke-width="0.9" stroke-opacity="0.2"/>
+          <line x1="0" y1="133" x2="42" y2="133" stroke="#C8F050" stroke-width="1.3" stroke-opacity="0.15"/>
+          <line x1="18" y1="222" x2="502" y2="222" stroke="#C8F050" stroke-width="0.5" stroke-opacity="0.1"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- COMPARE CARD -->
+    <div class="compare-card" id="compare-card">
+      <div class="cc-header">
+        <div>
+          <h3 class="cc-title">¿Qué opciones estás evaluando?</h3>
+          <p class="cc-subtitle">Agrega al menos un carro. Siempre comparamos contra CDT.</p>
+        </div>
+        <button class="btn-add-car" id="btn-add-car" onclick="addCarSlot()">+ Tercer carro</button>
+      </div>
+
+      <div class="data-status" id="data-status">
+        <div class="status-dot loading" id="status-dot"></div>
+        <span id="status-text">Cargando catálogo de vehículos…</span>
+      </div>
+
+      <div class="car-slots" id="car-slots">
+        <div class="car-slot" id="slot-0" data-slot="0">
+          <div class="slot-header">
+            <span class="slot-label">Opción 1</span>
+            <div class="slot-type-toggle">
+              <button class="type-btn active" onclick="setTipo(0,'usado')">Usado</button>
+              <button class="type-btn" onclick="setTipo(0,'nuevo')">Nuevo 0km</button>
+            </div>
+          </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
+          <div class="slot-selector-grid">
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-0" onclick="resetCampo(0,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-0" onchange="onMarcaChange(0)" disabled><option value="">Cargando…</option></select></div>
+              <div class="sl-count" id="cnt-marca-0"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-0" onclick="resetCampo(0,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-0" onchange="onModeloChange(0)" disabled><option value="">Primero elige marca</option></select></div>
+              <div class="sl-count" id="cnt-modelo-0"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-0" onclick="resetCampo(0,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-0" onchange="onAnioChange(0)" disabled><option value="">Año</option></select></div>
+              <div class="sl-count" id="cnt-anio-0"></div>
+            </div>
+          </div>
+          <div class="slot-price-row">
+            <div class="sl-field">
+              <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No el de lista.">i</span></label>
+              <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+              <div class="avaluo-hint" id="avaluo-0"></div>
+            </div>
+            <div class="sl-field narrow slot-km" id="km-row-0">
+              <label>Km actuales <span class="tip" data-tip="Odómetro. Afecta la devaluación estimada.">i</span></label>
+              <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-pill">VS</div>
+
+        <div class="car-slot" id="slot-1" data-slot="1">
+          <div class="slot-header">
+            <span class="slot-label">Opción 2</span>
+            <div class="slot-type-toggle">
+              <button class="type-btn active" onclick="setTipo(1,'usado')">Usado</button>
+              <button class="type-btn" onclick="setTipo(1,'nuevo')">Nuevo 0km</button>
+            </div>
+          </div>
+          <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden — los demás se filtran solos</span></div>
+          <div class="slot-selector-grid">
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-1" onclick="resetCampo(1,'marca')" title="Limpiar marca">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-marca" id="sel-marca-1" onchange="onMarcaChange(1)" disabled><option value="">Cargando…</option></select></div>
+              <div class="sl-count" id="cnt-marca-1"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-1" onclick="resetCampo(1,'modelo')" title="Limpiar modelo">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-modelo" id="sel-modelo-1" onchange="onModeloChange(1)" disabled><option value="">Primero elige marca</option></select></div>
+              <div class="sl-count" id="cnt-modelo-1"></div>
+            </div>
+            <div class="sl-field">
+              <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-1" onclick="resetCampo(1,'anio')" title="Limpiar año">✕</button></div>
+              <div class="sl-select-wrap"><select class="sl-anio" id="sel-anio-1" onchange="onAnioChange(1)" disabled><option value="">Año</option></select></div>
+              <div class="sl-count" id="cnt-anio-1"></div>
+            </div>
+          </div>
+          <div class="slot-price-row">
+            <div class="sl-field">
+              <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo. No el de lista.">i</span></label>
+              <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+              <div class="avaluo-hint" id="avaluo-1"></div>
+            </div>
+            <div class="sl-field narrow slot-km" id="km-row-1">
+              <label>Km actuales <span class="tip" data-tip="Odómetro. Afecta la devaluación estimada.">i</span></label>
+              <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="defaults-bar">
+        <span class="defaults-summary">Supuestos: <strong>10,000 km/año</strong> · <strong>5 años</strong> · <strong>CDT 12% E.A.</strong> · <strong>Gasolina $16,000/gal</strong></span>
+        <button class="defaults-toggle" onclick="toggleDefaults()">Ajustar <span id="toggle-arrow">▾</span></button>
+      </div>
+      <div class="defaults-panel hidden" id="defaults-panel">
+        <div class="defaults-grid">
+          <div class="dg-group">
+            <label>Km al año <span class="tip" data-tip="Promedio Colombia: 10,000–15,000 km/año.">i</span></label>
+            <div class="input-money"><input type="text" id="def-km" value="10,000" oninput="fmtNum(this)"/><span class="input-suf">km/año</span></div>
+          </div>
+          <div class="dg-group">
+            <label>Tasa CDT <span class="tip" data-tip="CDT promedio Colombia 2024–2025: ~11–13% E.A.">i</span></label>
+            <div class="input-money"><input type="text" id="def-cdt" value="12"/><span class="input-suf">% E.A.</span></div>
+          </div>
+          <div class="dg-group">
+            <label>Ciudad de matrícula <span class="tip" data-tip="El impuesto vehicular varía por municipio.">i</span></label>
+            <div class="select-wrapper">
+              <select id="def-ciudad">
+                <option value="bogota">Bogotá</option>
+                <option value="medellin">Medellín</option>
+                <option value="cali">Cali</option>
+                <option value="barranquilla">Barranquilla</option>
+                <option value="otra">Otra ciudad</option>
+              </select>
+            </div>
+          </div>
+          <div class="dg-group">
+            <label>Años a analizar</label>
+            <div class="select-wrapper">
+              <select id="def-anos">
+                <option value="1">1 año</option>
+                <option value="3">3 años</option>
+                <option value="5" selected>5 años</option>
+                <option value="8">8 años</option>
+                <option value="10">10 años</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cc-footer">
+        <p class="cc-note">Siempre comparamos contra invertir ese dinero — CDT al 12% E.A. como referencia.</p>
+        <button class="btn-primary btn-analyze" onclick="analizarTodo()">Ver comparación completa →</button>
+      </div>
+
+      <div class="loading-overlay hidden" id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Calculando costos reales...</p>
+        <div class="loading-steps">
+          <div class="loading-step" id="ls-1">Consultando datos del vehículo</div>
+          <div class="loading-step" id="ls-2">Calculando impuestos y SOAT</div>
+          <div class="loading-step" id="ls-3">Estimando devaluación y reventa</div>
+          <div class="loading-step" id="ls-4">Comparando con CDT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-section hidden" id="results-section">
+  <div class="container">
+    <div class="results-header">
+      <div>
+        <p class="results-eyebrow">Análisis completo · 5 años</p>
+        <h2 class="results-title">Comparación de costo total</h2>
+      </div>
+      <button class="btn-secondary" onclick="editarBusqueda()">↑ Editar búsqueda</button>
+    </div>
+    <div class="comp-cards" id="comp-cards"></div>
+    <div class="detail-wrapper">
+      <button class="detail-toggle" onclick="toggleDetail()" id="detail-toggle-btn">Ver desglose completo ▾</button>
+      <div class="detail-panel hidden" id="detail-panel">
+        <div class="detail-table-wrapper">
+          <table class="detail-table" id="detail-table"></table>
+        </div>
+        <p class="detail-note">* Revisión técnico-mecánica anual obligatoria para vehículos con más de 5 años desde matrícula. Gasolina con corriente a $16,000/gal. Impuesto sobre avalúo oficial, Decreto 1457/2025. Reventa con curva no lineal ajustada por marca. Valores estimados con fines informativos.</p>
+      </div>
+    </div>
+    <div class="ad-inline">
+      <span class="ad-label">Publicidad</span>
+      <div class="ad-banner">
+        <div class="ad-banner-content">
+          <div class="ad-logo-ph">B</div>
+          <div><div class="ad-headline">Financia tu próximo carro desde 0.8% M.V.</div><div class="ad-sub">Banco Ejemplo · Crédito vehículo · Aprobación en 24 horas</div></div>
+        </div>
+        <button class="ad-cta">Solicitar crédito →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stats-track" id="stats-track">
+    <span class="stat-item">SOAT incluido</span><span class="stat-dot">·</span>
+    <span class="stat-item">Impuesto vehicular</span><span class="stat-dot">·</span>
+    <span class="stat-item">Seguro todo riesgo</span><span class="stat-dot">·</span>
+    <span class="stat-item">Gasolina a 5 años</span><span class="stat-dot">·</span>
+    <span class="stat-item">Mantenimiento</span><span class="stat-dot">·</span>
+    <span class="stat-item">Devaluación</span><span class="stat-dot">·</span>
+    <span class="stat-item">Tecnomecánica</span><span class="stat-dot">·</span>
+    <span class="stat-item">vs. CDT 12%</span><span class="stat-dot">·</span>
+    <span class="stat-item">Reventa estimada</span><span class="stat-dot">·</span>
+    <span class="stat-item">Traspaso y matrícula</span><span class="stat-dot">·</span>
+    <span class="stat-item">123 marcas</span><span class="stat-dot">·</span>
+    <span class="stat-item">Datos oficiales 2025</span><span class="stat-dot">·</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="como-funciona">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-eyebrow">Cómo funciona</p>
+      <h2 class="section-title">El precio del carro<br/><em>es solo el comienzo.</em></h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-card"><span class="how-num">01</span><div class="how-rule"></div><h4>Agrega tus opciones</h4><p>Hasta 3 carros, nuevos o usados, con su precio. Nada más que eso.</p></div>
+      <div class="how-card"><span class="how-num">02</span><div class="how-rule"></div><h4>Calculamos todo</h4><p>SOAT, impuesto vehicular, seguro, gasolina, mantenimiento y devaluación a 5 años con datos oficiales.</p></div>
+      <div class="how-card"><span class="how-num">03</span><div class="how-rule"></div><h4>Vs. invertir el dinero</h4><p>Siempre comparamos contra cuánto ganarías poniendo ese dinero en un CDT al 12% E.A.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- AD BANNER -->
+<div style="background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0">
+  <div class="container">
+    <span class="ad-label">Publicidad</span>
+    <div class="ad-banner">
+      <div class="ad-banner-content">
+        <div class="ad-logo-ph">S</div>
+        <div><div class="ad-headline">Seguro todo riesgo desde $1,200,000/año</div><div class="ad-sub">Aseguradora Ejemplo · Cotiza en 2 minutos · Sin visita física</div></div>
+      </div>
+      <button class="ad-cta">Cotizar ahora →</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPULARES -->
+<section class="sponsored-section" id="destacados">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-eyebrow">Análisis populares</p>
+      <h2 class="section-title">Los más consultados<br/><em>esta semana.</em></h2>
+    </div>
+    <div class="sponsored-grid">
+      <div class="sponsored-card featured">
+        <div class="sponsored-tag">Referencia premium</div>
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">Q3</span></div>
+        <div><div class="sc-name">Audi Q3</div><div class="sc-sub">Campero SUV · 1.4T · 2018 · Usado</div><div class="sc-price">$80,000,000</div><div class="sc-metrics"><span class="scm">40 km/gal</span><span class="scm">Mant. alto</span><span class="scm">Premium</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$131,000,000</div></div>
+        <button class="btn-car" onclick="loadExample('q3')">Analizar este carro</button>
+      </div>
+      <div class="sponsored-card">
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">M2</span></div>
+        <div><div class="sc-name">Mazda 2</div><div class="sc-sub">Automóvil · 1.5L · 2013 · Usado</div><div class="sc-price">$30,000,000</div><div class="sc-metrics"><span class="scm">44 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">Confiable</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$47,000,000</div></div>
+        <button class="btn-car" onclick="loadExample('mazda2')">Analizar este carro</button>
+      </div>
+      <div class="sponsored-card">
+        <div class="car-img-ph" style="height:150px;display:flex"><span class="car-initial">ON</span></div>
+        <div><div class="sc-name">Chevrolet Onix</div><div class="sc-sub">Automóvil · 1.0T · 2022 · Usado</div><div class="sc-price">$58,000,000</div><div class="sc-metrics"><span class="scm">52 km/gal</span><span class="scm">Mant. bajo</span><span class="scm">Más vendido</span></div><div class="sc-total-label">Costo neto 5 años (est.)</div><div class="sc-total">~$48,200,000</div></div>
+        <button class="btn-car" onclick="loadExample('onix')">Analizar este carro</button>
+      </div>
+    </div>
+    <div class="ad-tiles">
+      <span class="ad-label">Publicidad</span>
+      <div class="ad-tiles-grid">
+        <div class="ad-tile"><div class="ad-tile-icon">T</div><div class="ad-tile-body"><div class="ad-tile-name">Taller Autorizado Ejemplo</div><div class="ad-tile-desc">Mantenimiento preventivo desde $180,000 · Bogotá y Cali</div></div><span class="ad-tile-cta">Ver más →</span></div>
+        <div class="ad-tile"><div class="ad-tile-icon">B</div><div class="ad-tile-body"><div class="ad-tile-name">Crédito vehículo Banco X</div><div class="ad-tile-desc">Financia hasta el 80% · Cuotas desde $890,000/mes</div></div><span class="ad-tile-cta">Simular →</span></div>
+        <div class="ad-tile"><div class="ad-tile-icon">G</div><div class="ad-tile-body"><div class="ad-tile-name">Gasolina Puntos Terpel</div><div class="ad-tile-desc">Gana puntos en cada lleno y canjéalos por mantenimiento</div></div><span class="ad-tile-cta">Unirme →</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="logo"><div class="logo-mark">SA</div><span class="logo-text">Smart<em>Auto</em></span></div>
+    <p class="footer-text">Estimaciones con fines informativos basadas en avalúos oficiales y promedios del mercado colombiano. Verifica siempre con tu aseguradora, municipio y concesionario.</p>
+    <p class="footer-copy">© 2026 SmartAuto · Colombia</p>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// SMARTAUTO — Datos reales de tu repo GitHub
+// github.com/Juandavidmarin/smart-auto
+// ============================================================
+
+const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
+
+let indice   = null;  // marca -> [modelos] — unificado todas las categorías
+let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
+let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
+let soatData = null;
+let impData  = null;
+let aniosIdxListo = false;  // flag para saber si el filtrado fino está disponible
+let numSlots = 2;
+let tipoSlot = ['usado','usado','usado'];
+let defaults = { kmAnio:10000, cdtRate:0.12, ciudad:'bogota', anos:5 };
+const GASOLINA = 16000;
+
+// Estado del selector por slot: { marca, modelo, anio }
+let slotState = [{}, {}, {}];
+
+// ── Carga de datos ──────────────────────────────────────────
+async function cargarDatos() {
+  setStatus('loading','Cargando catálogo de vehículos…');
+  try {
+    // Fase 1: índice unificado + SOAT + impuesto (~250KB) → selector activo inmediato
+    const [ri, rs, rim] = await Promise.all([
+      fetch(`${BASE}/vehiculos_indice_completo.json`),
+      fetch(`${BASE}/soat_2026.json`),
+      fetch(`${BASE}/impuesto_vehicular_2026.json`)
+    ]);
+    const [indiceCompleto, soatRaw, impRaw] = await Promise.all([ri.json(), rs.json(), rim.json()]);
+    soatData = soatRaw;
+    impData  = impRaw;
+
+    // Aplanar el índice: todas las categorías → marca -> [modelos únicos]
+    indice = {};
+    for (const cat of Object.values(indiceCompleto)) {
+      for (const [marca, modelos] of Object.entries(cat)) {
+        if (!indice[marca]) indice[marca] = new Set();
+        modelos.forEach(m => indice[marca].add(m));
+      }
+    }
+    // Convertir Sets a arrays ordenados
+    for (const m in indice) indice[m] = [...indice[m]].sort();
+
+    const totalMarcas  = Object.keys(indice).length;
+    const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
+    document.getElementById('sp-marcas').textContent = totalMarcas;
+    setStatus('ok', `${totalMarcas} marcas · ${totalModelos.toLocaleString('es-CO')} modelos · SOAT e Impuesto 2026`);
+    inicializarSelectores();
+
+    // Fase 2: años exactos en background (~1.5MB) → filtra años al llegar
+    fetch(`${BASE}/vehiculos_anios.json`)
+      .then(r => r.json())
+      .then(d => {
+        aniosIdx = d;
+        aniosIdxListo = true;
+        // Refrescar selects de año si el usuario ya eligió algo
+        [0,1,2].forEach(i => { if (slotState[i]?.marca) poblarAnio(i); });
+      })
+      .catch(e => console.warn('Años no disponibles:', e));
+
+    // Fase 3: cascada completo en background (~13MB) → avalúo y cálculos
+    fetch(`${BASE}/vehiculos_cascada_completa.json`)
+      .then(r => r.json())
+      .then(d => {
+        cascada = d;
+        [0,1,2].forEach(i => {
+          const st = slotState[i];
+          if (st?.marca && st?.modelo && st?.anio) mostrarAvaluo(i);
+        });
+      })
+      .catch(e => console.warn('Cascada no disponible:', e));
+
+  } catch(e) {
+    console.warn('Fetch falló, usando datos de demostración:', e);
+    usarDatosDemostracion();
+  }
+}
+
+function usarDatosDemostracion() {
+  // Datos mínimos para probar la herramienta sin conexión a GitHub
+  indice = {
+    'CHEVROLET':['AVEO EMOTION 4P MT','ONIX LT','ONIX LTZ','SPARK 1.0 MT','TRACKER LS','TRACKER LTZ'],
+    'RENAULT':['DUSTER 2.0 AT','KWID INTENS','LOGAN 1.6 MT','SANDERO STEPWAY','SANDERO 1.6 MT'],
+    'KIA':['PICANTO 1.2 AT','PICANTO 1.2 MT','SELTOS 2.0 AT','SPORTAGE','SPORTAGE 2.0 AT'],
+    'MAZDA':['2','2 1.5 AT TOURING','3 2.0 AT','CX-30 2.0 AT','CX-3 2.0 AT'],
+    'TOYOTA':['COROLLA','COROLLA 1.8 AT','COROLLA CROSS 2.0 AT','YARIS 1.3 AT','RAV4 2.0 AT'],
+    'HYUNDAI':['ACCENT 1.4 AT','CRETA 1.5 AT','GRAND I10 1.2 MT','TUCSON 2.0 AT'],
+    'NISSAN':['KICKS 1.6 AT','VERSA 1.6 AT','SENTRA 1.8 AT','X-TRAIL 2.0 AT'],
+    'VOLKSWAGEN':['POLO 1.6 MT','T-CROSS 1.0 AT','TAOS 1.4 AT','TIGUAN 1.4 AT'],
+    'HONDA':['CITY 1.5 MT','CIVIC 1.5 AT','CR-V 1.5 AT','HR-V 1.8 AT'],
+    'SUZUKI':['SWIFT 1.2 AT','VITARA 1.4 AT','XL7 1.5 AT','S-CROSS 1.4 AT'],
+    'AUDI':['A3 35 TFSI','A4 2.0 TFSI AMBITION','A4 PROGRESSIVE','Q3 (LINEA BASE ESTANDAR)','Q5 2.0 TFSI'],
+    'BMW':['116I 1.6','320I 2.0 AT','X1 2.0 AT','X3 2.0 AT'],
+    'FORD':['ECOSPORT 2.0 AT','EXPLORER 2.3 AT','RANGER 2.5 AT'],
+    'YAMAHA':['YBR 125','MT-03','R3','NMAX 155'],
+    'HONDA MOTOS':['CB 190R','CB 125F','XRE 300','PCX 150'],
+  };
+  // Años demo para cada modelo
+  aniosIdx = {};
+  const anosDemo = [2025,2024,2023,2022,2021,2020,2019,2018,2017,2016,2015];
+  for (const m in indice) {
+    aniosIdx[m] = {};
+    indice[m].forEach(mod => { aniosIdx[m][mod] = anosDemo; });
+  }
+  aniosIdxListo = true;
+  // SOAT y impuesto fallback si no cargaron
+  if (!soatData) soatData = null;
+  if (!impData)  impData  = null;
+  const totalMarcas  = Object.keys(indice).length;
+  const totalModelos = Object.values(indice).reduce((a,b)=>a+b.length,0);
+  document.getElementById('sp-marcas').textContent = totalMarcas;
+  setStatus('ok', `${totalMarcas} marcas demo · ${totalModelos} modelos (modo sin conexión)`);
+  inicializarSelectores();
+}
+
+function setStatus(tipo, msg) {
+  document.getElementById('status-dot').className = `status-dot ${tipo}`;
+  document.getElementById('status-text').textContent = msg;
+}
+
+// ── Nuevo selector: flujo libre ─────────────────────────────
+// Los tres selects (marca, modelo, año) se pueden usar en cualquier orden.
+// Al elegir uno, los otros se filtran reactivamente.
+
+const ANIOS_TODOS = Array.from({length: 2025-2002+1}, (_,i) => 2025-i); // 2025..2002
+
+function inicializarSelectores() {
+  [0, 1].forEach(idx => {
+    slotState[idx] = { marca: '', modelo: '', anio: '' };
+    poblarMarca(idx);
+    poblarModelo(idx);
+    poblarAnio(idx);
+  });
+}
+
+function poblarMarca(idx) {
+  const sel = document.getElementById(`sel-marca-${idx}`);
+  const marcaActual = slotState[idx].marca;
+  const anioActual  = slotState[idx].anio ? parseInt(slotState[idx].anio) : null;
+  
+  // Si hay año elegido, filtrar marcas que tengan al menos un modelo en ese año
+  // Marcas prioritarias primero: las 2 de Juan David + top 5 Colombia + resto alfabético
+  const MARCAS_TOP = ['MAZDA','AUDI','CHEVROLET','RENAULT','KIA','TOYOTA','SUZUKI'];
+  const todasMarcas = Object.keys(indice);
+  const topDisponibles = MARCAS_TOP.filter(m => todasMarcas.includes(m));
+  const resto = todasMarcas.filter(m => !MARCAS_TOP.includes(m)).sort();
+  let marcas = [...topDisponibles, ...resto];
+  if (anioActual && aniosIdxListo && aniosIdx) {
+    marcas = marcas.filter(m => {
+      const modelos = aniosIdx[m] || {};
+      return Object.values(modelos).some(lista => lista.includes(anioActual));
+    });
+  }
+  
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Marca —</option>';
+  marcas.forEach(m => sel.innerHTML += `<option value="${m}"${m===marcaActual?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = marcaActual ? 'filled' : (anioActual ? 'filtered' : '');
+  
+  const cnt = document.getElementById(`cnt-marca-${idx}`);
+  if (anioActual && marcas.length < Object.keys(indice).length) {
+    cnt.textContent = `${marcas.length} marcas con año ${anioActual}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = '';
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-marca-${idx}`).className = marcaActual ? 'sl-reset-btn visible' : 'sl-reset-btn';
+}
+
+function poblarModelo(idx) {
+  const sel = document.getElementById(`sel-modelo-${idx}`);
+  const { marca, modelo, anio } = slotState[idx];
+  const anioN = anio ? parseInt(anio) : null;
+
+  if (!marca) {
+    sel.innerHTML = '<option value="">Primero elige marca</option>';
+    sel.disabled = true;
+    sel.className = '';
+    document.getElementById(`cnt-modelo-${idx}`).textContent = '';
+    document.getElementById(`reset-modelo-${idx}`).className = 'sl-reset-btn';
+    return;
+  }
+
+  let modelos = (indice[marca] || []).slice().sort();
+  
+  // Filtrar por año si está elegido
+  if (anioN && aniosIdxListo && aniosIdx?.[marca]) {
+    modelos = modelos.filter(m => {
+      const lista = aniosIdx[marca][m];
+      return lista && lista.includes(anioN);
+    });
+  }
+
+  sel.innerHTML = '<option value="">— Modelo —</option>';
+  modelos.forEach(m => sel.innerHTML += `<option value="${m}"${m===modelo?' selected':''}>${m}</option>`);
+  sel.disabled = false;
+  sel.className = modelo ? 'filled' : (anioN ? 'filtered' : '');
+
+  const cnt = document.getElementById(`cnt-modelo-${idx}`);
+  const total = (indice[marca]||[]).length;
+  if (anioN && modelos.length < total) {
+    cnt.textContent = `${modelos.length} de ${total} modelos para ${anioN}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = `${total} modelos`;
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-modelo-${idx}`).className = modelo ? 'sl-reset-btn visible' : 'sl-reset-btn';
+}
+
+function poblarAnio(idx) {
+  const sel = document.getElementById(`sel-anio-${idx}`);
+  const { marca, modelo, anio } = slotState[idx];
+
+  let aniosFiltrados = [...ANIOS_TODOS];
+
+  if (!aniosIdxListo) {
+    // Aún cargando años exactos — mostrar todos los años disponibles sin filtro
+    // El select se refrescará automáticamente cuando lleguen los datos
+  } else if (marca && modelo && aniosIdx?.[marca]?.[modelo]) {
+    // Años EXACTOS del cascada para este modelo
+    aniosFiltrados = aniosIdx[marca][modelo];
+  } else if (marca && aniosIdx?.[marca]) {
+    // Unión de años de todos los modelos de esta marca
+    const setAnios = new Set();
+    Object.values(aniosIdx[marca]).forEach(lista => lista.forEach(a => setAnios.add(a)));
+    aniosFiltrados = [...setAnios].sort((a,b)=>b-a);
+  }
+
+  sel.innerHTML = '<option value="">— Año —</option>';
+  aniosFiltrados.forEach(a => sel.innerHTML += `<option value="${a}"${String(a)===anio?' selected':''}>${a}</option>`);
+  sel.disabled = false;
+  sel.className = anio ? 'filled' : ((marca||modelo) ? 'filtered' : '');
+
+  const cnt = document.getElementById(`cnt-anio-${idx}`);
+  if ((marca||modelo) && aniosFiltrados.length < ANIOS_TODOS.length) {
+    const mn = Math.min(...aniosFiltrados);
+    const mx = Math.max(...aniosFiltrados);
+    cnt.textContent = mn === mx ? `${mx}` : `${mn}–${mx}`;
+    cnt.className = 'sl-count ok';
+  } else {
+    cnt.textContent = '';
+    cnt.className = 'sl-count';
+  }
+  document.getElementById(`reset-anio-${idx}`).className = anio ? 'sl-reset-btn visible' : 'sl-reset-btn';
+}
+
+// ── Handlers de cambio ──────────────────────────────────────
+function onMarcaChange(idx) {
+  const v = document.getElementById(`sel-marca-${idx}`).value;
+  // Si la marca cambió, resetear modelo y anio
+  if (v !== slotState[idx].marca) {
+    slotState[idx] = { marca: v, modelo: '', anio: '' };
+  }
+  actualizarSlot(idx);
+}
+
+function onModeloChange(idx) {
+  const v = document.getElementById(`sel-modelo-${idx}`).value;
+  slotState[idx].modelo = v;
+  // Verificar si el año actual sigue siendo válido
+  if (slotState[idx].anio && slotState[idx].marca && v && aniosIdx?.[slotState[idx].marca]?.[v]) {
+    const lista = aniosIdx[slotState[idx].marca][v];
+    const anioN = parseInt(slotState[idx].anio);
+    if (!lista.includes(anioN)) {
+      slotState[idx].anio = ''; // reset año si ese modelo no tiene ese año
+    }
+  }
+  actualizarSlot(idx);
+}
+
+function onAnioChange(idx) {
+  const v = document.getElementById(`sel-anio-${idx}`).value;
+  slotState[idx].anio = v;
+  // Verificar si el modelo actual sigue siendo válido para este año
+  const { marca, modelo, anio } = slotState[idx];
+  if (modelo && marca && anio && aniosIdx?.[marca]?.[modelo]) {
+    const lista = aniosIdx[marca][modelo];
+    const anioN = parseInt(anio);
+    if (!lista.includes(anioN)) {
+      slotState[idx].modelo = ''; // reset modelo si ya no tiene ese año
+    }
+  }
+  actualizarSlot(idx);
+}
+
+function actualizarSlot(idx) {
+  poblarMarca(idx);
+  poblarModelo(idx);
+  poblarAnio(idx);
+  mostrarAvaluo(idx);
+}
+
+function resetCampo(idx, campo) {
+  slotState[idx][campo] = '';
+  actualizarSlot(idx);
+}
+
+function mostrarAvaluo(idx) {
+  const { marca, modelo, anio } = slotState[idx] || {};
+  const el = document.getElementById(`avaluo-${idx}`);
+  el.textContent = ''; el.className = 'avaluo-hint';
+  if (!marca || !modelo || !anio) return;
+  if (!cascada) {
+    el.textContent = 'Cargando avalúo…'; el.className = 'avaluo-hint warn';
+    return;
+  }
+  const dat = getAvaluo(marca, modelo, anio);
+  if (dat) {
+    const edadA = new Date().getFullYear() - parseInt(anio);
+    const soatCat = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo) ? 'campero_suv' : 'auto_familiar';
+    const soatV = calcularSOAT(dat.cc, soatCat, edadA);
+    el.textContent = `Avalúo oficial: ${fmtCOP(dat.precio)} · SOAT ${anio}: ${fmtCOP(soatV)}`;
+    el.className = 'avaluo-hint';
+  } else {
+    el.textContent = 'Sin avalúo oficial para este año exacto';
+    el.className = 'avaluo-hint warn';
+  }
+}
+
+// ── Compatibilidad con addCarSlot (usa slotState) ───────────
+function getSlotValues(idx) {
+  // Leer valores del estado O directamente del DOM como fallback
+  const st = slotState[idx] || {};
+  return {
+    marca:  st.marca  || document.getElementById(`sel-marca-${idx}`)?.value  || '',
+    modelo: st.modelo || document.getElementById(`sel-modelo-${idx}`)?.value || '',
+    anio:   st.anio   || document.getElementById(`sel-anio-${idx}`)?.value   || '',
+  };
+}
+
+function getAvaluo(marca, linea, anio) {
+  if (!cascada) return null;
+  // Buscar en todas las categorías del cascada completo
+  for (const cat of Object.values(cascada)) {
+    const variantes = cat?.[marca]?.[linea];
+    if (!variantes) continue;
+    // Buscar año exacto primero
+    for (const v of variantes) {
+      if (v.valores_por_año?.[anio]) return { precio: v.valores_por_año[anio], cc: v.cilindraje };
+    }
+    // Si no hay año exacto, buscar el más cercano
+    let mejorAnio = null, mejorDif = Infinity;
+    for (const v of variantes) {
+      Object.keys(v.valores_por_año||{}).forEach(a => {
+        if (a === '2001_ant') return;
+        const dif = Math.abs(parseInt(a) - parseInt(anio));
+        if (dif < mejorDif) { mejorDif = dif; mejorAnio = { precio: v.valores_por_año[a], cc: v.cilindraje, anioRef: a }; }
+      });
+    }
+    if (mejorAnio) return mejorAnio;
+  }
+  return null;
+}
+
+// ── Parámetros estimados por tipo de vehículo ───────────────
+
+// ── Devaluación no lineal ────────────────────────────────────
+// Un carro se devalúa mucho los primeros años y poco después.
+// Curva basada en datos del mercado colombiano:
+// Año 1: 15-20% | Año 2: 10-14% | Año 3-4: 8-10% | Año 5+: 5-7%
+// Ajuste adicional por marca (alemanes se devalúan más, japoneses menos)
+
+const DEVAL_MARCA = {
+  // Marcas que retienen valor / devalúan poco
+  TOYOTA:0.82, MAZDA:0.84, HONDA:0.83, SUZUKI:0.85, KIA:0.86, HYUNDAI:0.86,
+  RENAULT:0.87, CHEVROLET:0.87, NISSAN:0.87, SUBARU:0.83, VOLKSWAGEN:0.86,
+  // Marcas que se devalúan más (mantenimiento caro, repuestos escasos)
+  AUDI:0.75, BMW:0.74, 'MERCEDES BENZ':0.76, 'MERCEDES-BENZ':0.76,
+  PORSCHE:0.80, 'LAND ROVER':0.72, VOLVO:0.78,
+  // Marcas chinas/emergentes
+  CHERY:0.83, JAC:0.84, 'GREAT WALL MOTOR':0.84, GEELY:0.84,
+};
+const DEVAL_MARCA_DEFAULT = 0.86; // promedio mercado colombiano
+
+function calcularReventa(precioBase, marca, anosProyeccion) {
+  // Factores de retención acumulada por año (no lineal)
+  // Ej: después de 5 años un carro retiene ~55-70% del valor
+  const factorMarca = DEVAL_MARCA[marca.toUpperCase()] || DEVAL_MARCA_DEFAULT;
+  
+  // Curva de depreciación: mayor en los primeros años
+  // Factor = retención del valor original al final del año N
+  const curva = [1.0, 0.82, 0.72, 0.64, 0.58, 0.54, 0.51, 0.49, 0.47, 0.46, 0.45];
+  
+  // Ajustar curva por marca
+  let retencion = 1.0;
+  for (let y = 1; y <= Math.min(anosProyeccion, 10); y++) {
+    const curvaBase = curva[y] / curva[y-1]; // depreciación de ese año específico
+    // Interpolar entre la curva base y el factor de marca
+    const factorAnual = curvaBase + (factorMarca - 0.86) * (1 - (y-1)*0.08);
+    retencion *= factorAnual;
+  }
+  
+  return Math.round(precioBase * Math.max(retencion, 0.30));
+}
+
+function devalAnualPromedio(precioBase, reventa, anos) {
+  // Tasa anual equivalente
+  return (1 - Math.pow(reventa/precioBase, 1/anos));
+}
+
+function estimarParams(marca, linea, cc) {
+  const cc_n = parseInt(cc)||1600;
+  const L = linea.toUpperCase();
+  const M = marca.toUpperCase();
+  let tipo = 'sedan';
+  if (/SUV|SPORT|CRV|RAV|TUCSON|SANTA|SORENTO|EXPLORER|OUTLANDER|FORESTER|DUSTER|TRACKER|ECOSPORT|KICKS|CRETA|EQUINOX|COMPASS|CAPTUR|TIGUAN|CX-5|CX-3|CX-30|VITARA|XL7|S-CROSS|SONET|SELTOS|HAVAL|WRANGLER|RENEGADE|T-CROSS|TAOS|HR-V|WR-V|STEPWAY|GRANDLAND|2008|3008|5008/.test(L)) tipo='suv';
+  else if (/HILUX|RANGER|AMAROK|NAVARA|FRONTIER|L200|COLORADO|SILVERADO|WINGLE|STRADA/.test(L)) tipo='pickup';
+  else if (/SPARK|PICANTO|KWID|HB20|I10|GRAND I10|ARGO|MOBI|CELERIO|FIT|FIESTA|208 /.test(L)) tipo='hatchback';
+
+  const kmG = {hatchback:cc_n<=1000?58:cc_n<=1200?52:47, sedan:cc_n<=1400?48:cc_n<=1600?44:cc_n<=2000?40:34, suv:cc_n<=1000?52:cc_n<=1400?46:cc_n<=1600?42:cc_n<=2000?37:30, pickup:cc_n<=2000?33:cc_n<=2500?28:23}[tipo]||40;
+  let dev  = {hatchback:0.12, sedan:0.14, suv:0.17, pickup:0.13}[tipo]||0.15;
+  let mant = {hatchback:0.025, sedan:0.028, suv:0.035, pickup:0.04}[tipo]||0.03;
+  if (/AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|LEXUS/.test(M)) { mant*=2.2; }
+  else if (/HONDA|TOYOTA|MAZDA/.test(M)) { mant*=0.85; dev-=0.02; }
+  else if (/CHEVROLET|KIA|HYUNDAI|SUZUKI|NISSAN|RENAULT/.test(M)) { mant*=0.9; }
+  let soat = tipo==='pickup' ? (cc_n<=2500?942800:1116800) : tipo==='suv' ? (cc_n<=1500?789600:942800) : (cc_n<=1500?590400:789600);
+  return { kmGalon:kmG, devaluacion:Math.max(dev,0.08), mantPct:mant, soat, tipo };
+}
+
+// ── SOAT desde JSON oficial 2026 ───────────────────────────
+function calcularSOAT(cc, tipoVehiculo, edadAnios) {
+  if (!soatData) return calcularSOATFallback(cc, tipoVehiculo, edadAnios);
+  const cc_n = parseInt(cc) || 1600;
+  const cat = soatData.categorias[tipoVehiculo] || soatData.categorias.auto_familiar;
+  for (const r of cat.rangos) {
+    const ccOk = (r.cc_max === undefined || cc_n <= r.cc_max) &&
+                 (r.cc_min === undefined || cc_n >= r.cc_min);
+    const edadOk = (r.edad_max === undefined || edadAnios <= r.edad_max) &&
+                   (r.edad_min === undefined || edadAnios >= r.edad_min);
+    if (ccOk && edadOk) return r.valor;
+  }
+  return 942800; // fallback
+}
+
+function calcularSOATFallback(cc, tipo, edad) {
+  const cc_n = parseInt(cc)||1600;
+  const esSUV = /suv|campero/.test(tipo);
+  if (esSUV) return cc_n < 1500 ? (edad>=10?949200:789600) : (edad>=10?1116800:942800);
+  return cc_n < 1500 ? (edad>=10?590400:445300) : (edad>=10?674700:542400);
+}
+
+// ── Impuesto vehicular desde JSON oficial 2026 ──────────────
+function calcularImpuesto(avaluo, ciudad) {
+  if (!impData) return calcularImpuestoFallback(avaluo);
+  const tramos = impData.vehiculos_particulares.tramos;
+  let pct = tramos[tramos.length-1].tarifa_pct;
+  for (const t of tramos) {
+    if (avaluo <= (t.avaluo_hasta || Infinity)) { pct = t.tarifa_pct; break; }
+  }
+  let impuesto = Math.round(avaluo * pct / 100);
+  // Semaforización Bogotá
+  const sem = (ciudad === 'bogota') ? (impData.semaforización?.valor_fijo || 34000) : 0;
+  return impuesto + sem;
+}
+
+function calcularImpuestoFallback(avaluo) {
+  if (avaluo < 57000000)  return Math.round(avaluo * 0.015);
+  if (avaluo < 129000000) return Math.round(avaluo * 0.025);
+  return Math.round(avaluo * 0.035);
+}
+
+function getImpuestoPct(avaluo) {
+  // Mantenido por compatibilidad — ahora usa calcularImpuesto()
+  if (avaluo < 57000000)  return 0.015;
+  if (avaluo < 129000000) return 0.025;
+  return 0.035;
+}
+
+// ── Cálculo principal ────────────────────────────────────────
+function calcular(c) {
+  const { marca, linea, anio, precio, km, tipo } = c;
+  const av = getAvaluo(marca, linea, anio);
+  const cc = av?.cc || '1600';
+  const p  = estimarParams(marca, linea, cc);
+  const devExtra = km > 100000 ? 0.05 : km > 60000 ? 0.02 : 0;
+  const devaluacion = Math.min(p.devaluacion + devExtra, 0.55);
+  const traspaso  = tipo==='usado' ? Math.round(precio*0.015) : 0;
+  const matricula = tipo==='nuevo' ? 900000 : 0;
+  const avaluoRef = av?.precio || precio;
+  const edadAnios = new Date().getFullYear() - parseInt(anio);
+  const soatCat   = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
+  const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
+  const seguro    = Math.round(precio * (/AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER/.test(marca.toUpperCase()) ? 0.035 : 0.025));
+  const gasolina  = Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
+  const mant      = Math.round(precio * p.mantPct);
+  const costosAnu = [];
+  const anosCalc = defaults.anos || 5;
+  const TECNO_PRECIO = 340000; // Tarifa promedio 2026 carros livianos (Supertransporte)
+  const edadActual = new Date().getFullYear() - parseInt(anio);
+  for (let y=1;y<=anosCalc;y++) {
+    // Tecnomecánica: anual para carros con más de 5 años desde matrícula
+    // Si el carro ya tiene >5 años HOY, aplica desde el año 1 del análisis
+    // Si es nuevo 0km, aplica desde el año en que cumpla 5 años
+    const edadEnAnoY = tipo === 'nuevo' ? y : edadActual + y;
+    const aplicaTecno = edadEnAnoY > 5;
+    const tecno = aplicaTecno ? TECNO_PRECIO : 0;
+    costosAnu.push(soatVal + seguro + impuesto + tecno + gasolina + mant);
+  }
+  const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
+  const totalGast   = precio + traspaso + matricula + totalOp;
+  const reventa     = calcularReventa(precio, marca, anosCalc);
+  const costoNeto   = totalGast - reventa;
+  const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
+  const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
+  // Etiqueta de tipo de vehículo legible
+  const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
+  const tipoLabel = esMoto ? 'Moto' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
+  return {
+    nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
+    kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
+    soat:soatVal, seguro, impuesto, gasolina, mant,
+    costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
+    avaluoFasecolda: av?.precio||null, avaluoAnioRef: av?.anioRef||null,
+    cc, tipoVehiculo: soatCat, tipoLabel
+  };
+}
+
+// ── Slot management ──────────────────────────────────────────
+function setTipo(idx, tipo) {
+  tipoSlot[idx]=tipo;
+  const slot=document.getElementById(`slot-${idx}`);
+  slot.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('active',
+    (tipo==='nuevo'&&b.textContent.includes('Nuevo'))||(tipo==='usado'&&b.textContent.includes('Usado'))
+  ));
+  document.getElementById(`km-row-${idx}`)?.classList.toggle('hidden-km',tipo==='nuevo');
+}
+
+function addCarSlot() {
+  if (numSlots>=3) return;
+  const idx=numSlots;
+  const cont=document.getElementById('car-slots');
+  const opts=indice?Object.keys(indice).sort().map(m=>`<option value="${m}">${m}</option>`).join(''):'';
+  const vsp=document.createElement('div'); vsp.className='vs-pill'; vsp.textContent='VS'; cont.appendChild(vsp);
+  const sl=document.createElement('div'); sl.className='car-slot'; sl.id=`slot-${idx}`; sl.dataset.slot=idx;
+  sl.innerHTML=`
+    <button class="btn-remove-slot" onclick="removeCarSlot(${idx})">✕</button>
+    <div class="slot-header"><span class="slot-label">Opción ${idx+1}</span>
+      <div class="slot-type-toggle">
+        <button class="type-btn active" onclick="setTipo(${idx},'usado')">Usado</button>
+        <button class="type-btn" onclick="setTipo(${idx},'nuevo')">Nuevo 0km</button>
+      </div>
+    </div>
+    <div class="selector-hint"><div class="dot"></div><span>Elige marca, modelo o año en cualquier orden</span></div>
+    <div class="slot-selector-grid">
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Marca</label><button class="sl-reset-btn" id="reset-marca-${idx}" onclick="resetCampo(${idx},'marca')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-marca-${idx}" onchange="onMarcaChange(${idx})"><option value="">— Marca —</option>${opts}</select></div>
+        <div class="sl-count" id="cnt-marca-${idx}"></div>
+      </div>
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Modelo <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-modelo-${idx}" onclick="resetCampo(${idx},'modelo')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-modelo-${idx}" onchange="onModeloChange(${idx})" disabled><option value="">Primero elige marca</option></select></div>
+        <div class="sl-count" id="cnt-modelo-${idx}"></div>
+      </div>
+      <div class="sl-field">
+        <div class="sl-field-header"><label>Año <span class="fl-badge">filtrado</span></label><button class="sl-reset-btn" id="reset-anio-${idx}" onclick="resetCampo(${idx},'anio')">✕</button></div>
+        <div class="sl-select-wrap"><select id="sel-anio-${idx}" onchange="onAnioChange(${idx})" disabled><option value="">Año</option></select></div>
+        <div class="sl-count" id="cnt-anio-${idx}"></div>
+      </div>
+    </div>
+    <div class="slot-price-row">
+      <div class="sl-field">
+        <label>Precio pedido <span class="tip" data-tip="El precio al que te lo están ofreciendo.">i</span></label>
+        <div class="input-money"><span class="input-pre">$</span><input type="text" class="sl-precio" placeholder="0" oninput="fmtMoney(this)"/></div>
+        <div class="avaluo-hint" id="avaluo-${idx}"></div>
+      </div>
+      <div class="sl-field narrow slot-km" id="km-row-${idx}">
+        <label>Km actuales</label>
+        <div class="input-money"><input type="text" class="sl-km" placeholder="30,000" oninput="fmtNum(this)"/><span class="input-suf">km</span></div>
+      </div>
+    </div>`;
+  cont.appendChild(sl);
+  cont.classList.add('tres-slots');
+  tipoSlot[idx] = 'usado';
+  slotState[idx] = { marca:'', modelo:'', anio:'' };
+  numSlots++;
+  document.getElementById('btn-add-car').classList.toggle('disabled', numSlots>=3);
+  if (indice) poblarMarca(idx);
+}
+
+function removeCarSlot(idx) {
+  const sl=document.getElementById(`slot-${idx}`);
+  if(sl?.previousElementSibling?.classList.contains('vs-pill')) sl.previousElementSibling.remove();
+  sl?.remove();
+  numSlots = Math.max(2, numSlots-1);
+  slotState[idx] = { marca:'', modelo:'', anio:'' };
+  if (numSlots <= 2) document.getElementById('car-slots').classList.remove('tres-slots');
+  document.getElementById('btn-add-car').classList.remove('disabled');
+}
+
+// ── Defaults ─────────────────────────────────────────────────
+function toggleDefaults() {
+  const p=document.getElementById('defaults-panel');
+  document.getElementById('toggle-arrow').textContent=p.classList.toggle('hidden')?'▾':'▴';
+}
+function leerDefaults() {
+  defaults.kmAnio =(parseInt((document.getElementById('def-km').value||'').replace(/\D/g,''))||10000);
+  defaults.cdtRate=(parseFloat(document.getElementById('def-cdt').value)||12)/100;
+  defaults.ciudad = document.getElementById('def-ciudad').value;
+  defaults.anos   = parseInt(document.getElementById('def-anos')?.value||'5')||5;
+}
+
+// ── Análisis ─────────────────────────────────────────────────
+function analizarTodo() {
+  leerDefaults();
+  const carros=[];
+  for(let i=0;i<numSlots;i++){
+    const sl=document.getElementById(`slot-${i}`); if(!sl) continue;
+    const {marca, modelo:linea, anio} = slotState[i]||{};
+    const precio=parseInt((sl.querySelector('.sl-precio').value||'').replace(/\D/g,''));
+    const km    =parseInt((sl.querySelector('.sl-km')?.value||'').replace(/\D/g,''))||0;
+    if(!marca||!linea||!anio||!precio){shake(sl);mostrarError(sl,'Completa todos los campos.');return;}
+    carros.push({marca,linea,anio,precio,km,tipo:tipoSlot[i]});
+  }
+  if(!carros.length) return;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  runLoadingAnim().then(()=>{
+    const res=carros.map(c=>calcular(c));
+    document.getElementById('loading-overlay').classList.add('hidden');
+    renderResultados(res);
+  });
+}
+
+// ── Render resultados ─────────────────────────────────────────
+
+// ── Pros y contras por opción ────────────────────────────────
+function generarProsContras(resultados, anos) {
+  // Retorna { marca: [{ tipo:'pro'|'con', texto:'' }] }
+  const result = {};
+
+  const masBarato = resultados.reduce((a,b) => a.costoNeto < b.costoNeto ? a : b);
+  const masCaro   = resultados.reduce((a,b) => a.costoNeto > b.costoNeto ? a : b);
+
+  resultados.forEach((r, i) => {
+    const pros = [];
+    const cons = [];
+    const nombre = r.nombre.split('·')[0].trim();
+    const marca  = r.marca?.toUpperCase() || nombre.toUpperCase();
+
+    // ── Económico ──
+    if (r.costoNeto === Math.min(...resultados.map(x=>x.costoNeto))) {
+      const diff = Math.abs(r.costoNeto - masCaro.costoNeto);
+      pros.push(`Más económico: ahorra ${fmtCOP(diff)} en ${anos} años frente a la otra opción`);
+    } else {
+      const diff = Math.abs(r.costoNeto - masBarato.costoNeto);
+      cons.push(`Cuesta ${fmtCOP(diff)} más en ${anos} años que la opción más económica`);
+    }
+
+    // ── Gasolina ──
+    const minGas = Math.min(...resultados.map(x=>x.gasolina));
+    const maxGas = Math.max(...resultados.map(x=>x.gasolina));
+    if (r.gasolina === minGas && resultados.length > 1) {
+      pros.push(`Menor consumo de gasolina: ${r.kmGalon} km/gal`);
+    } else if (r.gasolina === maxGas && resultados.length > 1) {
+      cons.push(`Mayor gasto en gasolina: ${fmtCOP(r.gasolina)}/año`);
+    }
+
+    // ── Mantenimiento ──
+    const minMant = Math.min(...resultados.map(x=>x.mant));
+    if (r.mant === minMant && resultados.length > 1) {
+      pros.push('Mantenimiento más económico');
+    } else if (r.mant > minMant * 1.5) {
+      cons.push(`Mantenimiento costoso: ${fmtCOP(r.mant)}/año — repuestos importados o talleres especializados`);
+    }
+
+    // ── Reventa ──
+    const maxRev = Math.max(...resultados.map(x=>x.reventa));
+    if (r.reventa === maxRev && resultados.length > 1) {
+      pros.push(`Mejor reventa estimada: ${fmtCOP(r.reventa)}`);
+    }
+
+    // ── Avalúo vs precio ──
+    if (r.avaluoFasecolda && r.precio < r.avaluoFasecolda * 0.93) {
+      const pct = Math.round((1 - r.precio/r.avaluoFasecolda) * 100);
+      pros.push(`Precio ${pct}% por debajo del avalúo oficial — posiblemente buen negocio`);
+    } else if (r.avaluoFasecolda && r.precio > r.avaluoFasecolda * 1.07) {
+      cons.push(`Precio por encima del avalúo oficial — vale negociar`);
+    }
+
+    // ── Kilometraje ──
+    if (r.km > 0) {
+      const edad = new Date().getFullYear() - parseInt(r.anio);
+      if (edad > 0) {
+        const kmPorAnio = Math.round(r.km / edad);
+        if (kmPorAnio < 8000) {
+          pros.push(`Kilometraje muy bajo: ${r.km.toLocaleString('es-CO')} km en ${edad} año${edad>1?'s':''} (${kmPorAnio.toLocaleString('es-CO')} km/año)`);
+        } else if (kmPorAnio > 20000) {
+          cons.push(`Kilometraje alto: ${r.km.toLocaleString('es-CO')} km en ${edad} año${edad>1?'s':''} — revisar desgaste`);
+        }
+      }
+    }
+
+    // ── Premium/aspiracional ──
+    const isPremium = /AUDI|BMW|MERCEDES|PORSCHE|LAND ROVER|VOLVO|LEXUS|JAGUAR|MASERATI|FERRARI/i.test(nombre);
+    if (isPremium) {
+      pros.push('Marca premium: diseño, tecnología y experiencia de manejo diferenciados');
+      cons.push('El costo de mantenimiento y repuestos es significativamente más alto');
+    } else if (/TOYOTA|MAZDA|HONDA/i.test(nombre)) {
+      pros.push('Marca con alta reputación de confiabilidad — menos sorpresas en el taller');
+    }
+
+    result[i] = { nombre, pros, cons };
+  });
+
+  return result;
+}
+
+function renderResultados(res) {
+  document.getElementById('results-section').classList.remove('hidden');
+  document.getElementById('compare-card').style.marginBottom='0';
+  const anos = defaults.anos || 5;
+  const minC = Math.min(...res.map(r=>r.costoNeto));
+  const maxC = Math.max(...res.map(r=>r.costoNeto));
+  const ganI = res.findIndex(r=>r.costoNeto===minC);
+  const cont  = document.getElementById('comp-cards'); cont.innerHTML='';
+
+  // Tooltips por variable
+  const kmAnioFmt = (defaults.kmAnio||10000).toLocaleString('es-CO');
+  const tips = {
+    soat: `El SOAT es el seguro obligatorio que todo carro debe tener en Colombia. El precio depende del tipo de vehículo (campero o sedan), el tamaño del motor y la edad del carro. Este valor está actualizado para 2026.`,
+    seguro: `El seguro voluntario que cubre accidentes, robo y daños. Este estimado es para un seguro intermedio — no el más básico ni el más caro. El precio real varía según la aseguradora, el historial del conductor y la ciudad.`,
+    impuesto: `El impuesto anual que se paga a la alcaldía por tener el carro. Se calcula sobre el valor oficial del vehículo: hasta $57M paga el 1.5%, entre $57M y $129M paga 2.5%, y más de $129M paga 3.5%. En Bogotá se añaden $34.000 de semaforización. Pagando a tiempo (pronto pago) tienes 10% de descuento.`,
+    gasolina: `Calculado con ${kmAnioFmt} km al año y gasolina corriente a $16.000 por galón. El rendimiento estimado varía según el motor del vehículo. Puedes cambiar los km/año en Supuestos.`,
+    mantenimiento: `Incluye aceite, filtros, frenos, llantas, lavadas y revisiones del año. Las marcas europeas como Audi, BMW o Mercedes suelen ser más costosas de mantener porque sus repuestos son importados. Marcas como Toyota, Mazda o Kia generalmente salen más económicas.`,
+    reventa: `Estimación de lo que podrías recibir si vendes el carro al final del período. Los carros pierden más valor los primeros años y luego se estabilizan. El valor exacto depende del estado, los kilómetros y la demanda cuando vendas.`,
+    avaluo: `Precio de referencia oficial que el gobierno asigna a ese modelo y año. Lo usan aseguradoras y bancos como base. Si el precio pedido es menor a este valor, puede ser una buena oportunidad. Si es mayor, tiene sentido negociar.`,
+  };;
+
+  res.forEach((r,i)=>{
+    const win = i===ganI;
+    const pctCosto = Math.round(((r.costoNeto - minC)/(maxC - minC || 1)) * 100);
+    const pctBar   = 100 - pctCosto; // mayor barra = más económico
+
+    const card = document.createElement('div');
+    card.className = 'comp-card' + (win?' winner':'');
+    card.innerHTML = `
+      ${win?'<div class="winner-badge">Más económico</div>':''}
+      <div>
+        <div class="comp-type-tag">${r.tipoLabel} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}${r.avaluoFasecolda?' · Avalúo oficial':''}</div>
+        <div class="comp-car-name">${r.nombre}</div>
+        <div class="comp-car-sub">${r.anio} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin-top:4px">${fmtCOP(r.precio)}</div>
+      </div>
+      <div class="comp-metrics">
+        <div class="comp-metric">
+          <span class="cm-label">SOAT / año <i class="var-tip${i>0?' left':''}" data-tip="${tips.soat}">i</i></span>
+          <span class="cm-val">${fmtCOP(r.soat)}</span>
+        </div>
+        <div class="comp-metric">
+          <span class="cm-label">Seguro / año <i class="var-tip${i>0?' left':''}" data-tip="${tips.seguro}">i</i></span>
+          <span class="cm-val">${fmtCOP(r.seguro)}</span>
+        </div>
+        <div class="comp-metric">
+          <span class="cm-label">Impuesto / año <i class="var-tip${i>0?' left':''}" data-tip="${tips.impuesto}">i</i></span>
+          <span class="cm-val">${fmtCOP(r.impuesto)}</span>
+        </div>
+        <div class="comp-metric">
+          <span class="cm-label">Gasolina / año <i class="var-tip${i>0?' left':''}" data-tip="${tips.gasolina}">i</i></span>
+          <span class="cm-val ${mejorPeor(res,'gasolina',i)}">${fmtCOP(r.gasolina)}</span>
+        </div>
+        <div class="comp-metric">
+          <span class="cm-label">Mantenimiento / año <i class="var-tip${i>0?' left':''}" data-tip="${tips.mantenimiento}">i</i></span>
+          <span class="cm-val">${fmtCOP(r.mant)}</span>
+        </div>
+        <div class="cm-divider"></div>
+        <div class="comp-metric">
+          <span class="cm-label">Reventa estimada <i class="var-tip${i>0?' left':''}" data-tip="${tips.reventa}">i</i></span>
+          <span class="cm-val" style="color:var(--gain)">${fmtCOP(r.reventa)}</span>
+        </div>
+        ${r.avaluoFasecolda?`
+        <div class="comp-metric">
+          <span class="cm-label">Avalúo oficial <i class="var-tip${i>0?' left':''}" data-tip="${tips.avaluo}">i</i></span>
+          <span class="cm-val" style="color:var(${r.precio<=r.avaluoFasecolda?'--gain':'--cost'})">${fmtCOP(r.avaluoFasecolda)}</span>
+        </div>`:''}
+      </div>
+      <div class="comp-total">
+        <span class="comp-total-label">Costo neto ${anos} años</span>
+        <span class="comp-total-val">-${fmtCOP(r.costoNeto)}</span>
+
+      </div>`;
+    cont.appendChild(card);
+  });
+
+  const ref=res.reduce((a,b)=>a.precio<b.precio?a:b);
+  const cdt=document.createElement('div'); cdt.className='comp-card cdt-card';
+  cdt.innerHTML=`
+    <div>
+      <div class="comp-type-tag">Alternativa financiera</div>
+      <div class="comp-car-name">¿Y si lo inviertes?</div>
+      <div class="comp-car-sub">Referencia: CDT al ${Math.round(defaults.cdtRate*100)}% E.A. · capital ${fmtCOP(ref.precio)}</div>
+    </div>
+    <div class="comp-metrics">
+      <div class="comp-metric"><span class="cm-label">Capital inicial</span><span class="cm-val">${fmtCOP(ref.precio)}</span></div>
+      <div class="comp-metric"><span class="cm-label">Tasa CDT</span><span class="cm-val">${Math.round(defaults.cdtRate*100)}% E.A.</span></div>
+      <div class="comp-metric"><span class="cm-label">Horizonte</span><span class="cm-val">${anos} años</span></div>
+      <div class="cm-divider"></div>
+      <div class="comp-metric"><span class="cm-label">SOAT, seguro, impuestos</span><span class="cm-val" style="color:rgba(255,255,255,0.5)">$0 / año</span></div>
+      <div class="comp-metric"><span class="cm-label">Capital al final</span><span class="cm-val">${fmtCOP(Math.round(ref.precio*Math.pow(1+defaults.cdtRate,anos)))}</span></div>
+    </div>
+    <div class="comp-total">
+      <span class="comp-total-label">Ganancia en ${anos} años</span>
+      <span class="comp-total-val positive">+${fmtCOP(ref.cdtGanancia)}</span>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:6px;line-height:1.4;">Con ${fmtCOP(ref.precio)} en CDT,<br/>en vez de gastar -${fmtCOP(ref.costoNeto)} en ese carro.</p>
+    </div>`;
+  cont.appendChild(cdt);
+
+  // Render pros y contras
+  const prosContrasData = generarProsContras(res, anos);
+  const insightsEl = document.getElementById('comp-cards').parentElement;
+  let insightsBlock = document.getElementById('insights-block');
+  if (!insightsBlock) {
+    insightsBlock = document.createElement('div');
+    insightsBlock.id = 'insights-block';
+    insightsBlock.className = 'pros-contras-grid';
+    const detailEl = document.querySelector('.detail-wrapper') || insightsEl.children[2];
+    insightsEl.insertBefore(insightsBlock, detailEl);
+  }
+  insightsBlock.innerHTML = Object.values(prosContrasData).map(({nombre, pros, cons}) => `
+    <div class="pc-card">
+      <div class="pc-header">${nombre}</div>
+      <div class="pc-body">
+        ${pros.map(p=>`<div class="pc-row pro"><span class="pc-icon">+</span><span>${p}</span></div>`).join('')}
+        ${cons.map(c=>`<div class="pc-row con"><span class="pc-icon">−</span><span>${c}</span></div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  buildDetailTable(res, anos);
+  setTimeout(()=>document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+function mejorPeor(res,campo,idx){
+  if(res.length<2) return '';
+  const vals=res.map(r=>r[campo]);
+  return vals[idx]===Math.min(...vals)?'best':vals[idx]===Math.max(...vals)?'worst':'';
+}
+function scoreStars(c,todos){
+  const mn=Math.min(...todos.map(r=>r.costoNeto)),mx=Math.max(...todos.map(r=>r.costoNeto));
+  const s=Math.round(5-((c-mn)/(mx-mn||1))*4);
+  let h=''; for(let i=1;i<=5;i++) h+=`<div class="score-dot${i<=s?' filled':''}"></div>`;
+  return h+`<span class="comp-score-label">${s}/5 en valor</span>`;
+}
+function buildDetailTable(res, anos=5){
+  const ref = res.reduce((a,b)=>a.precio<b.precio?a:b);
+  const cols = res.map(r=>r.nombre.split('·')[0].trim()+' '+r.anio);
+  const cdtCol = `CDT ${Math.round(defaults.cdtRate*100)}%`;
+
+  // Helper para celdas con clase
+  const tdN = (vals, cls='') => vals.map(v=>`<td class="${cls}">${v}</td>`).join('');
+  const tdS = (val, cls='') => `<td class="cdt-col ${cls}">${val}</td>`;
+
+  const thead = `<thead><tr>
+    <th style="text-align:left">Concepto</th>
+    ${cols.map(c=>`<th>${c}</th>`).join('')}
+    ${tdS(cdtCol)}
+  </tr></thead>`;
+
+  // ── Sección supuestos ──
+  const supuestos = `
+    <tr class="section-header"><td colspan="${res.length+2}">Supuestos del análisis</td></tr>
+    <tr class="assumptions"><td>Kilómetros al año</td>${tdN(res.map(_=>`${defaults.kmAnio.toLocaleString('es-CO')} km/año`),'neutral-val')}${tdS('—')}</tr>
+    <tr class="assumptions"><td>Precio gasolina corriente</td>${tdN(res.map(_=>'$16.000/galón'),'neutral-val')}${tdS('—')}</tr>
+    <tr class="assumptions"><td>Rendimiento estimado</td>${tdN(res.map(r=>`${r.kmGalon} km/gal`),'neutral-val')}${tdS('—')}</tr>
+    <tr class="assumptions"><td>Tasa CDT referencia</td>${tdN(res.map(_=>`${Math.round(defaults.cdtRate*100)}% E.A.`),'neutral-val')}${tdS(`${Math.round(defaults.cdtRate*100)}% E.A.`)}</tr>
+    <tr class="assumptions"><td>Pérdida de valor estimada a ${anos} años</td>${tdN(res.map(r=>`Reventa: ${fmtCOP(r.reventa)} aprox.`),'neutral-val')}${tdS('—')}</tr>
+    <tr class="assumptions"><td>Avalúo oficial</td>${tdN(res.map(r=>r.avaluoFasecolda?fmtCOP(r.avaluoFasecolda):'No disponible'),'neutral-val')}${tdS('—')}</tr>
+  `;
+
+  // ── Sección costos de entrada ──
+  const entrada = `
+    <tr class="section-header"><td colspan="${res.length+2}">Costos de entrada — vehículo nuevo 0km</td></tr>
+    ${res.some(r=>r.tipo==='nuevo') ? `<tr><td>Matrícula (nuevo 0km)</td>${res.map(r=>`<td>${r.matricula?'-'+fmtCOP(r.matricula):'—'}</td>`).join('')}<td class="cdt-col">—</td></tr>` : ''}
+  `;
+
+  // ── Sección costos anuales ──
+  const anuales = `
+    <tr class="section-header"><td colspan="${res.length+2}">Costos anuales (× ${anos} años)</td></tr>
+    <tr><td>SOAT / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.soat)),'')}${tdS('—')}</tr>
+    <tr><td>Seguro todo riesgo / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.seguro)),'')}${tdS('—')}</tr>
+    <tr><td>Impuesto vehicular / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.impuesto)),'')}${tdS('—')}</tr>
+    <tr><td>Revisión técnico-mecánica / año</td>${tdN(res.map(_=>'-'+fmtCOP(340000)+'/vez'),'')}${tdS('—')}</tr>
+    <tr><td>Gasolina / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.gasolina)),'')}${tdS('—')}</tr>
+    <tr><td>Mantenimiento / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.mant)),'')}${tdS('—')}</tr>
+    <tr class="total-row"><td>Total costos ${anos} años</td>${tdN(res.map(r=>'-'+fmtCOP(r.totalGast)),'')}${tdS('-'+fmtCOP(ref.precio),'')}</tr>
+  `;
+
+  // ── Sección ingresos ──
+  const ingresos = `
+    <tr class="section-header"><td colspan="${res.length+2}">Ingresos al final del período</td></tr>
+    <tr><td>Reventa estimada</td>${tdN(res.map(r=>'+'+fmtCOP(r.reventa)),'positive')}${tdS('—')}</tr>
+    <tr><td>Capital + intereses CDT</td>${tdN(res.map(_=>'—'),'neutral-val')}${tdS('+'+fmtCOP(Math.round(ref.precio*Math.pow(1+defaults.cdtRate,anos))),'positive')}</tr>
+  `;
+
+  // ── Resultado final ──
+  const resultado = `
+    <tr class="result-row">
+      <td>RESULTADO NETO ${anos} AÑOS</td>
+      ${res.map(r=>`<td class="${r.costoNeto===Math.min(...res.map(x=>x.costoNeto))?'positive-result':'negative-result'}">-${fmtCOP(r.costoNeto)}</td>`).join('')}
+      <td class="positive-result">+${fmtCOP(ref.cdtGanancia)}</td>
+    </tr>
+  `;
+
+  document.getElementById('detail-table').innerHTML = `${thead}<tbody>${supuestos}${entrada}${anuales}${ingresos}${resultado}</tbody>`;
+}
+function toggleDetail(){const p=document.getElementById('detail-panel');document.getElementById('detail-toggle-btn').textContent=p.classList.toggle('hidden')?'Ver desglose completo ▾':'Ocultar desglose ▴';}
+function editarBusqueda(){document.getElementById('results-section').classList.add('hidden');document.getElementById('compare-card').style.marginBottom='';document.getElementById('compare-card').scrollIntoView({behavior:'smooth'});}
+
+// ── Ejemplos ─────────────────────────────────────────────────
+function loadExample(key) {
+  const ej={
+    q3:      {marca:'AUDI',linea:'Q3 (LINEA BASE ESTANDAR)',anio:'2018',precio:80000000,km:30000,tipo:'usado'},
+    mazda2:  {marca:'MAZDA',linea:'2',anio:'2013',precio:30000000,km:120000,tipo:'usado'},
+    onix:    {marca:'CHEVROLET',linea:'ONIX LT',anio:'2022',precio:58000000,km:35000,tipo:'usado'},
+    sportage:{marca:'KIA',linea:'SPORTAGE',anio:'2021',precio:98000000,km:30000,tipo:'usado'},
+    corolla: {marca:'TOYOTA',linea:'COROLLA',anio:'2023',precio:135900000,km:0,tipo:'nuevo'},
+  }[key];
+  if(!ej) return;
+  const sl=document.getElementById('slot-0');
+  sl.querySelector('.sl-marca').value=ej.marca; updateLineas(0);
+  setTimeout(()=>{
+    // Buscar el modelo más parecido
+    const opts=Array.from(sl.querySelector('.sl-modelo').options);
+    const match=opts.find(o=>o.value.includes(ej.linea.split(' ')[0]))||opts[1];
+    if(match) sl.querySelector('.sl-modelo').value=match.value;
+    updateAnios(0);
+    setTimeout(()=>{
+      const anioOpts=Array.from(sl.querySelector('.sl-anio').options);
+      const anioMatch=anioOpts.find(o=>o.value===ej.anio)||anioOpts[1];
+      if(anioMatch) sl.querySelector('.sl-anio').value=anioMatch.value;
+      actualizarSlot(0);
+      sl.querySelector('.sl-precio').value=ej.precio.toLocaleString('es-CO');
+      setTipo(0,ej.tipo);
+      if(ej.tipo==='usado'&&sl.querySelector('.sl-km')) sl.querySelector('.sl-km').value=ej.km.toLocaleString('es-CO');
+    },50);
+  },50);
+  document.getElementById('compare-card').scrollIntoView({behavior:'smooth'});
+}
+
+// ── Loading animation ─────────────────────────────────────────
+function runLoadingAnim(){
+  return new Promise(res=>{
+    const steps=['ls-1','ls-2','ls-3','ls-4'];
+    steps.forEach(id=>{const e=document.getElementById(id);if(e)e.className='loading-step';});
+    let i=0;
+    const iv=setInterval(()=>{
+      if(i>0){const p=document.getElementById(steps[i-1]);if(p)p.className='loading-step done';}
+      if(i<steps.length){const c=document.getElementById(steps[i]);if(c)c.className='loading-step active';i++;}
+      else{clearInterval(iv);setTimeout(res,300);}
+    },450);
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function scrollToSearch(){document.getElementById('compare-card').scrollIntoView({behavior:'smooth'});}
+function fmtCOP(n){if(!n&&n!==0)return'—';return'$'+Math.abs(Math.round(n)).toLocaleString('es-CO');}
+function fmtMoney(el){const v=el.value.replace(/\D/g,'');if(v)el.value=parseInt(v).toLocaleString('es-CO');}
+function fmtNum(el){const v=el.value.replace(/\D/g,'');if(v)el.value=parseInt(v).toLocaleString('es-CO');}
+function shake(el){el.style.animation='none';el.offsetHeight;el.style.animation='shake 0.4s ease';setTimeout(()=>el.style.animation='',500);}
+function mostrarError(sl,msg){let e=sl.querySelector('.slot-error');if(!e){e=document.createElement('p');e.className='slot-error';sl.appendChild(e);}e.textContent=msg;setTimeout(()=>e?.remove(),3000);}
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  const t=document.getElementById('stats-track');
+  if(t) t.innerHTML+=t.innerHTML;
+  cargarDatos();
+});
+</script>
+</body>
+</html>

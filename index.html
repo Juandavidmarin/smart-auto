@@ -51,7 +51,6 @@ select,input{font-family:inherit}
 .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(200,240,80,0.06) 0%,transparent 70%);pointer-events:none}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:52px}
 .hero-visual{position:relative;display:flex;align-items:center;justify-content:center;min-height:280px}
-.car-svg{width:100%;max-width:520px;height:auto;z-index:2;animation:floatCar 5s ease-in-out infinite}
 @keyframes floatCar{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .deco-ring{position:absolute;border-radius:50%;border:1px solid rgba(200,240,80,0.12);pointer-events:none}
 .deco-ring-1{width:320px;height:320px;top:50%;left:50%;transform:translate(-50%,-50%)}
@@ -130,10 +129,8 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .avaluo-hint.warn{color:var(--ink-muted)}
 
 /* DEFAULTS */
-.defaults-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;gap:16px}
 .defaults-summary{font-size:0.8rem;color:var(--ink-muted)}
 .defaults-summary strong{color:var(--ink);font-weight:500}
-.defaults-toggle{background:none;border:none;color:var(--forest);font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:var(--transition)}
 .defaults-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;margin-bottom:18px}
 .defaults-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .dg-group{display:flex;flex-direction:column;gap:7px}
@@ -311,7 +308,6 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 @media(max-width:960px){
   .hero-grid{grid-template-columns:1fr;gap:32px}
   .hero-visual{min-height:200px}
-  .car-svg{max-width:380px}
   .si-row{flex-wrap:wrap}
   .sponsored-grid{grid-template-columns:1fr}
   .how-grid{grid-template-columns:1fr;gap:2px}
@@ -720,6 +716,180 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   .slot-type-toggle { background: #18211d; }
   .hero-comp-table { background: rgba(255,255,255,0.03); }
 }
+
+.yearly-row td{font-size:0.78rem;color:var(--ink-muted);background:var(--surface)}
+.yearly-row.hidden{display:none}
+.yearly-toggle:hover td{background:var(--lime-soft)}
+
+/* ══════════ MOBILE-FIRST OVERHAUL ══════════ */
+/* Touch targets mínimos 44px */
+@media (pointer: coarse) {
+  .type-btn{min-height:40px;padding:9px 14px}
+  .sl-reset-btn,.btn-remove-slot{min-width:36px;min-height:36px;display:inline-flex;align-items:center;justify-content:center}
+  .ss-input, .input-money input, select{min-height:44px;font-size:16px} /* 16px evita zoom iOS */
+  .btn-primary,.btn-add-car,.detail-toggle{min-height:48px}
+}
+
+/* Tooltips: tap en táctil (hover no existe) */
+@media (pointer: coarse) {
+  .var-tip::after,.var-tip::before{opacity:0;pointer-events:none}
+  .var-tip.tip-open::after,.var-tip.tip-open::before{opacity:1}
+  .tip{min-width:22px;min-height:22px;display:inline-flex;align-items:center;justify-content:center}
+}
+
+/* ≤680px: layout móvil */
+@media (max-width: 680px) {
+  .hero{padding:28px 0 20px}
+  .hero-title{font-size:clamp(1.9rem,8vw,2.6rem);margin-bottom:14px}
+  .hero-subtitle{font-size:0.92rem;margin-bottom:18px}
+  .social-proof{gap:10px;flex-wrap:wrap}
+  .sp-num{font-size:1.15rem}
+  /* Slots apilados */
+  .car-slots{grid-template-columns:1fr !important;gap:12px}
+  .slot-selector-grid{grid-template-columns:1fr !important;gap:10px}
+  .slot-price-row{grid-template-columns:1fr !important;gap:10px}
+  .slot-km{max-width:none !important}
+  /* Buscador dropdown a ancho completo */
+  .ss-list{max-height:46vh;left:0;right:0}
+  /* Desglose: scroll horizontal con primera columna fija */
+  .detail-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative}
+  .detail-table{min-width:560px}
+  .detail-table td:first-child,.detail-table th:first-child{position:sticky;left:0;background:var(--white);z-index:2;box-shadow:2px 0 4px rgba(0,0,0,0.06);max-width:140px;font-size:0.75rem}
+  .detail-table th,.detail-table td{padding:8px 10px;font-size:0.78rem;white-space:nowrap}
+  /* Cards de resultado apiladas */
+  .comp-cards{grid-template-columns:1fr !important;gap:14px}
+  .cc-header{flex-direction:column;align-items:flex-start;gap:8px}
+  /* Tabla comparativa del hero */
+  .hero-table td,
+  /* Footer marquee más pequeño */
+}
+
+/* ≤390px: pantallas pequeñas (iPhone SE/12 mini) */
+@media (max-width: 390px) {
+  .hero-title{font-size:1.7rem}
+  .container{padding:0 12px}
+  .compare-card{padding:16px 12px}
+  .car-slot{padding:14px 12px}
+  .detail-table td:first-child,.detail-table th:first-child{max-width:110px}
+}
+
+/* iPad / tablet 681-960px: 2 columnas mantienen */
+@media (min-width: 681px) and (max-width: 960px) {
+  .slot-selector-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .slot-selector-grid .sl-field:last-child{grid-column:1 / -1}
+}
+
+/* ═══════════ FIX UI MÓVIL — tabla principal ═══════════ */
+:root{ --ink-soft:#55554C; }
+
+@media (max-width: 860px){
+  /* La tabla principal deja de comprimirse: crece y el wrapper hace scroll */
+  .comp-summary-table{ table-layout:auto !important; width:auto !important; min-width:100%; }
+  .comp-summary-table colgroup,
+  .comp-summary-table col{ width:auto !important; }
+
+  /* Anchos mínimos reales por columna */
+  .comp-summary-table th.cst-head-label,
+  .comp-summary-table tbody td:first-child{
+    min-width:132px; max-width:132px; width:132px;
+    position:sticky; left:0; z-index:3;
+    background:var(--white);
+    box-shadow:1px 0 0 var(--border), 3px 0 6px rgba(26,26,22,0.05);
+    font-size:0.74rem; line-height:1.25;
+    white-space:normal; word-break:normal; overflow-wrap:anywhere;
+  }
+  .comp-summary-table .cst-section td:first-child{ position:static; box-shadow:none; }
+  .comp-summary-table .cst-section td{ white-space:normal; }
+
+  .cst-head-car{ min-width:132px !important; width:132px; padding:12px 10px !important; }
+  .cst-col-veh, .cst-col-cdt{
+    min-width:132px; padding:9px 10px !important;
+    font-size:0.8rem; white-space:nowrap; text-align:right;
+  }
+  .comp-summary-table tbody td:first-child{ text-align:left; }
+
+  /* Encabezado de cada carro: que nada se monte */
+  .cst-car-name{ font-size:0.82rem !important; line-height:1.2; overflow-wrap:anywhere; }
+  .cst-car-sub{ font-size:0.68rem !important; }
+  .cst-car-price{ font-size:0.88rem !important; white-space:nowrap; }
+  .cst-type-tag{ font-size:0.58rem !important; line-height:1.3; white-space:normal; }
+  .cst-winner-badge, .cst-badge-placeholder{ font-size:0.54rem !important; padding:2px 5px !important; white-space:nowrap; }
+  .cst-mensual-hero{ font-size:1.02rem !important; white-space:nowrap; margin-top:6px; }
+  .cst-mensual-hero .cmh-per{ font-size:0.6rem; }
+  .cst-mensual-sub{ font-size:0.55rem; letter-spacing:0.03em; color:var(--ink-soft); line-height:1.2; }
+
+  /* Aviso de que la tabla se desliza */
+  .comp-summary-table-wrap{ position:relative; -webkit-overflow-scrolling:touch; }
+  .comp-summary-table-wrap::after{
+    content:'→ desliza para ver todo';
+    position:sticky; left:0; display:block;
+    font-size:0.66rem; color:var(--ink-soft);
+    padding:6px 10px 8px; background:var(--white);
+  }
+}
+
+@media (max-width: 430px){
+  .comp-summary-table th.cst-head-label,
+  .comp-summary-table tbody td:first-child{ min-width:116px; max-width:116px; width:116px; font-size:0.71rem; }
+  .cst-head-car{ min-width:122px !important; width:122px; }
+  .cst-col-veh, .cst-col-cdt{ min-width:122px; font-size:0.76rem; }
+  .cst-mensual-hero{ font-size:0.95rem !important; }
+}
+
+/* Contraste: texto pequeño legible */
+.cst-mensual-sub, .freq-note, .cst-car-sub{ color:var(--ink-soft); }
+.freq-btn{ color:var(--ink-soft); }
+.freq-btn.active{ color:var(--white); }
+
+/* Toggle de frecuencia cómodo en móvil */
+@media (max-width: 680px){
+  .freq-toggle{ width:100%; }
+  .freq-btn{ flex:1; padding:11px 8px; font-size:0.8rem; }
+  .freq-toggle-wrap{ gap:8px; }
+}
+
+
+/* ═══════ FIX ESTRUCTURAL MÓVIL (verificado por render) ═══════ */
+@media (max-width: 680px){
+  /* Grid real: una columna y ningún hijo que abarque 2 */
+  .slot-selector-grid{ display:grid !important; grid-template-columns:1fr !important; gap:10px !important; }
+  .slot-selector-grid > *{ grid-column:1 / -1 !important; min-width:0 !important; }
+
+  /* Flex real: envolver y permitir que los hijos se encojan */
+  .slot-price-row{ display:flex !important; flex-wrap:wrap !important; gap:10px !important; }
+  .slot-price-row > .sl-field,
+  .slot-price-row > .sl-field.narrow{ flex:1 1 100% !important; min-width:0 !important; max-width:100% !important; }
+
+  .car-slots{ display:flex !important; flex-direction:column !important; gap:12px !important; }
+  .car-slots > *{ min-width:0 !important; max-width:100% !important; }
+
+  /* Nada dentro de un slot puede exceder su caja */
+  .car-slot, .sl-field, .input-money{ min-width:0 !important; max-width:100% !important; }
+  .input-money input, .sl-field input, .sl-field select{ min-width:0 !important; width:100% !important; box-sizing:border-box; }
+  .slot-km{ max-width:100% !important; }
+}
+
+
+/* ═══ Jerarquía: el costo mensual es el protagonista ═══ */
+.cst-car-price{ font-size:0.92rem !important; font-weight:500 !important; color:var(--ink-soft) !important; }
+.cst-mensual-hero{ font-size:1.65rem; font-weight:700; margin-top:10px; line-height:1.05; }
+.cst-mensual-sub{ font-size:0.6rem; }
+@media (max-width: 860px){
+  .cst-car-price{ font-size:0.8rem !important; }
+  .cst-mensual-hero{ font-size:1.22rem !important; margin-top:7px; }
+  .cst-mensual-sub{ font-size:0.58rem; }
+}
+@media (max-width: 430px){
+  .cst-mensual-hero{ font-size:1.12rem !important; }
+}
+/* Tooltip: que nunca se salga de la pantalla */
+.var-tip::after{ max-width:min(78vw, 300px); white-space:normal; }
+
+
+/* Tooltip posicionado por JS (funciona con dedo y con mouse) */
+.var-tip::after{ left:var(--tip-left, 50%) !important; top:var(--tip-top, auto) !important; bottom:auto !important; }
+@media (pointer: coarse){ .var-tip::before{ display:none !important; } }
+
   </style>
 </head>
 <body>
@@ -971,10 +1141,11 @@ select:disabled{opacity:0.5;cursor:not-allowed}
     </div>
     <div class="comp-cards" id="comp-cards"></div>
     <div class="detail-wrapper">
+      <button class="btn-whatsapp" onclick="compartirWhatsApp()" style="width:100%;min-height:48px;background:#25D366;color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">📲 Compartir comparación por WhatsApp</button>
       <button class="detail-toggle" onclick="toggleDetail()" id="detail-toggle-btn"><span class="dt-icon">📊</span> Ver desglose completo por año y concepto ▾</button>
       <div class="detail-panel hidden" id="detail-panel">
         <div class="detail-table-wrapper">
-          <table class="detail-table" id="detail-table"></table>
+          <div class="detail-scroll"><table class="detail-table" id="detail-table"></table></div>
         </div>
         <p class="detail-note">* Revisión técnico-mecánica anual obligatoria para vehículos con más de 5 años desde matrícula. Gasolina con corriente a $16,000/gal. Impuesto sobre avalúo oficial, Decreto 1457/2025. Reventa con curva no lineal ajustada por marca. Valores estimados con fines informativos.</p>
       </div>
@@ -1245,6 +1416,7 @@ function inicializarSelectores() {
     poblarModelo(idx);
     poblarAnio(idx);
   });
+  setTimeout(restaurarEstado, 200);
 }
 
 function poblarMarca(idx) {
@@ -1686,14 +1858,21 @@ function calcular(c) {
   const anosCalc = defaults.anos || 5;
   const TECNO_PRECIO = 340000; // Tarifa promedio 2026 carros livianos (Supertransporte)
   const edadActual = new Date().getFullYear() - parseInt(anio);
+  const desgloseAnual = [];
   for (let y=1;y<=anosCalc;y++) {
-    // Tecnomecánica: anual para carros con más de 5 años desde matrícula
-    // Si el carro ya tiene >5 años HOY, aplica desde el año 1 del análisis
-    // Si es nuevo 0km, aplica desde el año en que cumpla 5 años
     const edadEnAnoY = tipo === 'nuevo' ? y : edadActual + y;
     const aplicaTecno = edadEnAnoY > 5;
     const tecno = aplicaTecno ? TECNO_PRECIO : 0;
-    costosAnu.push(soatVal + seguro + impuesto + tecno + gasolina + mant);
+    // Avalúo del vehículo en el año y (decrece con la curva de reventa)
+    const avaluoY = calcularReventa(avaluoRef, marca, y-1, anio);
+    // Seguro e impuesto se recalculan sobre el avalúo del año
+    const factorAvaluo = avaluoRef > 0 ? avaluoY / avaluoRef : 1;
+    const seguroY   = Math.round(seguro * Math.max(factorAvaluo, 0.55));
+    const impuestoY = Math.round(impuesto * Math.max(factorAvaluo, 0.4));
+    const anual = soatVal + seguroY + impuestoY + tecno + gasolina + mant;
+    costosAnu.push(anual);
+    desgloseAnual.push({ ano: y, soat: soatVal, seguro: seguroY, impuesto: impuestoY,
+                         tecno, gasolina, mantenimiento: mant, total: anual });
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
@@ -1704,7 +1883,7 @@ function calcular(c) {
   // Etiqueta de tipo de vehículo legible
   const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
   const tipoLabel = esMoto ? 'Moto' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
-  return {
+  return { desgloseAnual,
     nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
     soat:soatVal, seguro, impuesto, gasolina, mant,
@@ -1822,6 +2001,7 @@ function recalcularConSupuestos() {
   document.getElementById('loading-overlay').classList.remove('hidden');
   runLoadingAnim().then(() => {
     const res = _ultimosCarros.map(c => calcular(c));
+  window._ultimosResultados = res;
     document.getElementById('loading-overlay').classList.add('hidden');
     renderResultados(res, true); // true = no hacer scroll
   });
@@ -1847,6 +2027,7 @@ function leerDefaults() {
 
 // ── Análisis ─────────────────────────────────────────────────
 function analizarTodo() {
+  guardarEstado();
   leerDefaults();
   const carros=[];
   for(let i=0;i<numSlots;i++){
@@ -1862,6 +2043,7 @@ function analizarTodo() {
   document.getElementById('loading-overlay').classList.remove('hidden');
   runLoadingAnim().then(()=>{
     const res=carros.map(c=>calcular(c));
+    window._ultimosResultados = res;
     document.getElementById('loading-overlay').classList.add('hidden');
     renderResultados(res);
   });
@@ -1953,6 +2135,7 @@ function generarProsContras(resultados, anos) {
 
 function renderResultados(res, skipScroll) {
   document.getElementById('results-section').classList.remove('hidden');
+  setTimeout(()=>{document.getElementById('results-section')?.scrollIntoView({behavior:'smooth',block:'start'});},150);
   document.getElementById('compare-card').style.marginBottom='0';
   leerDefaults();
   actualizarResumenSupuestos();
@@ -2137,6 +2320,15 @@ function buildDetailTable(res, anos=5){
     <tr><td>Gasolina / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.gasolina)),'')}${tdS('—')}</tr>
     <tr><td>Mantenimiento / año</td>${tdN(res.map(r=>'-'+fmtCOP(r.mant)),'')}${tdS('—')}</tr>
     <tr class="total-row"><td>Total costos ${anos} años</td>${tdN(res.map(r=>'-'+fmtCOP(r.totalGast)),'')}${tdS('-'+fmtCOP(ref.precio),'')}</tr>
+    <tr class="section-header yearly-toggle" onclick="document.querySelectorAll('.yearly-row').forEach(r=>r.classList.toggle('hidden'))" style="cursor:pointer">
+      <td colspan="${res.length+2}">📅 Evolución año por año — <span style="font-weight:400">tocar para ver/ocultar</span></td>
+    </tr>
+    ${Array.from({length:anos},(_,yi)=>`
+      <tr class="yearly-row hidden"><td>Año ${yi+1}</td>${res.map(r=>{
+        const d = r.desgloseAnual && r.desgloseAnual[yi];
+        return `<td>${d ? '-'+fmtCOP(d.total) : '—'}</td>`;
+      }).join('')}<td class="cdt-col">—</td></tr>
+    `).join('')}
   `;
 
   // ── Sección ingresos ──
@@ -2260,10 +2452,20 @@ function calcularSeguro(marca, linea, avaluo, cat) {
   return seguroFallback(marca, avaluo);
 }
 
+function tasaSegmento(avaluo) {
+  // Tasa real del mercado por segmento de valor (SeguroCanguro 2026)
+  if (avaluo < 30e6)  return 0.0550;
+  if (avaluo < 50e6)  return 0.0450;
+  if (avaluo < 70e6)  return 0.0400;
+  if (avaluo < 100e6) return 0.0342;
+  if (avaluo < 150e6) return 0.0280;
+  return 0.0259;
+}
 function ajustarSeguro(prima_base, avaluo) {
-  const ref = prima_base / 0.038;
+  // Avalúo implícito usando la tasa del segmento de la prima
+  const ref = prima_base / tasaSegmento(prima_base / 0.038);
   const ratio = avaluo / ref;
-  if (ratio >= 0.5 && ratio <= 1.8) return prima_base;
+  if (ratio >= 0.55 && ratio <= 1.7) return prima_base;
   const aj = 0.5 + 0.5 * Math.sqrt(ratio);
   return Math.round(prima_base * Math.min(Math.max(aj, 0.6), 2.2));
 }
@@ -2342,12 +2544,124 @@ function calcularCombustible(rendimiento, kmAnio, precioGal, precioKwh) {
     return Math.round((kmAnio / 100) * rendimiento.valor * precioKwh);
   }
   if (rendimiento.tipo === 'hibrido') {
-    // km/gal equivalente — multiplicamos por 0.65 porque mezcla gasolina+electrico
-    return Math.round((kmAnio / rendimiento.valor) * precioGal * 0.65);
+    // km/gal equivalente ya captura la eficiencia híbrida — sin doble descuento
+    return Math.round((kmAnio / rendimiento.valor) * precioGal);
   }
   // gasolina normal
   return Math.round((kmAnio / rendimiento.valor) * precioGal);
 }
+
+
+// ── Tooltips por tap en táctil ────────────────────────────────
+document.addEventListener('click', function(e){
+  const tip = e.target.closest('.var-tip, .tip');
+  const wrap = tip ? tip.closest('.var-tip') || tip.parentElement.closest('.var-tip') : null;
+  document.querySelectorAll('.var-tip.tip-open').forEach(t=>{ if(t!==wrap) t.classList.remove('tip-open'); });
+  if (tip && wrap) { wrap.classList.toggle('tip-open'); if(wrap.classList.contains('tip-open')) requestAnimationFrame(()=>posicionarTip(wrap)); e.stopPropagation(); }
+  else if (tip && tip.classList.contains('var-tip')) { tip.classList.toggle('tip-open'); e.stopPropagation(); }
+});
+
+
+// ── Persistencia de la última comparación ─────────────────────
+function guardarEstado() {
+  try {
+    const estado = { slots: [], anos: document.getElementById('def-anos')?.value, km: document.getElementById('def-km')?.value };
+    for (let i=0;i<3;i++) {
+      const sl = document.getElementById(`slot-${i}`);
+      if (!sl) continue;
+      estado.slots.push({
+        idx: i,
+        marca: slotState[i]?.marca || '',
+        modelo: slotState[i]?.modelo || '',
+        anio: slotState[i]?.anio || '',
+        precio: sl.querySelector('.sl-precio')?.value || '',
+        km: sl.querySelector('.sl-km')?.value || '',
+        tipo: tipoSlot[i] || 'usado'
+      });
+    }
+    localStorage.setItem('smartauto_estado', JSON.stringify(estado));
+  } catch(e) {}
+}
+
+function restaurarEstado() {
+  try {
+    const raw = localStorage.getItem('smartauto_estado');
+    if (!raw) return;
+    const estado = JSON.parse(raw);
+    if (estado.anos && document.getElementById('def-anos')) document.getElementById('def-anos').value = estado.anos;
+    if (estado.km && document.getElementById('def-km')) document.getElementById('def-km').value = estado.km;
+    (estado.slots||[]).forEach(s => {
+      if (!s.marca) return;
+      if (s.idx >= 2 && !document.getElementById(`slot-${s.idx}`)) addCarSlot();
+      const sel = document.getElementById(`sel-marca-${s.idx}`);
+      const inp = document.getElementById(`inp-marca-${s.idx}`);
+      if (sel && s.marca) {
+        sel.value = s.marca;
+        if (inp) inp.value = s.marca;
+        slotState[s.idx] = { marca: s.marca, modelo: '', anio: '' };
+        actualizarSlot(s.idx);
+        // Restaurar modelo tras poblar
+        setTimeout(() => {
+          const selM = document.getElementById(`sel-modelo-${s.idx}`);
+          const inpM = document.getElementById(`inp-modelo-${s.idx}`);
+          if (selM && s.modelo) {
+            selM.value = s.modelo;
+            if (inpM) inpM.value = s.modelo;
+            slotState[s.idx].modelo = s.modelo;
+            actualizarSlot(s.idx);
+            setTimeout(() => {
+              const selA = document.getElementById(`sel-anio-${s.idx}`);
+              if (selA && s.anio) { selA.value = s.anio; slotState[s.idx].anio = s.anio; actualizarSlot(s.idx); }
+            }, 80);
+          }
+        }, 80);
+      }
+      const sl = document.getElementById(`slot-${s.idx}`);
+      if (sl) {
+        if (s.precio) sl.querySelector('.sl-precio').value = s.precio;
+        if (s.km) sl.querySelector('.sl-km').value = s.km;
+        if (s.tipo === 'nuevo') setTipo(s.idx, 'nuevo');
+      }
+    });
+  } catch(e) {}
+}
+
+// ── Compartir por WhatsApp ────────────────────────────────────
+function compartirWhatsApp() {
+  if (!window._ultimosResultados || !window._ultimosResultados.length) return;
+  const res = window._ultimosResultados;
+  const anos = defaults.anos || 5;
+  let msg = `🚗 *Comparación SmartAuto* (${anos} años)%0A%0A`;
+  res.forEach((r, i) => {
+    msg += `*${i+1}. ${r.nombre} ${r.anio}*%0A`;
+    msg += `Precio: $${fmtCOP(r.precio)}%0A`;
+    msg += `Costo total real: $${fmtCOP(r.costoNeto)}%0A%0A`;
+  });
+  const masBarato = res.reduce((a,b) => a.costoNeto < b.costoNeto ? a : b);
+  msg += `✅ Más económico: *${masBarato.nombre}*%0A%0A`;
+  msg += `Compara el tuyo en: smart-auto-two.vercel.app`;
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+
+// ── Posicionar tooltip dentro de la pantalla (dedo y mouse) ──
+function posicionarTip(tip){
+  if(!tip) return;
+  const cs = getComputedStyle(tip, '::after');
+  const h = parseFloat(cs.height) || 140;
+  const w = parseFloat(cs.width)  || 260;
+  const r = tip.getBoundingClientRect();
+  let cx = r.left + r.width/2;
+  cx = Math.max(w/2 + 10, Math.min(cx, window.innerWidth - w/2 - 10));
+  let top = r.top - h - 10;
+  if (top < 8) top = r.bottom + 10;
+  if (top + h > window.innerHeight - 8) top = Math.max(8, window.innerHeight - h - 8);
+  tip.style.setProperty('--tip-left', cx + 'px');
+  tip.style.setProperty('--tip-top',  top + 'px');
+}
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('.var-tip'); if (t) requestAnimationFrame(()=>posicionarTip(t));
+});
 
 document.addEventListener('DOMContentLoaded',()=>{
   const t=document.getElementById('stats-track');
