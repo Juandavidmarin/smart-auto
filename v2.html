@@ -1304,7 +1304,8 @@ const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 let segurosData = null;
 let rendimientoData = null;
 let indice   = null;
-let tipoIdx  = {};    // marca -> modelo -> { label, orden, suv }  // marca -> [modelos] — unificado todas las categorías
+let tipoIdx  = {};
+let refAlias = {};    // marca -> nombre mostrado -> { linea real, categoría } (nombres repetidos entre tablas)    // marca -> modelo -> { label, orden, suv }  // marca -> [modelos] — unificado todas las categorías
 let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
 let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
 let soatData = null;
@@ -1344,14 +1345,27 @@ async function cargarDatos() {
     // Normalizamos marca a MAYÚSCULAS para evitar duplicados por casing (ej: 'Audi' vs 'AUDI')
     indice = {};
     tipoIdx = {};
+    refAlias = {};
+    // Nombres que el Ministerio repite en dos tablas (ej. COROLLA CROSS XE-I a gasolina y en Híbridos):
+    // se muestran como opciones separadas, con el tipo al final, para que ambas se puedan elegir.
+    const vecesNombre = {};
+    for (const cat of Object.values(indiceCompleto))
+      for (const [marcaRaw, modelos] of Object.entries(cat))
+        modelos.forEach(m => { const k = marcaRaw.toUpperCase() + '|' + m; vecesNombre[k] = (vecesNombre[k] || 0) + 1; });
+    const SUFIJO_CAT = { automoviles:'Automóvil', camperos_camionetas:'Camioneta', doble_cabina:'Pickup', electricos:'Eléctrico', hibridos:'Híbrido', motos:'Moto', carga:'Carga', ambulancias:'Ambulancia' };
     for (const [catNombre, cat] of Object.entries(indiceCompleto)) {
       for (const [marcaRaw, modelos] of Object.entries(cat)) {
         const marca = marcaRaw.toUpperCase();
         if (!indice[marca]) indice[marca] = new Set();
         if (!tipoIdx[marca]) tipoIdx[marca] = {};
-        modelos.forEach(m => {
+        modelos.forEach(mReal => {
+          let m = mReal;
+          if (vecesNombre[marca + '|' + mReal] > 1) {
+            m = `${mReal} · ${SUFIJO_CAT[catNombre] || catNombre}`;
+            (refAlias[marca] = refAlias[marca] || {})[m] = { linea: mReal, cat: catNombre };
+          }
           indice[marca].add(m);
-          const t = tipoDesdeCategoria(catNombre, m);
+          const t = tipoDesdeCategoria(catNombre, mReal);
           const prev = tipoIdx[marca][m];
           // Si aparece en varias categorías, se prefiere la más descriptiva (la que trae carrocería)
           if (!prev || (prev.orden > t.orden)) tipoIdx[marca][m] = t;
@@ -1381,6 +1395,10 @@ async function cargarDatos() {
         for (const marcaData of Object.values(aniosIdx))
           for (const k of Object.keys(marcaData))
             if (marcaData[k].includes(TABLA_ANIO_MAX)) marcaData[k] = [...extra, ...marcaData[k]];
+        // Los nombres repetidos comparten la lista de años de su nombre real
+        for (const [marca, al] of Object.entries(refAlias))
+          for (const [disp, r] of Object.entries(al))
+            if (aniosIdx[marca]?.[r.linea]) aniosIdx[marca][disp] = aniosIdx[marca][r.linea];
         aniosIdxListo = true;
         // Calcular el año más antiguo disponible
         let minYear = 2025;
@@ -1779,7 +1797,7 @@ function mostrarAvaluo(idx) {
   if (dat) {
     const edadA = new Date().getFullYear() - parseInt(anio);
     const soatCat = (dat.cat==='camperos_camionetas'||dat.cat==='doble_cabina'||tipoIdx[marca]?.[modelo]?.suv||/suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo)) ? 'campero_suv' : 'auto_familiar';
-    const soatV = calcularSOAT(dat.cc, soatCat, edadA);
+    const soatV = Math.round(calcularSOAT(dat.cc, soatCat, edadA) * (dat.cat === 'electricos' ? 0.9 : 1));
     el.textContent = `Avalúo oficial: ${fmtCOP(dat.precio)} · SOAT ${anio}: ${fmtCOP(soatV)}`;
     el.className = 'avaluo-hint';
   } else {
@@ -1800,8 +1818,11 @@ function getSlotValues(idx) {
 
 function getAvaluo(marca, linea, anio) {
   if (!cascada) return null;
-  // Buscar en todas las categorías del cascada completo
+  const alias = refAlias[marca]?.[linea];
+  if (alias) linea = alias.linea;
+  // Buscar en todas las categorías del cascada completo (o solo en la del alias)
   for (const [catNombre, cat] of Object.entries(cascada)) {
+    if (alias && catNombre !== alias.cat) continue;
     const variantes = cat?.[marca]?.[linea];
     if (!variantes) continue;
     // Buscar año exacto primero
@@ -1925,16 +1946,22 @@ function calcularSOATFallback(cc, tipo, edad) {
 }
 
 // ── Impuesto vehicular desde JSON oficial 2026 ──────────────
-function calcularImpuesto(avaluo, ciudad) {
-  if (!impData) return calcularImpuestoFallback(avaluo);
-  const tramos = impData.vehiculos_particulares.tramos;
-  let pct = tramos[tramos.length-1].tarifa_pct;
-  for (const t of tramos) {
-    if (avaluo <= (t.avaluo_hasta || Infinity)) { pct = t.tarifa_pct; break; }
+function calcularImpuesto(avaluo, ciudad, opts = {}) {
+  let impuesto;
+  if (!impData) impuesto = calcularImpuestoFallback(avaluo);
+  else {
+    const tramos = impData.vehiculos_particulares.tramos;
+    let pct = tramos[tramos.length-1].tarifa_pct;
+    for (const t of tramos) {
+      if (avaluo <= (t.avaluo_hasta || Infinity)) { pct = t.tarifa_pct; break; }
+    }
+    if (opts.electrico) pct = Math.min(pct, 1);   // Ley 1964/2019 art. 3: tope del 1 % para eléctricos
+    impuesto = Math.round(avaluo * pct / 100);
   }
-  let impuesto = Math.round(avaluo * pct / 100);
+  // Bogotá: descuento del 30 % para eléctricos e híbridos (solo si se elige Bogotá)
+  if (ciudad === 'bogota' && (opts.electrico || opts.hibrido)) impuesto = Math.round(impuesto * (1 - (impData?.electricos_hibridos?.descuento_pct || 30) / 100));
   // Semaforización Bogotá
-  const sem = (ciudad === 'bogota') ? (impData.semaforización?.valor_fijo || 34000) : 0;
+  const sem = (ciudad === 'bogota') ? (impData?.semaforización?.valor_fijo || 34000) : 0;
   return impuesto + sem;
 }
 
@@ -1953,11 +1980,13 @@ function getImpuestoPct(avaluo) {
 
 // ── Cálculo principal ────────────────────────────────────────
 function calcular(c) {
-  const { marca, linea, anio, precio, km, tipo } = c;
+  const { marca, anio, precio, km, tipo } = c;
+  const lineaMostrada = c.linea;
+  const linea = refAlias[marca]?.[c.linea]?.linea || c.linea;   // nombre real en las tablas
   const man = c.manual || null; // ingreso manual: carro que no está en la tabla oficial
   const fueraTabla = parseInt(anio) > TABLA_ANIO_MAX;
-  const av = (man || fueraTabla) ? null : getAvaluo(marca, linea, anio);
-  const avCat = fueraTabla && !man ? getAvaluo(marca, linea, String(TABLA_ANIO_MAX)) : null; // solo para cilindraje y categoría
+  const av = (man || fueraTabla) ? null : getAvaluo(marca, lineaMostrada, anio);
+  const avCat = fueraTabla && !man ? getAvaluo(marca, lineaMostrada, String(TABLA_ANIO_MAX)) : null; // solo para cilindraje y categoría
   const cc = av?.cc || avCat?.cc || (man ? ({suv:'1600',pickup:'2400',sedan:'1500',hatchback:'1200'}[man.carroceria]||'1600') : '1600');
   const p  = estimarParams(marca, linea, cc, man ? man.carroceria : undefined);
   const devExtra = km > 100000 ? 0.05 : km > 60000 ? 0.02 : 0;
@@ -1966,12 +1995,17 @@ function calcular(c) {
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
   const edadAnios = new Date().getFullYear() - parseInt(anio);
-  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : ((av||avCat)?.cat==='camperos_camionetas'||(av||avCat)?.cat==='doble_cabina'||tipoIdx[marca]?.[linea]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
-  const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
-  const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
-  const seguro    = calcularSeguro(marca, linea, avaluoRef, (av||avCat)?.cat || null);
+  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : ((av||avCat)?.cat==='camperos_camionetas'||(av||avCat)?.cat==='doble_cabina'||tipoIdx[marca]?.[lineaMostrada]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const catOficial = (av||avCat)?.cat || null;
   const rendim   = man ? (man.combustible==='electrico' ? {tipo:'electrico', valor:({suv:18,pickup:20}[man.carroceria]||15)} : man.combustible==='hibrido' ? {tipo:'hibrido', valor:({suv:55,pickup:45}[man.carroceria]||60)} : {tipo:'gasolina', valor:null}) : obtenerRendimiento(marca, linea, (av||avCat)?.cat || null);
   const kmGalon  = rendim.valor || p.kmGalon;
+  // Tipo de motor: define beneficios de ley (Ley 1964/2019 solo para eléctricos puros)
+  const esElectrico = rendim.tipo === 'electrico' || catOficial === 'electricos';
+  const esHibrido   = !esElectrico && (rendim.tipo === 'hibrido' || catOficial === 'hibridos');
+  const motor = esElectrico ? 'Eléctrico' : esHibrido ? 'Híbrido' : 'Gasolina';
+  const soatVal   = Math.round(calcularSOAT(cc, soatCat, edadAnios) * (esElectrico ? 0.9 : 1));   // Ley 1964 art. 4: −10 % SOAT
+  const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad, { electrico: esElectrico, hibrido: esHibrido });
+  const seguro    = calcularSeguro(marca, linea, avaluoRef, catOficial);
   const PRECIO_KWH = defaults.precioKwh || 1000;
   const gasolina  = rendim.valor
     ? calcularCombustible(rendim, defaults.kmAnio, GASOLINA, PRECIO_KWH)
@@ -2005,9 +2039,10 @@ function calcular(c) {
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
   // Etiqueta de tipo de vehículo legible
   const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
-  const tipoLabel = man ? ({suv:'Campero / SUV',pickup:'Pickup',sedan:'Automóvil',hatchback:'Automóvil'}[man.carroceria]||'Automóvil') + (man.combustible==='electrico'?' eléctrico':man.combustible==='hibrido'?' híbrido':'') + ' · ingresado a mano' : esMoto ? 'Moto' : av?.cat==='doble_cabina' ? 'Pickup' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
+  const tipoLabelBase = man ? ({suv:'Campero / SUV',pickup:'Pickup',sedan:'Automóvil',hatchback:'Automóvil'}[man.carroceria]||'Automóvil') + (man.combustible==='electrico'?' eléctrico':man.combustible==='hibrido'?' híbrido':'') + ' · ingresado a mano' : esMoto ? 'Moto' : av?.cat==='doble_cabina' ? 'Pickup' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
+  const tipoLabel = (man || motor === 'Gasolina' || tipoLabelBase === 'Moto' || tipoLabelBase.includes(motor)) ? tipoLabelBase : `${tipoLabelBase} · ${motor}`;
   return { desgloseAnual,
-    nombre:`${marca} · ${linea}`, anio, tipo, precio, marca,
+    nombre:`${marca} · ${lineaMostrada}`, motor, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
     soat:soatVal, seguro, impuesto, gasolina, mant,
     costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
