@@ -1846,8 +1846,8 @@ function calcular(c) {
   const soatCat   = /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
-  const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
-  const rendim   = obtenerRendimiento(marca, linea, av?.categoria || null);
+  const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.cat || null);
+  const rendim   = obtenerRendimiento(marca, linea, av?.cat || null);
   const kmGalon  = rendim.valor || p.kmGalon;
   const PRECIO_KWH = defaults.precioKwh || 1000;
   const gasolina  = rendim.valor
@@ -2513,26 +2513,31 @@ document.addEventListener('mouseover', function(e) {
 // gasolina/hibrido: km/gal  |  electrico: kWh/100km
 function obtenerRendimiento(marca, linea, cat) {
   if (rendimientoData) {
-    const cats = cat
-      ? [cat]
-      : ['automoviles','camperos_camionetas','doble_cabina','electricos','hibridos','motos'];
+    const todas = ['automoviles','camperos_camionetas','doble_cabina','electricos','hibridos','motos'];
+    // La categoría conocida va primero, pero se revisan todas
+    const cats = cat ? [cat, ...todas.filter(c => c !== cat)] : todas;
+    const M = marca.toUpperCase();
+    const lu = linea.toUpperCase();
+    const conv = ([t, v]) => ({ tipo: t==='e'?'electrico':t==='h'?'hibrido':'gasolina', valor: v });
+    // 1) Coincidencia exacta en cualquier categoría (antes de cualquier parcial).
+    //    Evita que "YARIS CROSS XS" tome el rendimiento del "YARIS" a gasolina.
     for (const c of cats) {
-      const md = rendimientoData[c]?.[marca.toUpperCase()];
+      const md = rendimientoData[c]?.[M];
+      if (md && md[linea]) return conv(md[linea]);
+    }
+    // 2) Coincidencia parcial: gana la clave más larga (la más específica)
+    let mejor = null, mejorLen = -1;
+    for (const c of cats) {
+      const md = rendimientoData[c]?.[M];
       if (!md) continue;
-      // Búsqueda exacta
-      if (md[linea]) {
-        const [t, v] = md[linea];
-        return { tipo: t==='e'?'electrico':t==='h'?'hibrido':'gasolina', valor: v };
-      }
-      // Match parcial por inicio del nombre
-      const lu = linea.toUpperCase();
       for (const [k, arr] of Object.entries(md)) {
-        if (lu.startsWith(k.toUpperCase()) || k.toUpperCase().includes(lu.substring(0,6))) {
-          const [t, v] = arr;
-          return { tipo: t==='e'?'electrico':t==='h'?'hibrido':'gasolina', valor: v };
+        const ku = k.toUpperCase();
+        if (lu.startsWith(ku) || ku.includes(lu.substring(0,6))) {
+          if (ku.length > mejorLen) { mejor = arr; mejorLen = ku.length; }
         }
       }
     }
+    if (mejor) return conv(mejor);
   }
   // Fallback: usar estimarParams existente
   return { tipo: 'gasolina', valor: null };
