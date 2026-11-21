@@ -1924,9 +1924,9 @@ const DEVAL_MULT = {
   FIAT: 0.70, FORD: 0.70, CHEVROLET: 0.65, NISSAN: 0.65,
   // Coreanas: buena retención
   KIA: 0.55, HYUNDAI: 0.55,
-  // Japonesas: 70% menos depreciación que la base → multiplicador 0.30
-  TOYOTA: 0.30, HONDA: 0.30, MAZDA: 0.30, SUZUKI: 0.30,
-  SUBARU: 0.30, MITSUBISHI: 0.35, ISUZU: 0.35,
+  // Japonesas: ajuste provisional nov-2026 (0.30 → 0.35) mientras se revisa la depreciación
+  TOYOTA: 0.35, HONDA: 0.35, MAZDA: 0.35, SUZUKI: 0.35,
+  SUBARU: 0.35, MITSUBISHI: 0.40, ISUZU: 0.40,
 };
 const DEVAL_MULT_DEFAULT = 0.65;
 
@@ -2065,7 +2065,9 @@ function calcular(c) {
   const gasolina  = rendim.valor
     ? calcularCombustible(rendim, defaults.kmAnio, GASOLINA, PRECIO_KWH)
     : Math.round((defaults.kmAnio / p.kmGalon) * GASOLINA);
-  const mant      = Math.round(precio * p.mantPct);
+  // Eléctricos: ~45 % menos mantenimiento (Consumer Reports ≈50 %; fuentes Colombia 40–60 %)
+  const MANT_FACTOR_ELECTRICO = 0.55;
+  const mant      = Math.round(precio * p.mantPct * (esElectrico ? MANT_FACTOR_ELECTRICO : 1));
   const costosAnu = [];
   const anosCalc = defaults.anos || 5;
   const TECNO_PRECIO = 340000; // Tarifa promedio 2026 carros livianos (Supertransporte)
