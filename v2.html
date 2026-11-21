@@ -1368,10 +1368,14 @@ async function cargarDatos() {
     inicializarSelectores();
 
     // Fase 2: años exactos en background (~1.5MB) → filtra años al llegar
+    // Año de lanzamiento por referencia (primera aparición en las tablas del Ministerio 2019–2026)
+    window._lanzReq = fetch(`${BASE}/lanzamiento_referencias.json`).then(r => r.ok ? r.json() : {}).catch(() => ({}));
     fetch(`${BASE}/vehiculos_anios.json`)
       .then(r => r.json())
-      .then(d => {
+      .then(async d => {
+        window._lanz = await window._lanzReq;
         aniosIdx = d;
+        aplicarLanzamientos();
         // La tabla oficial llega hasta TABLA_ANIO_MAX: se agregan los años modelo más nuevos (avalúo = precio pedido)
         const extra = []; for (let y = ANIO_MODELO_MAX; y > TABLA_ANIO_MAX; y--) extra.push(y);
         for (const marcaData of Object.values(aniosIdx))
@@ -1620,6 +1624,26 @@ function coincideBusqueda(opcion, q, campo, idx) {
   if (campo !== 'modelo') return false;
   const t = tipoIdx[slotState[idx]?.marca]?.[opcion];
   return !!t && t.label.toLowerCase().includes(q);
+}
+
+
+// ── Ocultar años anteriores al lanzamiento de cada referencia ──
+// Fuente: primera tabla del Ministerio (2019–2026) en la que aparece la referencia, con un año de margen.
+// Referencias que ya estaban en la tabla 2019 no se filtran (no hay forma de saber desde cuándo existen).
+function aplicarLanzamientos() {
+  const L = window._lanz || {};
+  const N = s => String(s).toUpperCase().replace(/\s+/g, ' ').trim();
+  const idx = {};
+  for (const [m, d] of Object.entries(L)) { const o = idx[N(m)] = {}; for (const [k, v] of Object.entries(d)) o[N(k)] = v; }
+  let n = 0;
+  for (const [marca, mods] of Object.entries(aniosIdx || {})) {
+    const lm = idx[N(marca)]; if (!lm) continue;
+    for (const k of Object.keys(mods)) {
+      const desde = lm[N(k)];
+      if (desde) { mods[k] = mods[k].filter(y => y >= desde); n++; }
+    }
+  }
+  window._lanzAplicados = n;
 }
 
 // ── Buscador handlers ───────────────────────────────────────
