@@ -2049,8 +2049,8 @@ function calcular(c) {
   const manHib = man && /hibrido|enchufable/.test(man.combustible);
   if (manHib || (!man && rendim.tipo !== 'electrico' && (rendim.tipo === 'hibrido' || catOficial === 'hibridos'))) {
     tecHib = man ? ({hibrido_ligero:'ligero', hibrido:'completo', enchufable:'enchufable'}[man.combustible] || 'completo') : tecnologiaHibrido(marca.toUpperCase(), linea.toUpperCase());
-    const esSuv = man ? man.carroceria : (tipoIdx[marca]?.[lineaMostrada]?.suv || catOficial === 'camperos_camionetas' ? 'suv' : undefined);
-    const baseGas = estimarParams(marca, linea, cc, esSuv).kmGalon * (FACTOR_MARCA_CONSUMO[marca.toUpperCase()] || 1);
+    // Base a gasolina solo por cilindraje (curva de sedán): el motor ya refleja el peso del carro
+    const baseGas = estimarParams(marca, linea, cc, 'sedan').kmGalon * (FACTOR_MARCA_CONSUMO[marca.toUpperCase()] || 1);
     rendim = { tipo: 'hibrido', valor: Math.round(baseGas * HIBRIDO_TEC[tecHib].factor) };
   }
   const kmGalon  = rendim.valor || p.kmGalon;
