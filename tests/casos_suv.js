@@ -8,13 +8,14 @@ const file = path.resolve(process.argv[2] || 'v2.html');
 
 // [tipo, marca, referencia, año, precio, km, manual, esperado: {motor, mesMin, mesMax}]
 const CASOS = [
-  ['nuevo','SUZUKI','FRONX AT',2026,94.5e6,0,null,{motor:'Híbrido',mesMin:1100,mesMax:1250}],
+  ['nuevo','SUZUKI','FRONX AT',2026,94.5e6,0,null,{motor:'Híbrido ligero',mesMin:1150,mesMax:1350}],
   ['nuevo','KIA','EV2 AIR',2026,90e6,0,{carroceria:'suv',combustible:'electrico'},{motor:'Eléctrico',mesMin:1100,mesMax:1250}],
-  ['nuevo','MG','ZS',2026,110e6,0,null,{motor:'Híbrido',mesMin:1500,mesMax:1800}],
+  ['nuevo','MG','ZS',2026,110e6,0,null,{motor:'Híbrido completo',mesMin:1550,mesMax:1850}],
   ['nuevo','RENAULT','DUSTER ICONIC',2026,101.9e6,0,null,{motor:'Gasolina',mesMin:1500,mesMax:1800}],
   ['usado','BYD','YUAN UP',2025,85.9e6,16500,null,{motor:'Eléctrico',mesMin:1000,mesMax:1200}],
-  ['usado','TOYOTA','COROLLA CROSS XE-I · Híbrido',2022,111.9e6,55500,null,{motor:'Híbrido'}],
-  ['usado','TOYOTA','YARIS CROSS XS',2024,95e6,20000,null,{motor:'Híbrido'}],
+  ['usado','TOYOTA','COROLLA CROSS XE-I · Híbrido',2022,111.9e6,55500,null,{motor:'Híbrido completo'}],
+  ['usado','TOYOTA','YARIS CROSS XS',2024,95e6,20000,null,{motor:'Híbrido completo'}],
+  ['nuevo','JEEP','AVENGER',2026,104e6,0,null,{motor:'Híbrido 48V'}],
   ['usado','MG','MG ZS 1.5L 4AT COM',2023,60e6,30000,null,{motor:'Gasolina'}],
 ];
 

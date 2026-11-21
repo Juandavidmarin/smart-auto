@@ -1664,6 +1664,52 @@ function aplicarLanzamientos() {
   window._lanzAplicados = n;
 }
 
+
+// ══════════════════════════════════════════════════════════════════
+// HÍBRIDOS: reglas por tecnología y marca (editar aquí, no modelo por modelo)
+// Consumo híbrido = consumo a gasolina equivalente (regla por tipo y cilindraje
+// de estimarParams, ajustada por marca) × factor de la tecnología.
+// Factores validados en orden y diferencias con pruebas reales de Motor1
+// (ruta fija Roma–Forlì, nov 2026); los de "completo" incluyen un ajuste
+// estimado por uso urbano, donde estos híbridos ahorran más.
+// ══════════════════════════════════════════════════════════════════
+const HIBRIDO_TEC = {
+  ligero:    { label: 'Híbrido ligero',     factor: 1.05, nota: 'Sistema de 12V: apoya al motor, no mueve el carro solo. Ahorro pequeño.' },
+  h48:       { label: 'Híbrido 48V',        factor: 1.10, nota: 'Sistema de 48V: puede mover el carro a baja velocidad. Ahorro moderado.' },
+  completo:  { label: 'Híbrido completo',   factor: 1.25, nota: 'Puede andar en eléctrico en ciudad. Ahorro importante en trancón.' },
+  completoA: { label: 'Híbrido completo',   factor: 1.45, nota: 'Tecnología híbrida madura (tipo Toyota): el mayor ahorro entre los híbridos.' },
+  enchufable:{ label: 'Híbrido enchufable', factor: 1.25, nota: 'Se calcula sin cargar en casa. Si lo cargas a diario, gastará bastante menos gasolina.' },
+};
+// 1) Palabras en el nombre de la referencia (tienen prioridad sobre la marca)
+const HIBRIDO_PALABRAS = [
+  [/PHEV|PLUG|ENCHUF|DM-?I\b|DMI\b|\bDM\b|\b4XE\b|RECHARGE|E-TRON|\bVOLT\b|TFSI ?E\b|\b\d{3}E\b|\bE-HYBRID PLUG|\bX\d \d{2}E\b|GTE\b/i, 'enchufable'],
+  [/MHEV|MILD|48 ?V/i, 'h48'],
+  [/SHVS|SMART ?HYBRID|M ?HYBRID/i, 'ligero'],
+  [/STRONG|E-?TECH|E-?POWER|HYBRID\+|HEV\b|E:HEV|FULL ?HYBRID|DHT/i, 'completo'],
+];
+// 2) Tecnología típica de cada marca cuando el nombre no la dice
+const HIBRIDO_MARCA = {
+  ligero:    ['SUZUKI', 'MAZDA'],
+  h48:       ['JEEP', 'FIAT', 'PEUGEOT', 'CITROEN', 'OPEL', 'DS', 'MERCEDES BENZ', 'BMW', 'AUDI', 'VOLKSWAGEN', 'VOLVO', 'LAND ROVER', 'JAGUAR', 'PORSCHE', 'CUPRA', 'SEAT', 'SKODA', 'MINI', 'RAM'],
+  completoA: ['TOYOTA', 'LEXUS', 'HONDA', 'HYUNDAI', 'KIA', 'FORD'],
+  completo:  ['RENAULT', 'MG', 'CHERY', 'JAECOO', 'OMODA', 'GREAT WALL MOTOR', 'HAVAL', 'GEELY', 'CHANGAN', 'NISSAN', 'BYD', 'MITSUBISHI', 'JAC', 'DONGFENG', 'GAC'],
+};
+const HIBRIDO_POR_DEFECTO = 'completo';
+// Ajuste de consumo a gasolina por marca (eficiencia general del fabricante)
+const FACTOR_MARCA_CONSUMO = { TOYOTA:1.04, LEXUS:1.04, HONDA:1.04, MAZDA:1.02, KIA:1.02, HYUNDAI:1.02, SUZUKI:1.02,
+  AUDI:0.96, BMW:0.96, 'MERCEDES BENZ':0.96, PORSCHE:0.94, 'LAND ROVER':0.96, VOLVO:0.98,
+  CHERY:0.92, JAC:0.92, GEELY:0.92, MG:0.92, 'GREAT WALL MOTOR':0.94, HAVAL:0.94, CHANGAN:0.92, DONGFENG:0.92 };
+
+function tecnologiaHibrido(marca, linea) {
+  for (const [re, t] of HIBRIDO_PALABRAS) if (re.test(linea)) {
+    // Toyota/Lexus/Honda/Hyundai/Kia marcados como "HEV" son de la familia madura
+    if (t === 'completo' && HIBRIDO_MARCA.completoA.includes(marca)) return 'completoA';
+    return t;
+  }
+  for (const [t, marcas] of Object.entries(HIBRIDO_MARCA)) if (marcas.includes(marca)) return t;
+  return HIBRIDO_POR_DEFECTO;
+}
+
 // ── Buscador handlers ───────────────────────────────────────
 function filtrarOpciones(campo, idx) {
   const inp = document.getElementById(`inp-${campo}-${idx}`);
@@ -1997,12 +2043,21 @@ function calcular(c) {
   const edadAnios = new Date().getFullYear() - parseInt(anio);
   const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : ((av||avCat)?.cat==='camperos_camionetas'||(av||avCat)?.cat==='doble_cabina'||tipoIdx[marca]?.[lineaMostrada]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const catOficial = (av||avCat)?.cat || null;
-  const rendim   = man ? (man.combustible==='electrico' ? {tipo:'electrico', valor:({suv:18,pickup:20}[man.carroceria]||15)} : man.combustible==='hibrido' ? {tipo:'hibrido', valor:({suv:55,pickup:45}[man.carroceria]||60)} : {tipo:'gasolina', valor:null}) : obtenerRendimiento(marca, linea, (av||avCat)?.cat || null);
+  let rendim   = man ? (man.combustible==='electrico' ? {tipo:'electrico', valor:({suv:18,pickup:20}[man.carroceria]||15)} : man.combustible==='hibrido' ? {tipo:'hibrido', valor:({suv:55,pickup:45}[man.carroceria]||60)} : {tipo:'gasolina', valor:null}) : obtenerRendimiento(marca, linea, (av||avCat)?.cat || null);
+  // Híbridos: consumo por regla de tecnología (no el valor plano del archivo)
+  let tecHib = null;
+  const manHib = man && /hibrido|enchufable/.test(man.combustible);
+  if (manHib || (!man && rendim.tipo !== 'electrico' && (rendim.tipo === 'hibrido' || catOficial === 'hibridos'))) {
+    tecHib = man ? ({hibrido_ligero:'ligero', hibrido:'completo', enchufable:'enchufable'}[man.combustible] || 'completo') : tecnologiaHibrido(marca.toUpperCase(), linea.toUpperCase());
+    const esSuv = man ? man.carroceria : (tipoIdx[marca]?.[lineaMostrada]?.suv || catOficial === 'camperos_camionetas' ? 'suv' : undefined);
+    const baseGas = estimarParams(marca, linea, cc, esSuv).kmGalon * (FACTOR_MARCA_CONSUMO[marca.toUpperCase()] || 1);
+    rendim = { tipo: 'hibrido', valor: Math.round(baseGas * HIBRIDO_TEC[tecHib].factor) };
+  }
   const kmGalon  = rendim.valor || p.kmGalon;
   // Tipo de motor: define beneficios de ley (Ley 1964/2019 solo para eléctricos puros)
   const esElectrico = rendim.tipo === 'electrico' || catOficial === 'electricos';
   const esHibrido   = !esElectrico && (rendim.tipo === 'hibrido' || catOficial === 'hibridos');
-  const motor = esElectrico ? 'Eléctrico' : esHibrido ? 'Híbrido' : 'Gasolina';
+  const motor = esElectrico ? 'Eléctrico' : esHibrido ? (HIBRIDO_TEC[tecHib]?.label || 'Híbrido') : 'Gasolina';
   const soatVal   = Math.round(calcularSOAT(cc, soatCat, edadAnios) * (esElectrico ? 0.9 : 1));   // Ley 1964 art. 4: −10 % SOAT
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad, { electrico: esElectrico, hibrido: esHibrido });
   const seguro    = calcularSeguro(marca, linea, avaluoRef, catOficial);
@@ -2039,10 +2094,10 @@ function calcular(c) {
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
   // Etiqueta de tipo de vehículo legible
   const esMoto = /YAMAHA|SUZUKI MOTO|AKT|HONDA MOTOS|KAWASAKI|BAJAJ|HERO|ROYAL ENFIELD|TVS|BENELLI|DUCATI|TRIUMPH|HARLEY/i.test(marca) || /\d{2,3}CC|MOTO|SCOOTER|NAKED|SPORT/i.test(linea);
-  const tipoLabelBase = man ? ({suv:'Campero / SUV',pickup:'Pickup',sedan:'Automóvil',hatchback:'Automóvil'}[man.carroceria]||'Automóvil') + (man.combustible==='electrico'?' eléctrico':man.combustible==='hibrido'?' híbrido':'') + ' · ingresado a mano' : esMoto ? 'Moto' : av?.cat==='doble_cabina' ? 'Pickup' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
+  const tipoLabelBase = man ? ({suv:'Campero / SUV',pickup:'Pickup',sedan:'Automóvil',hatchback:'Automóvil'}[man.carroceria]||'Automóvil') + (motor!=='Gasolina' ? ' · ' + motor : '') + ' · ingresado a mano' : esMoto ? 'Moto' : av?.cat==='doble_cabina' ? 'Pickup' : soatCat === 'campero_suv' ? 'Campero / SUV' : /HILUX|RANGER|AMAROK|FRONTIER|L200|COLORADO|SILVERADO|WINGLE/i.test(linea) ? 'Pickup' : /VAN|MINIVAN|CARNIVAL|SPRINTER/i.test(linea) ? 'Van / Minivan' : /ELECTRICO|ELECTRICA|E-TRON|IONIQ|LEAF|BOLT|ZOE|MODEL|TESLA|BYD|MG ZS E/i.test(linea) ? 'Eléctrico' : 'Automóvil';
   const tipoLabel = (man || motor === 'Gasolina' || tipoLabelBase === 'Moto' || tipoLabelBase.includes(motor)) ? tipoLabelBase : `${tipoLabelBase} · ${motor}`;
   return { desgloseAnual,
-    nombre:`${marca} · ${lineaMostrada}`, motor, anio, tipo, precio, marca,
+    nombre:`${marca} · ${lineaMostrada}`, motor, tecHibrido: tecHib, kmGalReal: kmGalon, notaMotor: tecHib ? HIBRIDO_TEC[tecHib].nota : null, anio, tipo, precio, marca,
     kmGalon:p.kmGalon, devaluacion:devalProm, traspaso, matricula,
     soat:soatVal, seguro, impuesto, gasolina, mant,
     costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
@@ -2158,7 +2213,7 @@ function prepararManual(idx) {
       <div class="sl-field"><label>Tipo</label><div class="sl-select-wrap"><select id="man-carro-${idx}">
         <option value="suv">SUV / Campero</option><option value="sedan">Sedán</option><option value="hatchback">Hatchback</option><option value="pickup">Pickup</option></select></div></div>
       <div class="sl-field"><label>Combustible</label><div class="sl-select-wrap"><select id="man-comb-${idx}">
-        <option value="gasolina">Gasolina</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select></div></div>
+        <option value="gasolina">Gasolina</option><option value="hibrido_ligero">Híbrido ligero (12V/48V)</option><option value="hibrido">Híbrido completo</option><option value="enchufable">Híbrido enchufable</option><option value="electrico">Eléctrico</option></select></div></div>
     </div>
     <p class="manual-note">Como este carro no está en la tabla oficial del Ministerio, usamos el precio pedido como avalúo, igual que hace la ley con los carros nuevos que aún no aparecen en ella. Consumo, seguro y mantenimiento se estiman según el tipo de carro.</p>`;
   grid.after(link);
