@@ -920,6 +920,13 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .slot-selector-grid.hidden,.manual-box.hidden,.manual-link.hidden{display:none !important}
 @media (max-width:680px){.manual-grid{grid-template-columns:1fr}}
 
+
+/* ═══ Tipo de vehículo en el buscador ═══ */
+.ss-list li{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ss-list li .ss-name{min-width:0;overflow-wrap:anywhere}
+.ss-tag{flex-shrink:0;font-size:0.64rem;font-weight:600;letter-spacing:0.02em;padding:2px 7px;border-radius:999px;background:var(--surface,#F3F1EC);color:var(--ink-soft,#55554C);border:1px solid var(--border,#E5E2DA);white-space:nowrap}
+.ss-tag.suv{background:var(--lime-soft,#EEF7D2);color:var(--forest,#1E2B1F);border-color:transparent}
+
   </style>
 </head>
 <body>
@@ -1294,7 +1301,8 @@ const BASE = 'https://raw.githubusercontent.com/Juandavidmarin/smart-auto/main';
 
 let segurosData = null;
 let rendimientoData = null;
-let indice   = null;  // marca -> [modelos] — unificado todas las categorías
+let indice   = null;
+let tipoIdx  = {};    // marca -> modelo -> { label, orden, suv }  // marca -> [modelos] — unificado todas las categorías
 let aniosIdx = null;  // marca -> modelo -> [años exactos desc] — carga en background
 let cascada  = null;  // categoría -> marca -> modelo -> variantes — carga al calcular
 let soatData = null;
@@ -1333,11 +1341,19 @@ async function cargarDatos() {
     // Aplanar el índice: todas las categorías → marca -> [modelos únicos]
     // Normalizamos marca a MAYÚSCULAS para evitar duplicados por casing (ej: 'Audi' vs 'AUDI')
     indice = {};
-    for (const cat of Object.values(indiceCompleto)) {
+    tipoIdx = {};
+    for (const [catNombre, cat] of Object.entries(indiceCompleto)) {
       for (const [marcaRaw, modelos] of Object.entries(cat)) {
         const marca = marcaRaw.toUpperCase();
         if (!indice[marca]) indice[marca] = new Set();
-        modelos.forEach(m => indice[marca].add(m));
+        if (!tipoIdx[marca]) tipoIdx[marca] = {};
+        modelos.forEach(m => {
+          indice[marca].add(m);
+          const t = tipoDesdeCategoria(catNombre, m);
+          const prev = tipoIdx[marca][m];
+          // Si aparece en varias categorías, se prefiere la más descriptiva (la que trae carrocería)
+          if (!prev || (prev.orden > t.orden)) tipoIdx[marca][m] = t;
+        });
       }
     }
     // Convertir Sets a arrays ordenados
@@ -1502,7 +1518,11 @@ function poblarModelo(idx) {
     return;
   }
 
-  let modelos = (indice[marca] || []).slice().sort();
+  let modelos = (indice[marca] || []).slice().sort((a,b) => {
+    const oa = tipoIdx[marca]?.[a]?.orden ?? 5, ob = tipoIdx[marca]?.[b]?.orden ?? 5;
+    const ga = oa >= 8 ? 1 : 0, gb = ob >= 8 ? 1 : 0;   // motos, carga y ambulancias al final
+    return ga - gb || a.localeCompare(b);
+  });
   if (anioN && aniosIdxListo && aniosIdx?.[marca]) {
     modelos = modelos.filter(m => {
       const lista = aniosIdx[marca][m];
@@ -1518,7 +1538,10 @@ function poblarModelo(idx) {
 
   const cnt = document.getElementById(`cnt-modelo-${idx}`);
   const total = (indice[marca]||[]).length;
-  if (anioN && modelos.length < total) {
+  if (modelo && tipoIdx[marca]?.[modelo]) {
+    cnt.textContent = tipoIdx[marca][modelo].label;
+    cnt.className = 'sl-count ok';
+  } else if (anioN && modelos.length < total) {
     cnt.textContent = `${modelos.length} de ${total} para ${anioN}`;
     cnt.className = 'sl-count ok';
   } else {
@@ -1565,13 +1588,38 @@ function poblarAnio(idx) {
   document.getElementById(`reset-anio-${idx}`).className = anio ? 'sl-reset-btn visible' : 'sl-reset-btn';
 }
 
+
+// ── Tipo de vehículo para mostrar en el buscador ──
+const SUV_RE = /VITARA|S-?CROSS|FRONX|JIMNY|\bXL7\b|TIGGO|ICAR|\bZS\b|\bHS\b|XROSS|SPORTAGE|SORENTO|SELTOS|SONET|\bNIRO\b|\bEV[569]\b|TUCSON|SANTA FE|\bKONA\b|CRETA|\bVENUE\b|IONIQ 5|RAV ?4|COROLLA CROSS|YARIS CROSS|FORTUNER|PRADO|LAND CRUISER|HIGHLANDER|BZ4X|URBAN CRUISER|\bCX-?\d|DUSTER|KARDIAN|KOLEOS|ARKANA|CAPTUR|TRACKER|CAPTIVA|EQUINOX|BLAZER|KICKS|QASHQAI|X-?TRAIL|ARIYA|COMPASS|RENEGADE|COMMANDER|AVENGER|WRANGLER|CHEROKEE|T-?CROSS|\bTAOS\b|TIGUAN|NIVUS|\bATTO\b|\bYUAN\b|\bSONG\b|\bTANG\b|SEALION|JAECOO|OMODA|COOLRAY|AZKARRA|HAVAL|JOLION|\bH6\b|ESCAPE|TERRITORY|BRONCO|EXPLORER|\bKUGA\b|HR-?V|WR-?V|CR-?V|ZR-?V|\bPILOT\b|OUTLANDER|ECLIPSE CROSS|\bASX\b|FORESTER|OUTBACK|CROSSTREK|\bXV\b|\bQ[2-8]\b|\bX[1-7]\b|\bGL[ABC]\b|\bEQ[ABC]\b|\bEX[349]0\b|\bXC[469]0\b|\bC40\b|MODEL Y|MODEL X|\b[NRU]X\b|DEEPAL|\bS07\b|\bCS\d\d\b|UNI-?[KT]\b|\bT2\b|DASHING|\bX70\b|ESCALADE|TAHOE|SUBURBAN/i;
+const VAN_RE = /\bAPV\b|ERTIGA|CARNIVAL|SIENNA|STARIA|ODYSSEY|\bH-?1\b|\bVAN\b|MINIVAN|PASAJEROS|HIACE|SPRINTER|TRANSIT|EVERY|CARRY|YOYA|YOYO|HONGGUANG|SHINERAY|MPV/i;
+function tipoDesdeCategoria(cat, modelo) {
+  const suvNombre = SUV_RE.test(modelo);
+  switch (cat) {
+    case 'camperos_camionetas': return VAN_RE.test(modelo) ? { label: 'Van / Minivan', orden: 2, suv: true } : { label: 'SUV / Camioneta', orden: 1, suv: true };
+    case 'automoviles':         return suvNombre ? { label: 'SUV / Camioneta', orden: 1, suv: true } : { label: 'Automóvil', orden: 2, suv: false };
+    case 'doble_cabina':        return suvNombre ? { label: 'SUV / Camioneta', orden: 1, suv: true } : { label: 'Pickup', orden: 3, suv: true };
+    case 'hibridos':            return suvNombre ? { label: 'SUV · Híbrido', orden: 1, suv: true } : { label: 'Híbrido', orden: 4, suv: false };
+    case 'electricos':          return suvNombre ? { label: 'SUV · Eléctrico', orden: 1, suv: true } : { label: 'Eléctrico', orden: 4, suv: false };
+    case 'motos':               return { label: 'Moto', orden: 9, suv: false };
+    case 'carga':               return { label: 'Carga', orden: 9, suv: false };
+    case 'ambulancias':         return { label: 'Ambulancia', orden: 9, suv: false };
+    default:                    return { label: 'Vehículo', orden: 5, suv: false };
+  }
+}
+function coincideBusqueda(opcion, q, campo, idx) {
+  if (opcion.toLowerCase().includes(q)) return true;
+  if (campo !== 'modelo') return false;
+  const t = tipoIdx[slotState[idx]?.marca]?.[opcion];
+  return !!t && t.label.toLowerCase().includes(q);
+}
+
 // ── Buscador handlers ───────────────────────────────────────
 function filtrarOpciones(campo, idx) {
   const inp = document.getElementById(`inp-${campo}-${idx}`);
   const dd  = document.getElementById(`dd-${campo}-${idx}`);
   const q   = inp.value.toLowerCase().trim();
   const opts = campo === 'marca' ? (_marcasDisponibles[idx] || []) : (_modelosDisponibles[idx] || []);
-  const filtradas = q ? opts.filter(o => o.toLowerCase().includes(q)) : opts;
+  const filtradas = q ? opts.filter(o => coincideBusqueda(o, q, campo, idx)) : opts;
   _renderDropdown(dd, filtradas, idx, campo);
   dd.classList.remove('hidden');
 }
@@ -1582,7 +1630,7 @@ function mostrarDropdown(campo, idx) {
   const dd  = document.getElementById(`dd-${campo}-${idx}`);
   const q   = inp.value.toLowerCase().trim();
   const opts = campo === 'marca' ? (_marcasDisponibles[idx] || []) : (_modelosDisponibles[idx] || []);
-  const filtradas = q ? opts.filter(o => o.toLowerCase().includes(q)) : opts;
+  const filtradas = q ? opts.filter(o => coincideBusqueda(o, q, campo, idx)) : opts;
   _renderDropdown(dd, filtradas, idx, campo);
   dd.classList.remove('hidden');
 }
@@ -1592,9 +1640,12 @@ function _renderDropdown(dd, items, idx, campo) {
     dd.innerHTML = '<li class="ss-empty">Sin resultados</li>';
     return;
   }
-  dd.innerHTML = items.map(item =>
-    `<li onmousedown="seleccionarOpcion('${campo}',${idx},this.dataset.val)" data-val="${item.replace(/"/g,'&quot;')}">${item}</li>`
-  ).join('');
+  const marca = slotState[idx]?.marca;
+  dd.innerHTML = items.map(item => {
+    const t = campo === 'modelo' ? tipoIdx[marca]?.[item] : null;
+    const tag = t ? `<span class="ss-tag${t.suv ? ' suv' : ''}">${t.label}</span>` : '';
+    return `<li onmousedown="seleccionarOpcion('${campo}',${idx},this.dataset.val)" data-val="${item.replace(/"/g,'&quot;')}"><span class="ss-name">${item}</span>${tag}</li>`;
+  }).join('');
 }
 
 function seleccionarOpcion(campo, idx, valor) {
@@ -1875,7 +1926,7 @@ function calcular(c) {
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
   const edadAnios = new Date().getFullYear() - parseInt(anio);
-  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : (av?.cat==='camperos_camionetas'||av?.cat==='doble_cabina') ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : (av?.cat==='camperos_camionetas'||av?.cat==='doble_cabina'||tipoIdx[marca]?.[linea]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
   const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
