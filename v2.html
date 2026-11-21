@@ -927,6 +927,8 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 .ss-tag{flex-shrink:0;font-size:0.64rem;font-weight:600;letter-spacing:0.02em;padding:2px 7px;border-radius:999px;background:var(--surface,#F3F1EC);color:var(--ink-soft,#55554C);border:1px solid var(--border,#E5E2DA);white-space:nowrap}
 .ss-tag.suv{background:var(--lime-soft,#EEF7D2);color:var(--forest,#1E2B1F);border-color:transparent}
 
+.ss-list li.ss-manual{color:var(--forest);font-weight:600;font-size:0.82rem;cursor:pointer;justify-content:flex-start}
+.ss-list li.ss-manual:hover{background:var(--lime-soft)}
   </style>
 </head>
 <body>
@@ -1370,6 +1372,11 @@ async function cargarDatos() {
       .then(r => r.json())
       .then(d => {
         aniosIdx = d;
+        // La tabla oficial llega hasta TABLA_ANIO_MAX: se agregan los años modelo más nuevos (avalúo = precio pedido)
+        const extra = []; for (let y = ANIO_MODELO_MAX; y > TABLA_ANIO_MAX; y--) extra.push(y);
+        for (const marcaData of Object.values(aniosIdx))
+          for (const k of Object.keys(marcaData))
+            if (marcaData[k].includes(TABLA_ANIO_MAX)) marcaData[k] = [...extra, ...marcaData[k]];
         aniosIdxListo = true;
         // Calcular el año más antiguo disponible
         let minYear = 2025;
@@ -1453,7 +1460,9 @@ function setStatus(tipo, msg) {
 // Los tres selects (marca, modelo, año) se pueden usar en cualquier orden.
 // Al elegir uno, los otros se filtran reactivamente.
 
-const ANIOS_TODOS = Array.from({length: 2025-2002+1}, (_,i) => 2025-i); // 2025..2002
+const TABLA_ANIO_MAX = 2025;                               // último año modelo que trae la tabla oficial del Ministerio
+const ANIO_MODELO_MAX = new Date().getFullYear() + 1;      // modelos nuevos que ya se venden (ej. 2026 y 2027)
+const ANIOS_TODOS = Array.from({length: ANIO_MODELO_MAX-2002+1}, (_,i) => ANIO_MODELO_MAX-i);
 
 function inicializarSelectores() {
   [0, 1].forEach(idx => {
@@ -1637,7 +1646,7 @@ function mostrarDropdown(campo, idx) {
 
 function _renderDropdown(dd, items, idx, campo) {
   if (!items.length) {
-    dd.innerHTML = '<li class="ss-empty">Sin resultados</li>';
+    dd.innerHTML = `<li class="ss-empty">Sin resultados</li><li class="ss-manual" onmousedown="abrirManualDesde(${idx},'${campo}')">¿No está? Escríbelo a mano →</li>`;
     return;
   }
   const marca = slotState[idx]?.marca;
@@ -1737,10 +1746,15 @@ function mostrarAvaluo(idx) {
     el.textContent = 'Cargando avalúo…'; el.className = 'avaluo-hint warn';
     return;
   }
+  if (parseInt(anio) > TABLA_ANIO_MAX) {
+    el.textContent = `Modelo ${anio}: aún no está en la tabla oficial, se usará el precio pedido como avalúo`;
+    el.className = 'avaluo-hint';
+    return;
+  }
   const dat = getAvaluo(marca, modelo, anio);
   if (dat) {
     const edadA = new Date().getFullYear() - parseInt(anio);
-    const soatCat = (dat.cat==='camperos_camionetas'||dat.cat==='doble_cabina'||/suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo)) ? 'campero_suv' : 'auto_familiar';
+    const soatCat = (dat.cat==='camperos_camionetas'||dat.cat==='doble_cabina'||tipoIdx[marca]?.[modelo]?.suv||/suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(modelo)) ? 'campero_suv' : 'auto_familiar';
     const soatV = calcularSOAT(dat.cc, soatCat, edadA);
     el.textContent = `Avalúo oficial: ${fmtCOP(dat.precio)} · SOAT ${anio}: ${fmtCOP(soatV)}`;
     el.className = 'avaluo-hint';
@@ -1917,8 +1931,10 @@ function getImpuestoPct(avaluo) {
 function calcular(c) {
   const { marca, linea, anio, precio, km, tipo } = c;
   const man = c.manual || null; // ingreso manual: carro que no está en la tabla oficial
-  const av = man ? null : getAvaluo(marca, linea, anio);
-  const cc = av?.cc || (man ? ({suv:'1600',pickup:'2400',sedan:'1500',hatchback:'1200'}[man.carroceria]||'1600') : '1600');
+  const fueraTabla = parseInt(anio) > TABLA_ANIO_MAX;
+  const av = (man || fueraTabla) ? null : getAvaluo(marca, linea, anio);
+  const avCat = fueraTabla && !man ? getAvaluo(marca, linea, String(TABLA_ANIO_MAX)) : null; // solo para cilindraje y categoría
+  const cc = av?.cc || avCat?.cc || (man ? ({suv:'1600',pickup:'2400',sedan:'1500',hatchback:'1200'}[man.carroceria]||'1600') : '1600');
   const p  = estimarParams(marca, linea, cc, man ? man.carroceria : undefined);
   const devExtra = km > 100000 ? 0.05 : km > 60000 ? 0.02 : 0;
   const devaluacion = Math.min(p.devaluacion + devExtra, 0.55);
@@ -1926,7 +1942,7 @@ function calcular(c) {
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
   const edadAnios = new Date().getFullYear() - parseInt(anio);
-  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : (av?.cat==='camperos_camionetas'||av?.cat==='doble_cabina'||tipoIdx[marca]?.[linea]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
+  const soatCat   = man ? ((man.carroceria==='suv'||man.carroceria==='pickup') ? 'campero_suv' : 'auto_familiar') : ((av||avCat)?.cat==='camperos_camionetas'||(av||avCat)?.cat==='doble_cabina'||tipoIdx[marca]?.[linea]?.suv) ? 'campero_suv' : /suv|campero|pickup|tracker|duster|sportage|tucson|creta|kicks|vitara|q3|q5|q7|t-cross|captur|ecosport/i.test(linea) ? 'campero_suv' : 'auto_familiar';
   const soatVal   = calcularSOAT(cc, soatCat, edadAnios);
   const impuesto  = calcularImpuesto(avaluoRef, defaults.ciudad);
   const seguro    = calcularSeguro(marca, linea, avaluoRef, av?.categoria || null);
@@ -2088,6 +2104,14 @@ function prepararManual(idx) {
     <p class="manual-note">Como este carro no está en la tabla oficial del Ministerio, usamos el precio pedido como avalúo, igual que hace la ley con los carros nuevos que aún no aparecen en ella. Consumo, seguro y mantenimiento se estiman según el tipo de carro.</p>`;
   grid.after(link);
   link.after(box);
+}
+function abrirManualDesde(idx, campo) {
+  const typed = (document.getElementById(`inp-${campo}-${idx}`)?.value || '').trim();
+  const marcaSel = slotState[idx]?.marca || '';
+  setManual(idx, true);
+  const mm = document.getElementById(`man-marca-${idx}`), mo = document.getElementById(`man-modelo-${idx}`);
+  if (campo === 'marca') { if (mm) mm.value = typed; }
+  else { if (mm) mm.value = marcaSel; if (mo) mo.value = typed; }
 }
 function setManual(idx, on) {
   window._manual[idx] = on;
