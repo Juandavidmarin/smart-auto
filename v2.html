@@ -977,6 +977,8 @@ select:disabled{opacity:0.5;cursor:not-allowed}
 @media (prefers-reduced-motion: reduce){ #sa-tip, .sa-tip-arrow{ transition:none; } }
 .lbl-nw{ white-space:nowrap; }
 @media (max-width:430px){ .lbl-nw{ white-space:normal; } }
+.ss-tag.motor{ background:transparent; font-variant-numeric:tabular-nums; }
+.ss-tags{ display:flex; gap:4px; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -1618,7 +1620,8 @@ function poblarModelo(idx) {
   const cnt = document.getElementById(`cnt-modelo-${idx}`);
   const total = (indice[marca]||[]).length;
   if (modelo && tipoIdx[marca]?.[modelo]) {
-    cnt.textContent = tipoIdx[marca][modelo].label;
+    const mo = motorTexto(marca, modelo);
+    cnt.textContent = tipoIdx[marca][modelo].label + (mo ? ' · motor ' + mo : '');
     cnt.className = 'sl-count ok';
   } else if (anioN && modelos.length < total) {
     cnt.textContent = `${modelos.length} de ${total} para ${anioN}`;
@@ -1688,8 +1691,31 @@ function tipoDesdeCategoria(cat, modelo) {
 function coincideBusqueda(opcion, q, campo, idx) {
   if (opcion.toLowerCase().includes(q)) return true;
   if (campo !== 'modelo') return false;
-  const t = tipoIdx[slotState[idx]?.marca]?.[opcion];
-  return !!t && t.label.toLowerCase().includes(q);
+  // Cada palabra debe aparecer en el nombre, el motor o el tipo: "tracker 1.2" encuentra la Tracker 1.2 L
+  const marca = slotState[idx]?.marca;
+  const texto = [opcion, motorTexto(marca, opcion).replace(/\s/g,''), tipoIdx[marca]?.[opcion]?.label || ''].join(' ').toLowerCase();
+  return q.split(/\s+/).filter(Boolean).every(w => texto.includes(w));
+}
+
+// Cilindraje de una referencia ("1.2 L"), sacado de la tabla del Ministerio.
+// Se muestra siempre que el nombre no lo traiga ya, para encontrar la versión buscada.
+const _motorCache = {};
+function motorTexto(marca, item) {
+  if (!marca || !item || !cascada) return '';
+  const k = marca + '|' + item;
+  if (k in _motorCache) return _motorCache[k];
+  const al = refAlias[marca]?.[item];
+  const linea = al ? al.linea : item;
+  const ccs = new Set();
+  for (const [catN, cat] of Object.entries(cascada)) {
+    if (al && catN !== al.cat) continue;
+    (cat?.[marca]?.[linea] || []).forEach(v => { const n = parseInt(v.cilindraje); if (n >= 600) ccs.add((n/1000).toFixed(1)); });
+  }
+  const lista = [...ccs].sort();
+  return _motorCache[k] = lista.length ? lista.join(' / ') + ' L' : '';
+}
+function motorVisible(marca, item) {
+  return /\b\d\.\d\s?L?\b/i.test(item) ? '' : motorTexto(marca, item);   // ya viene en el nombre
 }
 
 
@@ -1788,7 +1814,8 @@ function _renderDropdown(dd, items, idx, campo) {
   const marca = slotState[idx]?.marca;
   dd.innerHTML = items.map(item => {
     const t = campo === 'modelo' ? tipoIdx[marca]?.[item] : null;
-    const tag = t ? `<span class="ss-tag${t.suv ? ' suv' : ''}">${t.label}</span>` : '';
+    const mo = campo === 'modelo' ? motorVisible(marca, item) : '';
+    const tag = (mo || t) ? `<span class="ss-tags">${mo ? `<span class="ss-tag motor">${mo}</span>` : ''}${t ? `<span class="ss-tag${t.suv ? ' suv' : ''}">${t.label}</span>` : ''}</span>` : '';
     return `<li onmousedown="seleccionarOpcion('${campo}',${idx},this.dataset.val)" data-val="${item.replace(/"/g,'&quot;')}"><span class="ss-name">${item}</span>${tag}</li>`;
   }).join('');
 }
