@@ -961,6 +961,22 @@ select:disabled{opacity:0.5;cursor:not-allowed}
   .sponsored-section{ background:#1a1726; }
   .sponsored-section .section-title em{ color:#b9acdf; }
 }
+
+/* ═══ Tooltips (nov-2026): un solo globo flotante posicionado por JS ═══ */
+.var-tip::after, .var-tip::before, .tip::after, .tip::before{ display:none !important; content:none !important; }
+.var-tip, .tip{ cursor:pointer; }
+.var-tip:focus-visible, .tip:focus-visible{ outline:2px solid var(--lime); outline-offset:2px; }
+#sa-tip{ position:fixed; z-index:10000; max-width:min(300px, calc(100vw - 24px)); padding:12px 14px;
+  background:#1C2B1E; color:#F2F0EA; border:1px solid #3a4d40; border-radius:10px;
+  font:400 0.8rem/1.55 'DM Sans',sans-serif; text-align:left; white-space:normal; text-transform:none; letter-spacing:0;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35); opacity:0; pointer-events:none; transition:opacity .12s; }
+#sa-tip.on{ opacity:1; }
+.sa-tip-arrow{ position:fixed; z-index:10001; width:0; height:0; border:6px solid transparent; border-top-color:#1C2B1E; border-bottom:0; opacity:0; pointer-events:none; transition:opacity .12s; }
+.sa-tip-arrow.abajo{ border-top:0; border-bottom:6px solid #1C2B1E; }
+.sa-tip-arrow.on{ opacity:1; }
+@media (prefers-reduced-motion: reduce){ #sa-tip, .sa-tip-arrow{ transition:none; } }
+.lbl-nw{ white-space:nowrap; }
+@media (max-width:430px){ .lbl-nw{ white-space:normal; } }
 </style>
 </head>
 <body>
@@ -2067,8 +2083,6 @@ function calcular(c) {
   const avCat = fueraTabla && !man ? getAvaluo(marca, lineaMostrada, String(TABLA_ANIO_MAX)) : null; // solo para cilindraje y categoría
   const cc = av?.cc || avCat?.cc || (man ? ({suv:'1600',pickup:'2400',sedan:'1500',hatchback:'1200'}[man.carroceria]||'1600') : '1600');
   const p  = estimarParams(marca, linea, cc, man ? man.carroceria : undefined);
-  const devExtra = km > 100000 ? 0.05 : km > 60000 ? 0.02 : 0;
-  const devaluacion = Math.min(p.devaluacion + devExtra, 0.55);
   const traspaso  = tipo==='usado' ? Math.round(precio*0.015) : 0;
   const matricula = tipo==='nuevo' ? 900000 : 0;
   const avaluoRef = av?.precio || precio;
@@ -2122,7 +2136,13 @@ function calcular(c) {
   }
   const totalOp     = costosAnu.reduce((a,b)=>a+b,0);
   const totalGast   = precio + traspaso + matricula + totalOp;
-  const reventa     = calcularReventa(precio, marca, anosCalc, anio);
+  // Kilometraje (solo usados con km indicado): cada 10.000 km sobre el promedio (12.000 km/año)
+  // resta 1,5 % al valor de reventa; cada 10.000 km por debajo suma 1 %. Topes −12 % / +6 %.
+  const KM_PROMEDIO_ANIO = 12000;
+  const kmEsperado = Math.max(1, edadAnios) * KM_PROMEDIO_ANIO;
+  const kmDif = (tipo === 'usado' && km > 0) ? (km - kmEsperado) / 10000 : 0;
+  const ajusteKm = kmDif > 0 ? -Math.min(0.12, kmDif * 0.015) : Math.min(0.06, -kmDif * 0.01);
+  const reventa     = Math.round(calcularReventa(precio, marca, anosCalc, anio) * (1 + ajusteKm));
   const costoNeto   = totalGast - reventa;
   const devalProm   = devalAnualPromedio(precio, reventa, anosCalc);
   const cdtGanancia = Math.round(precio * (Math.pow(1+defaults.cdtRate,anosCalc)-1));
@@ -2136,7 +2156,8 @@ function calcular(c) {
     soat:soatVal, seguro, impuesto, gasolina, mant,
     costosAnu, totalOp, totalGast, reventa, costoNeto, cdtGanancia,
     avaluoFasecolda: av?.precio||null, avaluoAnioRef: av?.anioRef||null,
-    cc, tipoVehiculo: soatCat, tipoLabel
+    cc, tipoVehiculo: soatCat, tipoLabel,
+    km, kmEsperado, ajusteKm, esElectrico, precioKwh: PRECIO_KWH
   };
 }
 
@@ -2387,9 +2408,11 @@ function generarProsContras(resultados, anos) {
     const minGas = Math.min(...resultados.map(x=>x.gasolina));
     const maxGas = Math.max(...resultados.map(x=>x.gasolina));
     if (r.gasolina === minGas && resultados.length > 1) {
-      pros.push(`Menor consumo de gasolina: ${r.kmGalon} km/gal`);
+      pros.push(r.esElectrico
+        ? `Menor gasto en energía: ${fmtCOP(r.gasolina)}/año en electricidad cargando en casa`
+        : `Menor gasto en gasolina: ${fmtCOP(r.gasolina)}/año (${r.kmGalReal} km/gal)`);
     } else if (r.gasolina === maxGas && resultados.length > 1) {
-      cons.push(`Mayor gasto en gasolina: ${fmtCOP(r.gasolina)}/año`);
+      cons.push(`Mayor gasto en ${r.esElectrico ? 'electricidad' : 'gasolina'}: ${fmtCOP(r.gasolina)}/año`);
     }
 
     // ── Mantenimiento ──
@@ -2457,13 +2480,13 @@ function renderResultados(res, skipScroll) {
   // Tooltips por variable
   const kmAnioFmt = (defaults.kmAnio||10000).toLocaleString('es-CO');
   const tips = {
-    soat: `El SOAT es el seguro obligatorio que todo carro debe tener en Colombia. El precio depende del tipo de vehículo (campero o sedan), el tamaño del motor y la edad del carro. Este valor está actualizado para 2026.`,
+    soat: `Seguro obligatorio. Su precio depende del tipo de vehículo, el cilindraje y la edad del carro (tarifas 2026). Los eléctricos pagan 10 % menos por ley.`,
     seguro: `El seguro voluntario que cubre accidentes, robo y daños. Este estimado es para un seguro intermedio — no el más básico ni el más caro. El precio real varía según la aseguradora, el historial del conductor y la ciudad.`,
-    impuesto: `El impuesto anual que se paga a la alcaldía por tener el carro. Se calcula sobre el valor oficial del vehículo: hasta $57M paga el 1.5%, entre $57M y $129M paga 2.5%, y más de $129M paga 3.5%. En Bogotá se añaden $34.000 de semaforización. Pagando a tiempo (pronto pago) tienes 10% de descuento.`,
+    impuesto: `Impuesto anual sobre el avalúo oficial del carro: 1,5 % hasta $57 M, 2,5 % hasta $129 M y 3,5 % por encima. Los eléctricos pagan máximo 1 %. En Bogotá, eléctricos e híbridos tienen 30 % de descuento y se suman $34.000 de semaforización.`,
     gasolina: `Calculado con ${kmAnioFmt} km al año y gasolina corriente a $16.000 por galón. El rendimiento estimado varía según el motor del vehículo. Puedes cambiar los km/año en Supuestos.`,
-    mantenimiento: `Incluye aceite, filtros, frenos, llantas, lavadas y revisiones del año. Las marcas europeas como Audi, BMW o Mercedes suelen ser más costosas de mantener porque sus repuestos son importados. Marcas como Toyota, Mazda o Kia generalmente salen más económicas.`,
-    reventa: `Estimación de lo que podrías recibir si vendes el carro al final del período. Los carros pierden más valor los primeros años y luego se estabilizan. El valor exacto depende del estado, los kilómetros y la demanda cuando vendas.`,
-    avaluo: `Precio de referencia oficial que el gobierno asigna a ese modelo y año. Lo usan aseguradoras y bancos como base. Si el precio pedido es menor a este valor, puede ser una buena oportunidad. Si es mayor, tiene sentido negociar.`,
+    mantenimiento: `Aceite, filtros, frenos, llantas y revisiones del año. Las marcas europeas premium cuestan más por repuestos importados. Los eléctricos cuestan cerca de 45 % menos: no tienen aceite de motor, filtros ni embrague, y gastan menos frenos.`,
+    reventa: `Lo que podrías recibir al vender. Depende de la marca, la edad y, en usados, del kilometraje: más de 12.000 km por año de uso baja el valor y menos lo sube un poco.`,
+    avaluo: `Valor oficial del Ministerio de Transporte para ese modelo y año; sobre él se cobra el impuesto. Si el precio pedido está por debajo, puede ser buena oportunidad; si está por encima, vale negociar.`,
   };;
 
   const ref = res.reduce((a,b)=>a.precio<b.precio?a:b);
@@ -2486,7 +2509,7 @@ function renderResultados(res, skipScroll) {
     const win = i === ganI;
     tHead += `<th class="cst-head-car${win?' winner':''}">
       ${win?'<span class="cst-winner-badge">Más económico</span>':'<span class="cst-badge-placeholder">Más económico</span>'}
-      <div class="cst-type-tag">${r.tipoLabel} · ${r.tipo==='nuevo'?'Nuevo 0km':'Usado'}</div>
+      <div class="cst-type-tag">${r.tipoLabel} · ${r.tipo==='nuevo'?'Nuevo 0km':(r.km>0?'Usado · '+r.km.toLocaleString('es-CO')+' km':'Usado · km sin indicar')}</div>
       <div class="cst-car-name">${r.nombre}</div>
       <div class="cst-car-sub">${r.anio}</div>
       <div class="cst-car-price">${fmtCOP(r.precio)}</div>
@@ -2530,7 +2553,15 @@ function renderResultados(res, skipScroll) {
   res.forEach(r => tBody += mkCell(fmtCOP(fDiv(r.impuesto))));
   tBody += mkCdt('—') + '</tr>';
 
-  tBody += `<tr><td>Combustible <i class="var-tip" data-tip="${tips.gasolina}">i</i></td>`;
+  const hayElec = res.some(r=>r.esElectrico), todosElec = res.every(r=>r.esElectrico);
+  const lblEnergia = todosElec ? 'Electricidad' : hayElec ? 'Gasolina o electricidad' : 'Gasolina';
+  const tipEnergia = res.map(r => {
+    const n = r.nombre.split('·')[0].trim();
+    return r.esElectrico
+      ? `${n}: ${r.kmGalReal} kWh cada 100 km × $${r.precioKwh.toLocaleString('es-CO')} por kWh, cargando en casa. En cargadores públicos rápidos el kWh puede costar el doble.`
+      : `${n}: ${r.kmGalReal} km por galón × $16.000 el galón de corriente.`;
+  }).join(' ') + ` Calculado con ${kmAnioFmt} km al año (lo cambias en Supuestos).`;
+  tBody += `<tr><td>${lblEnergia} <i class="var-tip" data-tip="${tipEnergia}">i</i></td>`;
   res.forEach(r => tBody += mkCell(fmtCOP(fDiv(r.gasolina))));
   tBody += mkCdt('—') + '</tr>';
 
@@ -2585,6 +2616,14 @@ function renderResultados(res, skipScroll) {
   tableWrap.className = 'comp-summary-table-wrap';
   tableWrap.innerHTML = `<table class="comp-summary-table n${res.length}">${colgroup}${tHead}${tBody}</table>`;
   cont.appendChild(tableWrap);
+  // El ícono "i" nunca queda solo en una línea: va pegado a la última palabra
+  tableWrap.querySelectorAll('td:first-child > .var-tip').forEach(tip => {
+    const prev = tip.previousSibling; if (!prev || prev.nodeType !== 3) return;
+    const m = prev.textContent.match(/^(.*?)(\S+)\s*$/s); if (!m) return;
+    prev.textContent = m[1];
+    const span = document.createElement('span'); span.className = 'lbl-nw';
+    span.append(m[2] + ' '); tip.replaceWith(span); span.appendChild(tip);
+  });
 
   // Render pros y contras
   const prosContrasData = generarProsContras(res, anos);
@@ -2824,31 +2863,6 @@ function seguroFallback(marca, avaluo) {
 }
 
 
-// ── Tooltips dinámicos — evitar que se corten ─────────────
-document.addEventListener('mouseover', function(e) {
-  const tip = e.target.closest('.var-tip');
-  if (!tip) return;
-  // Forzar reflow para obtener posición real
-  requestAnimationFrame(function() {
-    const after = window.getComputedStyle(tip, '::after');
-    const rect = tip.getBoundingClientRect();
-    const tipWidth = 260;
-    const margin = 16;
-    let leftPct = 50;
-    // Si se sale por la derecha, mover a la izquierda
-    const rightEdge = rect.left + rect.width/2 + tipWidth/2;
-    if (rightEdge > window.innerWidth - margin) {
-      tip.classList.add('left');
-    } else {
-      tip.classList.remove('left');
-    }
-    // Si se sale por la izquierda, centrar diferente
-    const leftEdge = rect.left + rect.width/2 - tipWidth/2;
-    if (leftEdge < margin) {
-      tip.classList.add('right');
-    }
-  });
-});
 
 
 // ── Rendimiento desde JSON de referencia ─────────────────────
@@ -2900,14 +2914,6 @@ function calcularCombustible(rendimiento, kmAnio, precioGal, precioKwh) {
 }
 
 
-// ── Tooltips por tap en táctil ────────────────────────────────
-document.addEventListener('click', function(e){
-  const tip = e.target.closest('.var-tip, .tip');
-  const wrap = tip ? tip.closest('.var-tip') || tip.parentElement.closest('.var-tip') : null;
-  document.querySelectorAll('.var-tip.tip-open').forEach(t=>{ if(t!==wrap) t.classList.remove('tip-open'); });
-  if (tip && wrap) { wrap.classList.toggle('tip-open'); if(wrap.classList.contains('tip-open')) requestAnimationFrame(()=>posicionarTip(wrap)); e.stopPropagation(); }
-  else if (tip && tip.classList.contains('var-tip')) { tip.classList.toggle('tip-open'); e.stopPropagation(); }
-});
 
 
 // ── Persistencia de la última comparación ─────────────────────
@@ -3016,9 +3022,52 @@ function posicionarTip(tip){
   tip.style.setProperty('--tip-left', cx + 'px');
   tip.style.setProperty('--tip-top',  top + 'px');
 }
-document.addEventListener('mouseover', e => {
-  const t = e.target.closest('.var-tip'); if (t) requestAnimationFrame(()=>posicionarTip(t));
-});
+
+
+// ── Tooltips: un solo globo flotante para todos los íconos "i" ─────────────
+(function(){
+  const box = document.createElement('div'); box.id = 'sa-tip'; box.setAttribute('role','tooltip');
+  const arrow = document.createElement('div'); arrow.className = 'sa-tip-arrow';
+  let actual = null;
+  const sel = '.var-tip[data-tip], .tip[data-tip]';
+  function mostrar(el){
+    if (!box.isConnected) { document.body.appendChild(box); document.body.appendChild(arrow); }
+    actual = el; box.textContent = el.dataset.tip; box.classList.add('on'); arrow.classList.add('on');
+    const r = el.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    box.style.left = '0px'; box.style.top = '0px';
+    const w = box.offsetWidth, h = box.offsetHeight, m = 12, gap = 10;
+    const cx = r.left + r.width/2;
+    const left = Math.max(m, Math.min(cx - w/2, vw - w - m));
+    const arriba = r.top - gap - h >= m || r.bottom + gap + h > vh - m && r.top > vh - r.bottom;
+    const top = arriba ? r.top - gap - h : r.bottom + gap;
+    box.style.left = left + 'px'; box.style.top = Math.max(m, top) + 'px';
+    arrow.style.left = (cx - 6) + 'px';
+    arrow.style.top = (arriba ? r.top - gap : r.bottom + gap - 6) + 'px';
+    arrow.classList.toggle('abajo', !arriba);
+  }
+  function ocultar(){ actual = null; box.classList.remove('on'); arrow.classList.remove('on'); }
+  // Mouse: aparece al pasar por encima. Dedo: aparece y desaparece al tocar.
+  let tipoPuntero = 'mouse';
+  document.addEventListener('pointerdown', e => { tipoPuntero = e.pointerType; }, true);
+  document.addEventListener('pointerover', e => { if (e.pointerType !== 'mouse') return; const el = e.target.closest(sel); if (el && el !== actual) mostrar(el); });
+  document.addEventListener('pointerout', e => { if (e.pointerType !== 'mouse') return; const el = e.target.closest(sel); if (el && !el.contains(e.relatedTarget)) ocultar(); });
+  document.addEventListener('click', e => {
+    const el = e.target.closest(sel);
+    if (el) { e.preventDefault(); e.stopPropagation(); (actual === el && tipoPuntero !== 'mouse') ? ocultar() : mostrar(el); }
+    else ocultar();
+  }, true);
+  document.addEventListener('focusin', e => { const el = e.target.closest(sel); if (el && el.matches(':focus-visible')) mostrar(el); }); // solo teclado
+  document.addEventListener('focusout', e => { if (e.target.closest(sel)) ocultar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') ocultar(); });
+  // Al hacer scroll el globo sigue a su ícono; si el ícono sale de la pantalla, se oculta
+  window.addEventListener('scroll', () => { if (!actual) return; const r = actual.getBoundingClientRect();
+    (r.bottom < 0 || r.top > innerHeight) ? ocultar() : mostrar(actual); }, true);
+  window.addEventListener('resize', ocultar);
+  // Accesibles con teclado
+  new MutationObserver(() => document.querySelectorAll(sel).forEach(el => {
+    if (!el.hasAttribute('tabindex')) { el.tabIndex = 0; el.setAttribute('role','button'); el.setAttribute('aria-label','Más información'); }
+  })).observe(document.body, { childList: true, subtree: true });
+})();
 
 document.addEventListener('DOMContentLoaded',()=>{
   const t=document.getElementById('stats-track');
