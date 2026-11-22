@@ -2120,7 +2120,9 @@ function calcular(c) {
   // Híbridos: consumo por regla de tecnología (no el valor plano del archivo)
   let tecHib = null;
   const manHib = man && /hibrido|enchufable/.test(man.combustible);
-  if (manHib || (!man && rendim.tipo !== 'electrico' && (rendim.tipo === 'hibrido' || catOficial === 'hibridos'))) {
+  // Híbrido si la tabla o la categoría lo dicen, o si el nombre oficial lo declara (KIA SPORTAGE HEV)
+  const nombreHib = /\b(HEV|MHEV|PHEV|HYBRID|HIBRIDO|E-TECH|E:HEV)\b/i.test(linea);
+  if (manHib || (!man && rendim.tipo !== 'electrico' && (rendim.tipo === 'hibrido' || catOficial === 'hibridos' || nombreHib))) {
     tecHib = man ? ({hibrido_ligero:'ligero', hibrido:'completo', enchufable:'enchufable'}[man.combustible] || 'completo') : tecnologiaHibrido(marca.toUpperCase(), linea.toUpperCase());
     // Base a gasolina solo por cilindraje (curva de sedán): el motor ya refleja el peso del carro
     const baseGas = estimarParams(marca, linea, cc, 'sedan').kmGalon * (FACTOR_MARCA_CONSUMO[marca.toUpperCase()] || 1);
@@ -2895,6 +2897,30 @@ function seguroFallback(marca, avaluo) {
 // ── Rendimiento desde JSON de referencia ─────────────────────
 // Retorna: { tipo: 'gasolina'|'electrico'|'hibrido', valor: número }
 // gasolina/hibrido: km/gal  |  electrico: kWh/100km
+// La tabla de rendimientos trae a veces UN solo valor para toda una familia con motores muy
+// distintos (todas las Tracker 1.2, 1.8 y 2.0 = 50 km/gal; Chrysler 300 de 2.7 a 6.4 L = 46).
+// Ese valor no describe ninguna versión: en esos casos se usa la regla por cilindraje.
+const _famPlana = {};
+function familiaPlana(cat, M, linea) {
+  const fam = linea.replace('(', ' ').split(/\s+/)[0];
+  const k = cat + '|' + M + '|' + fam;
+  if (k in _famPlana) return _famPlana[k];
+  const md = rendimientoData?.[cat]?.[M] || {};
+  const vals = new Set(), ccs = [];
+  let n = 0;
+  for (const [l, [t, v]] of Object.entries(md)) {
+    if (t !== 'g' || l.replace('(', ' ').split(/\s+/)[0] !== fam) continue;
+    n++; vals.add(v);
+    if (cascada) for (const cc of Object.values(cascada)) (cc?.[M]?.[l] || []).forEach(w => { const x = parseInt(w.cilindraje); if (x >= 600) ccs.push(x); });
+  }
+  return _famPlana[k] = n >= 3 && vals.size === 1 && ccs.length > 0 && Math.max(...ccs) - Math.min(...ccs) >= 300;
+}
+function confiable(cat, M, linea, arr) {
+  const r = { tipo: arr[0]==='e'?'electrico':arr[0]==='h'?'hibrido':'gasolina', valor: arr[1] };
+  if (r.tipo === 'gasolina' && familiaPlana(cat, M, linea)) return { tipo: 'gasolina', valor: null, porCilindraje: true };
+  return r;
+}
+
 function obtenerRendimiento(marca, linea, cat) {
   if (rendimientoData) {
     const todas = ['automoviles','camperos_camionetas','doble_cabina','electricos','hibridos','motos'];
@@ -2907,21 +2933,21 @@ function obtenerRendimiento(marca, linea, cat) {
     //    Evita que "YARIS CROSS XS" tome el rendimiento del "YARIS" a gasolina.
     for (const c of cats) {
       const md = rendimientoData[c]?.[M];
-      if (md && md[linea]) return conv(md[linea]);
+      if (md && md[linea]) return confiable(c, M, linea, md[linea]);
     }
     // 2) Coincidencia parcial: gana la clave más larga (la más específica)
-    let mejor = null, mejorLen = -1;
+    let mejor = null, mejorLen = -1, mejorC = null, mejorK = null;
     for (const c of cats) {
       const md = rendimientoData[c]?.[M];
       if (!md) continue;
       for (const [k, arr] of Object.entries(md)) {
         const ku = k.toUpperCase();
         if (lu.startsWith(ku) || ku.includes(lu.substring(0,6))) {
-          if (ku.length > mejorLen) { mejor = arr; mejorLen = ku.length; }
+          if (ku.length > mejorLen) { mejor = arr; mejorLen = ku.length; mejorC = c; mejorK = k; }
         }
       }
     }
-    if (mejor) return conv(mejor);
+    if (mejor) return confiable(mejorC, M, mejorK, mejor);
   }
   // Fallback: usar estimarParams existente
   return { tipo: 'gasolina', valor: null };
